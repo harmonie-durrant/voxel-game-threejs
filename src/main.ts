@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 // Renderer setup
 const renderer = new THREE.WebGLRenderer();
@@ -11,6 +12,9 @@ const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerH
 camera.position.set(2, 2, 2);
 camera.lookAt(0, 0, 0);
 
+// OrbitControls setup
+const controls = new OrbitControls(camera, renderer.domElement);
+
 // Scene setup
 const scene = new THREE.Scene();
 const geometry = new THREE.BoxGeometry();
@@ -21,7 +25,6 @@ scene.add(cube);
 // Render loop
 function animate() {
   requestAnimationFrame(animate);
-  cube.rotation.y += 0.01;
   renderer.render(scene, camera);
 }
 animate();
