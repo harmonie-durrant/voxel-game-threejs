@@ -14,6 +14,7 @@ camera.lookAt(0, 0, 0);
 
 // OrbitControls setup
 const controls = new OrbitControls(camera, renderer.domElement);
+controls.enabled = true; // Avoid unused vrariable warning
 
 // Scene setup
 const scene = new THREE.Scene();
