@@ -43,7 +43,7 @@ export class World extends THREE.Group {
       },
     }
 
-    constructor(size : worldSize = { width: 32, height: 16 }) {
+    constructor(size : worldSize = { width: 128, height: 32 }) {
         super();
         this.size = size;
         this.data = [];
