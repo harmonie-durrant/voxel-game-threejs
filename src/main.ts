@@ -4,6 +4,7 @@ import Stats from 'stats.js';
 import { World } from './world';
 import { createUI } from './ui';
 import { Player } from './player';
+import { Physics } from './physics';
 
 const stats = new Stats();
 stats.showPanel(0);
@@ -32,6 +33,7 @@ const world = new World();
 world.generate();
 scene.add(world);
 const player = new Player(scene);
+const physics = new Physics(scene);
 
 
 function setupLights() {
@@ -66,6 +68,8 @@ function animate() {
   stats.begin();
   requestAnimationFrame(animate);
   player.applyInputs(dt);
+  player.updateBoundsHelper();
+  physics.update(dt, player, world);
   renderer.render(scene, player.controls.isLocked ? player.camera : orbitCamera);
   stats.end();
 

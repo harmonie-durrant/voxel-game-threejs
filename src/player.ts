@@ -2,6 +2,9 @@ import * as THREE from 'three';
 import { PointerLockControls } from 'three/examples/jsm/Addons.js';
 
 export class Player {
+    radius: number = 0.5;
+    height: number = 1.75;
+
     maxSpeed: number = 10;
     input: THREE.Vector3 = new THREE.Vector3();
     velocity: THREE.Vector3 = new THREE.Vector3();
@@ -10,6 +13,8 @@ export class Player {
     cameraHelper: THREE.CameraHelper = new THREE.CameraHelper(this.camera);
     controls: PointerLockControls = new PointerLockControls(this.camera, document.body);
 
+    boundsHelper: THREE.Mesh;
+
     constructor(scene: THREE.Scene) {
         this.position.set(32, 16, 32);
         scene.add(this.camera);
@@ -17,6 +22,12 @@ export class Player {
 
         document.addEventListener('keydown', this.onKeyDown.bind(this));
         document.addEventListener('keyup', this.onKeyUp.bind(this));
+
+        this.boundsHelper = new THREE.Mesh(
+            new THREE.CylinderGeometry(this.radius, this.radius, this.height, 16),
+            new THREE.MeshBasicMaterial({ wireframe: true })
+        );
+        scene.add(this.boundsHelper);
     }
 
     get position(): THREE.Vector3 {
@@ -31,6 +42,11 @@ export class Player {
         this.controls.moveRight(this.velocity.x * dt);
         this.controls.moveForward(this.velocity.z * dt);
         document.getElementById("player-position")!.innerText = this.toString();
+    }
+
+    updateBoundsHelper() {
+        this.boundsHelper.position.copy(this.position);
+        this.boundsHelper.position.y -= this.height / 2;
     }
 
     onKeyDown(e: KeyboardEvent) {

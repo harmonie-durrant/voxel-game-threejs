@@ -7,6 +7,7 @@ function createPlayerFolder(gui : GUI, player : Player) {
     const playerFolder = gui.addFolder("Player");
     playerFolder.add(player, "maxSpeed", 1, 20).name("Speed");
     playerFolder.add(player.cameraHelper, "visible").name("Show Camera Helper");
+    playerFolder.add(player.boundsHelper, "visible").name("Show Bounds Helper");
 }
 
 function createWorldFolder(gui : GUI, world : World) {
