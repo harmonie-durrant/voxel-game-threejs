@@ -17,20 +17,28 @@ const contactMaterial = new THREE.MeshBasicMaterial({
 const contactGeometry = new THREE.SphereGeometry(0.05, 6, 6);
 
 export class Physics {
+    simulationRate: number = 200;
+    timeStep: number = 1 / this.simulationRate;
+    accumulator: number = 0;
     gravity: number = 32;
-    helpers: THREE.Group;
 
+    helpers: THREE.Group;
+    
     constructor(scene: THREE.Scene) {
         this.helpers = new THREE.Group();
         scene.add(this.helpers);
     }
 
     update (dt : number, player : Player, world : World) {
-        this.helpers.clear();
-        player.velocity.y -= this.gravity * dt;
-        player.applyInputs(dt);
-        player.updateBoundsHelper();
-        this.detectCollisions(player, world);
+        this.accumulator += dt;
+        while (this.accumulator >= this.timeStep) {
+            this.helpers.clear();
+            player.velocity.y -= this.gravity * this.timeStep;
+            player.applyInputs(this.timeStep);
+            player.updateBoundsHelper();
+            this.detectCollisions(player, world);
+            this.accumulator -= this.timeStep;
+        }
     }
 
     broadPhase(player : Player, world : World) {
@@ -90,6 +98,7 @@ export class Physics {
                 if (overlapY < overlapXZ) {
                     normal = new THREE.Vector3(0, -Math.sign(dy), 0);
                     overlap = overlapY;
+                    player.onGround = true;
                 } else {
                     normal = new THREE.Vector3(-dx, 0, -dz).normalize();
                     overlap = overlapXZ;
@@ -114,6 +123,9 @@ export class Physics {
         });
 
         for (const collision of collisions) {
+
+            if (!this.pointInBoundingCylinder(collision.contactPoint, player)) continue;
+
             let deltaPosition = collision.normal.clone();
             deltaPosition.multiplyScalar(collision.overlap);
             player.position.add(deltaPosition);
@@ -127,6 +139,7 @@ export class Physics {
     }
 
     detectCollisions(player : Player, world : World) {
+        player.onGround = false;
         const candidates = this.broadPhase(player, world);
         const collisions = this.narrowPhase(candidates, player);
 

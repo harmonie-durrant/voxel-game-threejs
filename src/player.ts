@@ -5,6 +5,9 @@ export class Player {
     radius: number = 0.5;
     height: number = 1.75;
 
+    jumpSpeed: number = 10;
+    onGround: boolean = false;
+
     maxSpeed: number = 10;
     input: THREE.Vector3 = new THREE.Vector3();
     velocity: THREE.Vector3 = new THREE.Vector3();
@@ -83,6 +86,11 @@ export class Player {
             case 'KeyR':
                 this.position.set(32, 16, 32);
                 this.velocity.set(0, 0, 0);
+                break;
+            case 'Space':
+                if (this.onGround) {
+                    this.velocity.y += this.jumpSpeed;
+                }
                 break;
             default:
                 break;
