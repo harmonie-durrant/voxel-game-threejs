@@ -4,7 +4,6 @@ import { RandomNumbers } from './random';
 import { blocks, resources } from './blocks';
 
 const geometry = new THREE.BoxGeometry();
-const material = new THREE.MeshLambertMaterial();
 
 type worldSize = {
   width : number,
