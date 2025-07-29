@@ -39,7 +39,7 @@ function setupLights() {
   sun.shadow.camera.top = 50;
   sun.shadow.camera.bottom = -50;
   sun.shadow.camera.near = 0.1;
-  sun.shadow.camera.far = 50;
+  sun.shadow.camera.far = 100;
   scene.add(sun);
 
   const sunHelper = new THREE.CameraHelper(sun.shadow.camera);
