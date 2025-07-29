@@ -17,6 +17,7 @@ const contactMaterial = new THREE.MeshBasicMaterial({
 const contactGeometry = new THREE.SphereGeometry(0.05, 6, 6);
 
 export class Physics {
+    gravity: number = 32;
     helpers: THREE.Group;
 
     constructor(scene: THREE.Scene) {
@@ -25,13 +26,15 @@ export class Physics {
     }
 
     update (dt : number, player : Player, world : World) {
-        dt;
+        this.helpers.clear();
+        player.velocity.y -= this.gravity * dt;
+        player.applyInputs(dt);
+        player.updateBoundsHelper();
         this.detectCollisions(player, world);
     }
 
     broadPhase(player : Player, world : World) {
         const candidates : any[] = [];
-        this.helpers.clear();
 
         const extents = {
             x: {
@@ -114,6 +117,12 @@ export class Physics {
             let deltaPosition = collision.normal.clone();
             deltaPosition.multiplyScalar(collision.overlap);
             player.position.add(deltaPosition);
+
+            let magnitude = player.velocity.dot(collision.normal);
+            let velocityAdjustment = collision.normal.clone();
+            velocityAdjustment.multiplyScalar(magnitude);
+
+            player.applyWorldDeltaVelocity(velocityAdjustment.negate());
         }
     }
 

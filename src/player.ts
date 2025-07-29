@@ -9,6 +9,8 @@ export class Player {
     input: THREE.Vector3 = new THREE.Vector3();
     velocity: THREE.Vector3 = new THREE.Vector3();
 
+    #worldVelocity: THREE.Vector3 = new THREE.Vector3();
+
     camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 200);
     cameraHelper: THREE.CameraHelper = new THREE.CameraHelper(this.camera);
     controls: PointerLockControls = new PointerLockControls(this.camera, document.body);
@@ -30,8 +32,19 @@ export class Player {
         scene.add(this.boundsHelper);
     }
 
+    get worldVelocity(): THREE.Vector3 {
+        this.#worldVelocity.copy(this.velocity);
+        this.#worldVelocity.applyEuler(new THREE.Euler(0, this.camera.rotation.y, 0));
+        return this.#worldVelocity;
+    }
+
     get position(): THREE.Vector3 {
         return this.camera.position;
+    }
+
+    applyWorldDeltaVelocity(delta: THREE.Vector3) {
+        delta.applyEuler(new THREE.Euler(0, -this.camera.rotation.y, 0));
+        this.velocity.add(delta);
     }
 
     applyInputs(dt: number) {
@@ -41,6 +54,7 @@ export class Player {
         this.velocity.z = this.input.z;
         this.controls.moveRight(this.velocity.x * dt);
         this.controls.moveForward(this.velocity.z * dt);
+        this.position.y += this.velocity.y * dt;
         document.getElementById("player-position")!.innerText = this.toString();
     }
 
