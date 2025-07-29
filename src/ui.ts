@@ -2,19 +2,24 @@ import GUI from 'lil-gui';
 import { World } from './world';
 import { resources } from './blocks';
 
-export function createUI(world : World) {
-    const gui = new GUI();
+function createWorldFolder(gui : GUI, world : World) {
+    const worldFolder = gui.addFolder("World");
+    worldFolder.add(world.size, "width", 8, 128, 1).name("width");
+    worldFolder.add(world.size, "height", 8, 64, 1).name("height");
 
-    gui.add(world.size, "width", 8, 128, 1).name("width");
-    gui.add(world.size, "height", 8, 64, 1).name("height");
-
-    const terrainFolder = gui.addFolder("Terrain");
+    const terrainFolder = worldFolder.addFolder("Terrain");
     terrainFolder.add(world.params, "seed", 1, 10000).name("Seed");
     terrainFolder.add(world.params.terrain, "scale", 10, 100).name("Scale");
     terrainFolder.add(world.params.terrain, "magnitude", 0, 1).name("Magnitude");
     terrainFolder.add(world.params.terrain, "offset", 0, 1).name("Offset");
     terrainFolder.add(world.params.terrain, "dirtlayer", 0, 10, 1).name("Dirt Layer");
 
+    worldFolder.onChange(() => {
+        world.generate();
+    });
+}
+
+function createResourcesFolder(gui : GUI, world : World) {
     const resourcesFolder = gui.addFolder("Resources");
     resources.forEach(resource => {
         const resourceFolder = resourcesFolder.addFolder(resource.name);
@@ -26,7 +31,15 @@ export function createUI(world : World) {
         scaleFolder.add(resource.scale, "z", 10, 100).name("Z Scale");
     });
 
-    gui.onChange(() => {
+    resourcesFolder.onChange(() => {
         world.generate();
-    })
+    });
+}
+
+export function createUI(world : World) {
+    const gui = new GUI();
+    gui.title("Dev menu");
+
+    createWorldFolder(gui, world);
+    createResourcesFolder(gui, world);
 }
