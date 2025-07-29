@@ -131,29 +131,39 @@ export class World extends THREE.Group {
       this.clear();
 
       const maxCount = (this.size.width ** 2) * this.size.height;
-      const mesh = new THREE.InstancedMesh(geometry, material, maxCount);
-      mesh.count = 0;
+
+      const meshes : { [key: number]: THREE.InstancedMesh } = {};
+      Object.values(blocks)
+        .filter(block => block.id !== blocks.empty.id)
+        .forEach(block => {
+          if (block && 'material' in block) {
+            const mesh = new THREE.InstancedMesh(geometry, block.material, maxCount);
+            mesh.name = block.name;
+            mesh.count = 0;
+            meshes[block.id] = mesh;
+          }
+        });
 
       const matrix = new THREE.Matrix4();
       for (let x = 0; x < this.size.width; x++) {
         for (let y = 0; y < this.size.height; y++) {
           for (let z = 0; z < this.size.width; z++) {
             const blockId = this.getBlock(x, y, z)?.id;
-            const blockType = Object.values(blocks).find(x => x.id === blockId);
+            if (!blockId || blockId === blocks.empty.id) continue;
+            const mesh = meshes[blockId];
+            if (!mesh) continue;
             const instanceId = mesh.count;
             
             if (blockId !== blocks.empty.id && !this.isBlockHidden(x, y, z)) {
               matrix.setPosition(x + 0.5, y + 0.5, z + 0.5);
               mesh.setMatrixAt(instanceId, matrix);
-              if (blockType && 'color' in blockType)
-                mesh.setColorAt(instanceId, new THREE.Color(blockType.color));
               this.setBlockInstanceId(x, y, z, instanceId);
               mesh.count++;
             }
           }
         }
       }
-      this.add(mesh);
+      this.add(...Object.values(meshes));
     }
 
     getBlock(x : number, y : number, z : number) {
