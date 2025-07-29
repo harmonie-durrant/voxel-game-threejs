@@ -112,14 +112,15 @@ export class World extends THREE.Group {
             const blockId = this.getBlock(x, y, z)?.id;
             const blockType = Object.values(blocks).find(x => x.id === blockId);
             const instanceId = mesh.count;
-            if (blockId == 0) continue;
-
-            matrix.setPosition(x + 0.5, y + 0.5, z + 0.5);
-            mesh.setMatrixAt(instanceId, matrix);
-            if (blockType && 'color' in blockType)
-              mesh.setColorAt(instanceId, new THREE.Color(blockType.color));
-            this.setBlockInstanceId(x, y, z, instanceId);
-            mesh.count++;
+            
+            if (blockId !== blocks.empty.id && !this.isBlockHidden(x, y, z)) {
+              matrix.setPosition(x + 0.5, y + 0.5, z + 0.5);
+              mesh.setMatrixAt(instanceId, matrix);
+              if (blockType && 'color' in blockType)
+                mesh.setColorAt(instanceId, new THREE.Color(blockType.color));
+              this.setBlockInstanceId(x, y, z, instanceId);
+              mesh.count++;
+            }
           }
         }
       }
@@ -154,5 +155,23 @@ export class World extends THREE.Group {
         return true;
       }
       return false;
+    }
+
+    isBlockHidden(x : number, y : number, z : number) {
+      const up = this.getBlock(x, y + 1, z)?.id ?? blocks.empty.id;
+      const down = this.getBlock(x, y - 1, z)?.id ?? blocks.empty.id;
+      const left = this.getBlock(x + 1, y, z)?.id ?? blocks.empty.id;
+      const right = this.getBlock(x - 1, y, z)?.id ?? blocks.empty.id;
+      const forward = this.getBlock(x, y, z + 1)?.id ?? blocks.empty.id;
+      const back = this.getBlock(x, y, z - 1)?.id ?? blocks.empty.id;
+
+      if (
+        up === blocks.empty.id || down === blocks.empty.id ||
+        left === blocks.empty.id || right === blocks.empty.id ||
+        forward === blocks.empty.id || back === blocks.empty.id
+      ) {
+        return false;
+      }
+      return true;
     }
 }
