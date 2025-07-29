@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { SimplexNoise } from 'three/examples/jsm/Addons.js';
+import { RandomNumbers } from './random';
 
 const geometry = new THREE.BoxGeometry();
 const material = new THREE.MeshLambertMaterial({ color: 0x00d000 });
@@ -21,7 +22,8 @@ type terrainParams = {
 };
 
 type paramsType = {
-  terrain : terrainParams;
+  seed : number,
+  terrain : terrainParams
 };
 
 export class World extends THREE.Group {
@@ -30,6 +32,7 @@ export class World extends THREE.Group {
     size : worldSize = { width: 32, height: 16 };
 
     params : paramsType = {
+      seed: 0,
       terrain: {
         scale: 30,
         magnitude: 0.5,
@@ -68,7 +71,8 @@ export class World extends THREE.Group {
     }
 
     generateTerrain() {
-      const simplex = new SimplexNoise();
+      const rdm = new RandomNumbers(this.params.seed);
+      const simplex = new SimplexNoise(rdm);
       for (let x = 0; x < this.size.width; x++) {
         for (let z = 0; z < this.size.width; z++) {
           const value = simplex.noise(
