@@ -19,5 +19,25 @@ export const blocks = {
         color: 0x808080, // Gray
         scale: { x: 30, y: 30, z: 30 },
         scarcity: 0.5
+    },
+    coalOre: {
+        id: 4,
+        name: "coal ore",
+        color: 0x353535, // Dark Gray
+        scale: { x: 20, y: 20, z: 20 },
+        scarcity: 0.8
+    },
+    ironOre: {
+        id: 5,
+        name: "iron ore",
+        color: 0xaaaaaa, // Dark Gray
+        scale: { x: 60, y: 60, z: 60 },
+        scarcity: 0.9
     }
 }
+
+export const resources = [
+    blocks.stone,
+    blocks.coalOre,
+    blocks.ironOre
+]
