@@ -9,19 +9,14 @@ document.body.appendChild(renderer.domElement);
 
 // Camera setup
 const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight);
-camera.position.set(2, 2, 2);
-camera.lookAt(0, 0, 0);
+camera.position.set(16, 8, 16);
 
 // OrbitControls setup
 const controls = new OrbitControls(camera, renderer.domElement);
-controls.enabled = true; // Avoid unused vrariable warning
+controls.target.set(8, 0, 8);
 
 // Scene setup
 const scene = new THREE.Scene();
-const geometry = new THREE.BoxGeometry();
-const material = new THREE.MeshLambertMaterial({ color: 0x00d000 });
-const cube = new THREE.Mesh(geometry, material);
-scene.add(cube);
 
 function setupLights() {
   const light1 = new THREE.DirectionalLight();
@@ -37,11 +32,26 @@ function setupLights() {
   scene.add(ambiant);
 }
 
+// World "generation"
+function setupWorld(size: number) {
+  const geometry = new THREE.BoxGeometry();
+  const material = new THREE.MeshLambertMaterial({ color: 0x00d000 });
+  for (let x = 0; x < size; x++) {
+    for (let z = 0; z < size; z++) {
+      const cube = new THREE.Mesh(geometry, material);
+      cube.position.set(x, 0, z);
+      scene.add(cube);
+    }
+  }
+}
+
 // Render loop
 function animate() {
   requestAnimationFrame(animate);
   renderer.render(scene, camera);
 }
 
+// Start functions
+setupWorld(16);
 setupLights();
 animate();
