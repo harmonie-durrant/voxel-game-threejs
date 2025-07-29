@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import Stats from 'stats.js';
 import { World } from './world';
+import { createUI } from './ui';
 
 const stats = new Stats();
 stats.showPanel(0);
@@ -51,4 +52,5 @@ function animate() {
 }
 
 setupLights();
+createUI(world);
 animate();

@@ -17,6 +17,8 @@ export class World extends THREE.Group {
     }
 
     generate() {
+      this.clear();
+
       const maxCount = (this.size.width ** 2) * this.size.height;
       const mesh = new THREE.InstancedMesh(geometry, material, maxCount);
       mesh.count = 0;
