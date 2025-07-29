@@ -11,15 +11,15 @@ renderer.setClearColor(0x80a0e0);
 
 // Camera setup
 const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight);
-camera.position.set(16, 8, 16);
+camera.position.set(64, 16, 64);
 
 // OrbitControls setup
 const controls = new OrbitControls(camera, renderer.domElement);
-controls.target.set(8, 0, 8);
+controls.target.set(16, 8, 16);
 
 // Scene setup
 const scene = new THREE.Scene();
-const world = new World(16);
+const world = new World();
 world.generate();
 scene.add(world);
 
