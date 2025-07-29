@@ -1,3 +1,22 @@
+import * as THREE from 'three';
+
+const textureLoader = new THREE.TextureLoader();
+
+function loadTexture(path : string) {
+    const texture = textureLoader.load(path);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    return texture;
+}
+
+const textures = {
+    grass: loadTexture('textures/grass.png'),
+    grassSide: loadTexture('textures/grass_side.png'),
+    dirt: loadTexture('textures/dirt.png'),
+    stone: loadTexture('textures/stone.png'),
+    coalOre: loadTexture('textures/coal_ore.png'),
+    ironOre: loadTexture('textures/iron_ore.png')
+};
+
 export const blocks = {
     empty: {
         id: 0,
@@ -6,17 +25,27 @@ export const blocks = {
     grass: {
         id: 1,
         name: "grass",
-        color: 0x559020 // Green
+        color: 0x559020, // Green
+        material: [
+            new THREE.MeshLambertMaterial({ map: textures.grassSide }),
+            new THREE.MeshLambertMaterial({ map: textures.grassSide }),
+            new THREE.MeshLambertMaterial({ map: textures.grass }),
+            new THREE.MeshLambertMaterial({ map: textures.dirt }),
+            new THREE.MeshLambertMaterial({ map: textures.grassSide }),
+            new THREE.MeshLambertMaterial({ map: textures.grassSide }),
+        ]
     },
     dirt: {
         id: 2,
         name: "dirt",
-        color: 0x807020 // Brown
+        color: 0x807020, // Brown
+        material: new THREE.MeshLambertMaterial({ map: textures.dirt })
     },
     stone: {
         id: 3,
         name: "stone",
         color: 0x808080, // Gray
+        material: new THREE.MeshLambertMaterial({ map: textures.stone }),
         scale: { x: 30, y: 30, z: 30 },
         scarcity: 0.5
     },
@@ -24,6 +53,7 @@ export const blocks = {
         id: 4,
         name: "coal ore",
         color: 0x353535, // Dark Gray
+        material: new THREE.MeshLambertMaterial({ map: textures.coalOre }),
         scale: { x: 20, y: 20, z: 20 },
         scarcity: 0.8
     },
@@ -31,6 +61,7 @@ export const blocks = {
         id: 5,
         name: "iron ore",
         color: 0xaaaaaa, // Dark Gray
+        material: new THREE.MeshLambertMaterial({ map: textures.ironOre }),
         scale: { x: 60, y: 60, z: 60 },
         scarcity: 0.9
     }
