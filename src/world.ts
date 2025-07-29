@@ -1,9 +1,10 @@
 import * as THREE from 'three';
 import { SimplexNoise } from 'three/examples/jsm/Addons.js';
 import { RandomNumbers } from './random';
+import { blocks } from './blocks';
 
 const geometry = new THREE.BoxGeometry();
-const material = new THREE.MeshLambertMaterial({ color: 0x00d000 });
+const material = new THREE.MeshLambertMaterial();
 
 type worldSize = {
   width : number,
@@ -60,7 +61,7 @@ export class World extends THREE.Group {
           const row : worldData[] = [];
           for (let z = 0; z < this.size.width; z++) {
             row.push({
-              id: 0,
+              id: blocks.empty.id,
               instanceId: null
             });
           }
@@ -86,8 +87,12 @@ export class World extends THREE.Group {
           let height = Math.floor(this.size.height * scaledNoise);
           height = Math.max(0, Math.min(height, this.size.height - 1));
 
-          for (let y = 0; y <= height; y++) {
-            this.setBlockId(x, y , z, 1);
+          for (let y = 0; y <= this.size.height; y++) {
+            if (y <= height) {
+              this.setBlockId(x, y , z, y == height ? blocks.grass.id : blocks.dirt.id );
+            } else {
+              this.setBlockId(x, y, z, blocks.empty.id);
+            }
           }
         }
       }
@@ -105,14 +110,16 @@ export class World extends THREE.Group {
         for (let y = 0; y < this.size.height; y++) {
           for (let z = 0; z < this.size.width; z++) {
             const blockId = this.getBlock(x, y, z)?.id;
+            const blockType = Object.values(blocks).find(x => x.id === blockId);
             const instanceId = mesh.count;
+            if (blockId == 0) continue;
 
-            if (blockId != 0) {
-              matrix.setPosition(x + 0.5, y + 0.5, z + 0.5);
-              mesh.setMatrixAt(instanceId, matrix);
-              this.setBlockInstanceId(x, y, z, instanceId);
-              mesh.count++;
-            }
+            matrix.setPosition(x + 0.5, y + 0.5, z + 0.5);
+            mesh.setMatrixAt(instanceId, matrix);
+            if (blockType && 'color' in blockType)
+              mesh.setColorAt(instanceId, new THREE.Color(blockType.color));
+            this.setBlockInstanceId(x, y, z, instanceId);
+            mesh.count++;
           }
         }
       }
