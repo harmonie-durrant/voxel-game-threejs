@@ -64,3 +64,11 @@ function animate() {
 setupLights();
 createUI(world);
 animate();
+
+window.addEventListener('resize', () => {
+  // Resize camera aspect ratio and renderer size to the new window size
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
