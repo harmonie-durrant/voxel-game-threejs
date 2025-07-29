@@ -19,7 +19,8 @@ type worldData = {
 type terrainParams = {
   scale : number,
   magnitude : number,
-  offset : number
+  offset : number,
+  dirtlayer : number
 };
 
 type paramsType = {
@@ -37,8 +38,9 @@ export class World extends THREE.Group {
       terrain: {
         scale: 30,
         magnitude: 0.5,
-        offset: 0.2
-      }
+        offset: 0.2,
+        dirtlayer: 3
+      },
     }
 
     constructor(size : worldSize = { width: 32, height: 16 }) {
@@ -48,8 +50,10 @@ export class World extends THREE.Group {
     }
 
     generate() {
+      const rdm = new RandomNumbers(this.params.seed);
       this.initializeTerrain();
-      this.generateTerrain();
+      this.generateResources(rdm);
+      this.generateTerrain(rdm);
       this.generateMeshes();
     }
     
@@ -71,9 +75,28 @@ export class World extends THREE.Group {
       }
     }
 
-    generateTerrain() {
-      const rdm = new RandomNumbers(this.params.seed);
+    generateResources(rdm : RandomNumbers) {
       const simplex = new SimplexNoise(rdm);
+
+      for (let x = 0; x < this.size.width; x++) {
+        for (let y = 0; y < this.size.height; y++) {
+          for (let z = 0; z < this.size.width; z++) {
+            const value = simplex.noise3d(
+              x / blocks.stone.scale.x,
+              y / blocks.stone.scale.y,
+              z / blocks.stone.scale.z
+            );
+            if (value > blocks.stone.scarcity) {
+              this.setBlockId(x, y, z, blocks.stone.id);
+            }
+          }
+        }
+      }
+    }
+
+    generateTerrain(rdm : RandomNumbers) {
+      const simplex = new SimplexNoise(rdm);
+
       for (let x = 0; x < this.size.width; x++) {
         for (let z = 0; z < this.size.width; z++) {
           const value = simplex.noise(
@@ -88,9 +111,13 @@ export class World extends THREE.Group {
           height = Math.max(0, Math.min(height, this.size.height - 1));
 
           for (let y = 0; y <= this.size.height; y++) {
-            if (y <= height) {
-              this.setBlockId(x, y , z, y == height ? blocks.grass.id : blocks.dirt.id );
-            } else {
+            if (y < height && this.getBlock(x, y, z)?.id === blocks.empty.id) {
+              this.setBlockId(x, y , z, blocks.dirt.id);
+            } else if (y >= height - this.params.terrain.dirtlayer && y < height) {
+              this.setBlockId(x, y, z, blocks.dirt.id);
+            }else if (y === height) {
+              this.setBlockId(x, y, z, blocks.grass.id);
+            } else if (y > height) {
               this.setBlockId(x, y, z, blocks.empty.id);
             }
           }
