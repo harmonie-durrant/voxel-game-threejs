@@ -14,6 +14,7 @@ renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setClearColor(0x80a0e0);
 renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 document.body.appendChild(renderer.domElement);
 
 // Camera setup
@@ -40,6 +41,8 @@ function setupLights() {
   sun.shadow.camera.bottom = -50;
   sun.shadow.camera.near = 0.1;
   sun.shadow.camera.far = 100;
+  sun.shadow.bias = -0.001;
+  sun.shadow.mapSize = new THREE.Vector2(1024, 1024);
   scene.add(sun);
 
   const sunHelper = new THREE.CameraHelper(sun.shadow.camera);
