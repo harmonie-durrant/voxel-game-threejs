@@ -12,16 +12,17 @@ document.body.append(stats.dom);
 const renderer = new THREE.WebGLRenderer();
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
 renderer.setClearColor(0x80a0e0);
+renderer.shadowMap.enabled = true;
+document.body.appendChild(renderer.domElement);
 
 // Camera setup
 const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight);
-camera.position.set(150, 32, 150);
+camera.position.set(70, 32, 70);
 
 // OrbitControls setup
 const controls = new OrbitControls(camera, renderer.domElement);
-controls.target.set(64, 16, 64);
+controls.target.set(32, 8, 32);
 
 // Scene setup
 const scene = new THREE.Scene();
@@ -30,17 +31,23 @@ world.generate();
 scene.add(world);
 
 function setupLights() {
-  const light1 = new THREE.DirectionalLight();
-  light1.position.set(1, 1, 1);
-  scene.add(light1);
+  const sun = new THREE.DirectionalLight();
+  sun.position.set(50, 50, 50);
+  sun.castShadow = true;
+  sun.shadow.camera.left = -50;
+  sun.shadow.camera.right = 50;
+  sun.shadow.camera.top = 50;
+  sun.shadow.camera.bottom = -50;
+  sun.shadow.camera.near = 0.1;
+  sun.shadow.camera.far = 50;
+  scene.add(sun);
 
-  const light2 = new THREE.DirectionalLight();
-  light2.position.set(-1, 1, -0.5);
-  scene.add(light2);
+  const sunHelper = new THREE.CameraHelper(sun.shadow.camera);
+  scene.add(sunHelper);
 
-  const ambiant = new THREE.AmbientLight();
-  ambiant.intensity = 0.1;
-  scene.add(ambiant);
+  const ambient = new THREE.AmbientLight();
+  ambient.intensity = 0.1;
+  scene.add(ambient);
 }
 
 // Render loop

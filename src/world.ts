@@ -30,7 +30,7 @@ type paramsType = {
 export class World extends THREE.Group {
 
     data : worldData[][][] = [];
-    size : worldSize = { width: 32, height: 16 };
+    size : worldSize = { width: 64, height: 16 };
 
     params : paramsType = {
       seed: 0,
@@ -42,7 +42,7 @@ export class World extends THREE.Group {
       },
     }
 
-    constructor(size : worldSize = { width: 128, height: 32 }) {
+    constructor(size : worldSize = { width: 64, height: 16 }) {
         super();
         this.size = size;
         this.data = [];
@@ -138,6 +138,8 @@ export class World extends THREE.Group {
           if (block && 'material' in block) {
             const mesh = new THREE.InstancedMesh(geometry, block.material, maxCount);
             mesh.name = block.name;
+            mesh.castShadow = true;
+            mesh.receiveShadow = true;
             mesh.count = 0;
             meshes[block.id] = mesh;
           }
