@@ -48,6 +48,10 @@ export class Player {
             case 'KeyD':
                 this.input.x = this.maxSpeed;
                 break;
+            case 'KeyR':
+                this.position.set(32, 16, 32);
+                this.velocity.set(0, 0, 0);
+                break;
             default:
                 break;
         }
