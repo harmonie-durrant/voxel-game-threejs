@@ -7,11 +7,13 @@ export class Player {
     velocity: THREE.Vector3 = new THREE.Vector3();
 
     camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 200);
+    cameraHelper: THREE.CameraHelper = new THREE.CameraHelper(this.camera);
     controls: PointerLockControls = new PointerLockControls(this.camera, document.body);
 
     constructor(scene: THREE.Scene) {
         this.position.set(32, 16, 32);
         scene.add(this.camera);
+        scene.add(this.cameraHelper);
 
         document.addEventListener('keydown', this.onKeyDown.bind(this));
         document.addEventListener('keyup', this.onKeyUp.bind(this));

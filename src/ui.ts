@@ -1,15 +1,12 @@
 import GUI from 'lil-gui';
 import { World } from './world';
 import { resources } from './blocks';
+import type { Player } from './player';
 
-function createPlayerFolder(gui : GUI) {
-    const player = {
-        speed: 0,
-        showCameraHelper: false,
-    };
+function createPlayerFolder(gui : GUI, player : Player) {
     const playerFolder = gui.addFolder("Player");
-    playerFolder.add(player, "speed", 1, 20).name("Speed");
-    playerFolder.add(player, "showCameraHelper").name("Show Camera Helper");
+    playerFolder.add(player, "maxSpeed", 1, 20).name("Speed");
+    playerFolder.add(player.cameraHelper, "visible").name("Show Camera Helper");
 }
 
 function createWorldFolder(gui : GUI, world : World) {
@@ -46,11 +43,11 @@ function createResourcesFolder(gui : GUI, world : World) {
     });
 }
 
-export function createUI(world : World) {
+export function createUI(world : World, player : Player) {
     const gui = new GUI();
     gui.title("Dev menu");
 
-    createPlayerFolder(gui);
+    createPlayerFolder(gui, player);
     createWorldFolder(gui, world);
     createResourcesFolder(gui, world);
 }

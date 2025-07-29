@@ -73,13 +73,16 @@ function animate() {
 }
 
 setupLights();
-createUI(world);
+createUI(world, player);
 animate();
 
 window.addEventListener('resize', () => {
   // Resize camera aspect ratio and renderer size to the new window size
   orbitCamera.aspect = window.innerWidth / window.innerHeight;
   orbitCamera.updateProjectionMatrix();
+
+  player.camera.aspect = window.innerWidth / window.innerHeight;
+  player.camera.updateProjectionMatrix();
 
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
