@@ -6,6 +6,7 @@ const renderer = new THREE.WebGLRenderer();
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
+renderer.setClearColor(0x80a0e0);
 
 // Camera setup
 const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight);
