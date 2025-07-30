@@ -6,8 +6,14 @@ import type { Player } from './player';
 
 function createSceneFolder(gui : GUI, scene : THREE.Scene) {
   const sceneFolder = gui.addFolder("Scene");
-  sceneFolder.add(scene.fog, "near", 1, 200, 1).name("Fog Near");
-  sceneFolder.add(scene.fog, "far", 1, 200, 1).name("Fog Far");
+  if (scene.fog && (scene.fog instanceof THREE.Fog || scene.fog instanceof THREE.FogExp2)) {
+    sceneFolder.add((scene.fog as THREE.Fog), "near", 1, 200, 1).name("Fog Near").onChange((value: number) => {
+      (scene.fog as THREE.Fog).near = value;
+    });
+    sceneFolder.add((scene.fog as THREE.Fog), "far", 1, 200, 1).name("Fog Far").onChange((value: number) => {
+      (scene.fog as THREE.Fog).far = value;
+    });
+  }
 }
 
 function createPlayerFolder(gui : GUI, player : Player) {
