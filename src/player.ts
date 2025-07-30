@@ -1,5 +1,8 @@
 import * as THREE from 'three';
 import { PointerLockControls } from 'three/examples/jsm/Addons.js';
+import type { World } from './world';
+
+const CENTER_SCREEN: THREE.Vector2 = new THREE.Vector2();
 
 export class Player {
     radius: number = 0.5;
@@ -20,6 +23,10 @@ export class Player {
 
     boundsHelper: THREE.Mesh;
 
+    raycaser: THREE.Raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(), 0, 5);
+    selectedCoords: THREE.Vector3 | null = null;
+    selectionHelper: THREE.Mesh;
+
     constructor(scene: THREE.Scene) {
         this.position.set(32, 16, 32);
         scene.add(this.camera);
@@ -33,6 +40,15 @@ export class Player {
             new THREE.MeshBasicMaterial({ wireframe: true })
         );
         scene.add(this.boundsHelper);
+
+        const selectionMaterial = new THREE.MeshBasicMaterial({
+            transparent: true,
+            opacity: 0.3,
+            color: 0xffffaa,
+        });
+        const selectionGeometry = new THREE.BoxGeometry(1.01, 1.01, 1.01);
+        this.selectionHelper = new THREE.Mesh(selectionGeometry, selectionMaterial);
+        scene.add(this.selectionHelper);
     }
 
     get worldVelocity(): THREE.Vector3 {
@@ -43,6 +59,43 @@ export class Player {
 
     get position(): THREE.Vector3 {
         return this.camera.position;
+    }
+
+    update(world : World) {
+        this.updateRaycaster(world);
+    }
+
+    updateRaycaster(world : World) {
+        this.raycaser.setFromCamera(CENTER_SCREEN, this.camera);
+        const intersections = this.raycaser.intersectObject(world, true);
+
+        if (intersections.length > 0) {
+            const intersection = intersections[0];
+
+            const chunk = intersection.object.parent;
+            if (!(chunk instanceof THREE.Group)) {
+                return;
+            }
+            
+            const blockMatrix = new THREE.Matrix4();
+            if (
+                intersection.object instanceof THREE.InstancedMesh &&
+                intersection.instanceId !== undefined
+            ) {
+                intersection.object.getMatrixAt(intersection.instanceId, blockMatrix);
+                this.selectedCoords = chunk.position.clone();
+                this.selectedCoords.applyMatrix4(blockMatrix);
+            } else {
+                this.selectedCoords = intersection.point.clone().floor();
+            }
+
+            this.selectionHelper.position.copy(this.selectedCoords);
+            this.selectionHelper.visible = true;
+            console.log(this.selectedCoords, this.selectionHelper.position);
+        } else {
+            this.selectedCoords = null;
+            this.selectionHelper.visible = false;
+        }
     }
 
     applyWorldDeltaVelocity(delta: THREE.Vector3) {
