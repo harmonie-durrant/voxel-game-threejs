@@ -66,18 +66,23 @@ let previousTime = performance.now();
 function animate() {
   let currentTime = performance.now();
   let dt = (currentTime - previousTime) / 1000;
-
   previousTime = currentTime;
   stats.begin();
-  requestAnimationFrame(animate);
-  physics.update(dt, player, world);
-  world.update(player);
-  sun.position.copy(player.position);
-  sun.position.add(new THREE.Vector3(50, 50, 50));
-  sun.target.position.copy(player.position);
-  renderer.render(scene, player.controls.isLocked ? player.camera : orbitCamera);
-  stats.end();
 
+  requestAnimationFrame(animate);
+
+  if (player.controls.isLocked) {
+    physics.update(dt, player, world);
+    world.update(player);
+
+    sun.position.copy(player.position);
+    sun.position.add(new THREE.Vector3(50, 50, 50));
+    sun.target.position.copy(player.position);
+  }
+
+  renderer.render(scene, player.controls.isLocked ? player.camera : orbitCamera);
+
+  stats.end();
   previousTime = currentTime;
 }
 
