@@ -12,8 +12,8 @@ function createPlayerFolder(gui : GUI, player : Player) {
 
 function createWorldFolder(gui : GUI, world : World) {
     const worldFolder = gui.addFolder("World");
-    worldFolder.add(world.size, "width", 8, 128, 1).name("width");
-    worldFolder.add(world.size, "height", 8, 64, 1).name("height");
+    worldFolder.add(world.chunkSize, "width", 8, 128, 1).name("width");
+    worldFolder.add(world.chunkSize, "height", 8, 64, 1).name("height");
 
     const terrainFolder = worldFolder.addFolder("Terrain");
     terrainFolder.add(world.params, "seed", 1, 10000).name("Seed");

@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { Player } from './player';
-import type { World } from './world';
 import { blocks } from './blocks';
+import type { World } from './world';
 
 const collisionMaterial = new THREE.MeshBasicMaterial({
     color: 0xff0000,
