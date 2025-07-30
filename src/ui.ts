@@ -1,7 +1,14 @@
+import * as THREE from 'three';
 import GUI from 'lil-gui';
 import { World } from './world';
 import { resources } from './blocks';
 import type { Player } from './player';
+
+function createSceneFolder(gui : GUI, scene : THREE.Scene) {
+  const sceneFolder = gui.addFolder("Scene");
+  sceneFolder.add(scene.fog, "near", 1, 200, 1).name("Fog Near");
+  sceneFolder.add(scene.fog, "far", 1, 200, 1).name("Fog Far");
+}
 
 function createPlayerFolder(gui : GUI, player : Player) {
   const playerFolder = gui.addFolder("Player");
@@ -44,10 +51,11 @@ function createResourcesFolder(gui : GUI, world : World) {
   });
 }
 
-export function createUI(world : World, player : Player) {
+export function createUI(scene : THREE.Scene, world : World, player : Player) {
   const gui = new GUI();
   gui.title("Dev menu");
 
+  createSceneFolder(gui, scene);
   createPlayerFolder(gui, player);
   createWorldFolder(gui, world);
   createResourcesFolder(gui, world);

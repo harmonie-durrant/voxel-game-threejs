@@ -82,7 +82,7 @@ function animate() {
 }
 
 setupLights();
-createUI(world, player);
+createUI(scene, world, player);
 animate();
 
 window.addEventListener('resize', () => {
