@@ -16,6 +16,8 @@ export class WorldChunk extends THREE.Group {
     data : worldData[][][] = [];
     size : chunkSize;
 
+    loaded: boolean = false;
+
     params : paramsType = {
       seed: 0,
       terrain: {
@@ -28,6 +30,7 @@ export class WorldChunk extends THREE.Group {
 
     constructor(size : chunkSize, params : paramsType) {
         super();
+        this.loaded = false;
         this.size = size;
         this.data = [];
         this.params = params;
@@ -39,6 +42,7 @@ export class WorldChunk extends THREE.Group {
       this.generateResources(rdm);
       this.generateTerrain(rdm);
       this.generateMeshes();
+      this.loaded = true;
     }
     
     initializeTerrain() {
