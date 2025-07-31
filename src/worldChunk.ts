@@ -237,6 +237,7 @@ export class WorldChunk extends THREE.Group {
       matrix.setPosition(x, y, z);
       mesh.setMatrixAt(instanceId, matrix);
       mesh.instanceMatrix.needsUpdate = true;
+      mesh.computeBoundingSphere();
     }
 
     addBlock(x : number, y : number, z : number, id : number) {
