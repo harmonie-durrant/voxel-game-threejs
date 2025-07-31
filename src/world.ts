@@ -3,7 +3,6 @@ import { WorldChunk } from './worldChunk';
 import { WorldSaveData } from './worldSaveData';
 
 import type { Player } from './player';
-import { denoise } from 'three/examples/jsm/tsl/display/DenoiseNode.js';
 
 type terrainParams = {
   scale : number,
