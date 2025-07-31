@@ -2,6 +2,8 @@ import * as THREE from 'three';
 import { SimplexNoise } from 'three/examples/jsm/Addons.js';
 import { RandomNumbers } from './random';
 import { blocks, resources } from './blocks';
+import { WorldSaveData } from './worldSaveData';
+
 import type { paramsType, chunkSize } from './world';
 
 const geometry = new THREE.BoxGeometry();
@@ -28,12 +30,15 @@ export class WorldChunk extends THREE.Group {
       },
     }
 
-    constructor(size : chunkSize, params : paramsType) {
+    saveData: WorldSaveData;
+
+    constructor(size : chunkSize, params : paramsType, saveData: WorldSaveData) {
         super();
         this.loaded = false;
         this.size = size;
         this.data = [];
         this.params = params;
+        this.saveData = saveData;
     }
 
     generate() {
@@ -41,6 +46,7 @@ export class WorldChunk extends THREE.Group {
       this.initializeTerrain();
       this.generateResources(rdm);
       this.generateTerrain(rdm);
+      this.loadPlayerChanges();
       this.generateMeshes();
       this.loaded = true;
     }
@@ -115,6 +121,25 @@ export class WorldChunk extends THREE.Group {
       }
     }
 
+    loadPlayerChanges() {
+      for (let x = 0; x < this.size.width; x++) {
+        for (let y = 0; y < this.size.height; y++) {
+          for (let z = 0; z < this.size.width; z++) {
+            if (this.saveData.contains(
+              new THREE.Vector2(this.position.x, this.position.z),
+              new THREE.Vector3(x, y, z)
+            )) {
+              const blockId = this.saveData.get(
+                new THREE.Vector2(this.position.x, this.position.z),
+                new THREE.Vector3(x, y, z)
+              );
+              this.setBlockId(x, y, z, blockId);
+            }
+          }
+        }
+      }
+    }
+
     generateMeshes() {
       this.clear();
 
@@ -168,6 +193,11 @@ export class WorldChunk extends THREE.Group {
       if (!block || block.id === blocks.empty.id) return;
       this.deleteBlockInstance(x, y, z);
       this.setBlockId(x, y, z, blocks.empty.id);
+      this.saveData.set(
+        new THREE.Vector2(this.position.x, this.position.z),
+        new THREE.Vector3(x, y, z),
+        blocks.empty.id
+      );
     }
 
     deleteBlockInstance(x : number, y : number, z : number) {
@@ -213,6 +243,11 @@ export class WorldChunk extends THREE.Group {
       if (this.getBlock(x, y, z)?.id !== blocks.empty.id) return;
       this.setBlockId(x, y, z, id);
       this.addBlockInstance(x, y, z);
+      this.saveData.set(
+        new THREE.Vector2(this.position.x, this.position.z),
+        new THREE.Vector3(x, y, z),
+        id
+      );
     }
 
     setBlockId(x : number, y : number, z : number, id : number) {

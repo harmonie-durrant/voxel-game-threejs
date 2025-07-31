@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import { PointerLockControls } from 'three/examples/jsm/Addons.js';
-import type { World } from './world';
 import { blocks } from './blocks';
+
+import type { World } from './world';
 
 const CENTER_SCREEN: THREE.Vector2 = new THREE.Vector2();
 

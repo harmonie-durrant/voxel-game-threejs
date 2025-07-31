@@ -1,5 +1,7 @@
 import * as THREE from 'three';
 import { WorldChunk } from './worldChunk';
+import { WorldSaveData } from './worldSaveData';
+
 import type { Player } from './player';
 
 type terrainParams = {
@@ -39,6 +41,8 @@ export class World extends THREE.Group {
 
   chunk: WorldChunk | null;
 
+  saveData: WorldSaveData = new WorldSaveData();
+
   constructor(seed : number = 0) {
     super()
     this.seed = seed;
@@ -50,7 +54,7 @@ export class World extends THREE.Group {
     const chunksToAdd = this.getChunksToAdd(visibleChunks);
     this.removeUnusedChunks(visibleChunks);
     for (const chunk of chunksToAdd) {
-      this.generateChunk(chunk.x, chunk.z)
+      this.generateChunk(chunk.x, chunk.z);
     }
   }
 
@@ -97,7 +101,7 @@ export class World extends THREE.Group {
   }
 
   generateChunk(x : number, z : number) {
-    const chunk = new WorldChunk(this.chunkSize, this.params);
+    const chunk = new WorldChunk(this.chunkSize, this.params, this.saveData);
     chunk.position.set(x * this.chunkSize.width, 0, z * this.chunkSize.width);
     chunk.userData = { x, z };
     if (this.asyncLoading) {
@@ -109,6 +113,7 @@ export class World extends THREE.Group {
   }
 
   generate() {
+    this.saveData.clear();
     this.disposeChunks();
     for (let x = -this.renderDistance; x < this.renderDistance; x++) {
       for (let z = -this.renderDistance; z < this.renderDistance; z++) {
