@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { PointerLockControls } from 'three/examples/jsm/Addons.js';
 import type { World } from './world';
+import { blocks } from './blocks';
 
 const CENTER_SCREEN: THREE.Vector2 = new THREE.Vector2();
 
@@ -26,6 +27,7 @@ export class Player {
     raycaser: THREE.Raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(), 0, 5);
     selectedCoords: THREE.Vector3 | null = null;
     selectionHelper: THREE.Mesh;
+    activeBlockId: number = blocks.grass.id;
 
     constructor(scene: THREE.Scene) {
         this.position.set(32, 16, 32);
@@ -85,6 +87,9 @@ export class Player {
                 intersection.object.getMatrixAt(intersection.instanceId, blockMatrix);
                 this.selectedCoords = chunk.position.clone();
                 this.selectedCoords.applyMatrix4(blockMatrix);
+                if (this.activeBlockId !== blocks.empty.id && intersection.normal) {
+                    this.selectedCoords.add(intersection.normal);
+                }
             } else {
                 this.selectedCoords = intersection.point.clone().floor();
             }
@@ -143,6 +148,25 @@ export class Player {
                 if (this.onGround) {
                     this.velocity.y += this.jumpSpeed;
                 }
+                break;
+            // If 1 is clicked, set active block to grass
+            case 'Digit1':
+                this.activeBlockId = blocks.grass.id;
+                break;
+            case 'Digit2':
+                this.activeBlockId = blocks.dirt.id;
+                break;
+            case 'Digit3':
+                this.activeBlockId = blocks.stone.id;
+                break;
+            case 'Digit4':
+                this.activeBlockId = blocks.coalOre.id;
+                break;
+            case 'Digit5':
+                this.activeBlockId = blocks.ironOre.id;
+                break;
+            case 'Digit0':
+                this.activeBlockId = blocks.empty.id;
                 break;
             default:
                 break;

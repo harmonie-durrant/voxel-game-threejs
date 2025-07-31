@@ -177,4 +177,11 @@ export class World extends THREE.Group {
     if (!chunk) return;
     chunk.addBlockInstance(coords.block.x, coords.block.y, coords.block.z);
   }
+
+  addBlock(x : number, y : number, z : number, id : number) {
+     const coords = this.worldToChunkCoords(x, y, z);
+      const chunk = this.getChunk(coords.chunk.x, coords.chunk.z);
+      if (!chunk) return;
+      chunk.addBlock(coords.block.x, coords.block.y, coords.block.z, id);
+  }
 }

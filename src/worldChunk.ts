@@ -209,6 +209,12 @@ export class WorldChunk extends THREE.Group {
       mesh.instanceMatrix.needsUpdate = true;
     }
 
+    addBlock(x : number, y : number, z : number, id : number) {
+      if (this.getBlock(x, y, z)?.id !== blocks.empty.id) return;
+      this.setBlockId(x, y, z, id);
+      this.addBlockInstance(x, y, z);
+    }
+
     setBlockId(x : number, y : number, z : number, id : number) {
       if (this.inBounds(x, y, z)) {
         this.data[x][y][z].id = id;
