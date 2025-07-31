@@ -3,6 +3,7 @@ import { WorldChunk } from './worldChunk';
 import { WorldSaveData } from './worldSaveData';
 
 import type { Player } from './player';
+import { denoise } from 'three/examples/jsm/tsl/display/DenoiseNode.js';
 
 type terrainParams = {
   scale : number,
@@ -14,6 +15,18 @@ type terrainParams = {
 export type paramsType = {
   seed : number,
   terrain : terrainParams
+  trees : {
+    trunk: {
+      minHeight: number,
+      maxHeight: number
+    },
+    canopy: {
+      minRadius: number,
+      maxRadius: number,
+      density: number
+    },
+    frequency: number
+  }
 };
 
 export type chunkSize = {
@@ -26,7 +39,7 @@ export class World extends THREE.Group {
   asyncLoading : boolean = true;
 
   seed: number = 0;
-  chunkSize: chunkSize = { width: 16, height: 64 };
+  chunkSize: chunkSize = { width: 32, height: 48 };
   renderDistance = 0;
 
   params : paramsType = {
@@ -37,6 +50,18 @@ export class World extends THREE.Group {
       offset: 0.1,
       dirtlayer: 1
     },
+    trees: {
+      trunk: {
+        minHeight: 4,
+        maxHeight: 7,
+      },
+      canopy: {
+        minRadius: 2,
+        maxRadius: 4,
+        density: 0.9
+      },
+      frequency: 0.0055
+    }
   };
 
   chunk: WorldChunk | null;

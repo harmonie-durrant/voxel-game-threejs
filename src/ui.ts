@@ -36,7 +36,19 @@ function createWorldFolder(gui : GUI, world : World) {
   terrainFolder.add(world.params.terrain, "offset", 0, 1).name("Offset");
   terrainFolder.add(world.params.terrain, "dirtlayer", 0, 10, 1).name("Dirt Layer");
 
-  worldFolder.onChange(() => {
+  terrainFolder.onChange(() => {
+    world.generate();
+  });
+
+  const treesFolder = worldFolder.addFolder("Trees");
+  treesFolder.add(world.params.trees.trunk, "minHeight", 1, 10, 1).name("Trunk Min Height");
+  treesFolder.add(world.params.trees.trunk, "maxHeight", 2, 14, 1).name("Trunk Max Height");
+  treesFolder.add(world.params.trees.canopy, "minRadius", 1, 10, 1).name("Canopy Min Radius");
+  treesFolder.add(world.params.trees.canopy, "maxRadius", 2, 14, 1).name("Canopy Max Radius");
+  treesFolder.add(world.params.trees.canopy, "density", 0, 1).name("Canopy Density");
+  treesFolder.add(world.params.trees, "frequency", 0, 0.1).name("Tree Frequency");
+
+  treesFolder.onChange(() => {
     world.generate();
   });
 }

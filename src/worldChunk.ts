@@ -20,15 +20,7 @@ export class WorldChunk extends THREE.Group {
 
     loaded: boolean = false;
 
-    params : paramsType = {
-      seed: 0,
-      terrain: {
-        scale: 30,
-        magnitude: 0.5,
-        offset: 0.2,
-        dirtlayer: 3
-      },
-    }
+    params : paramsType;
 
     saveData: WorldSaveData;
 
@@ -46,6 +38,7 @@ export class WorldChunk extends THREE.Group {
       this.initializeTerrain();
       this.generateResources(rdm);
       this.generateTerrain(rdm);
+      this.generateTrees(rdm);
       this.loadPlayerChanges();
       this.generateMeshes();
       this.loaded = true;
@@ -116,6 +109,65 @@ export class WorldChunk extends THREE.Group {
             } else if (y > height) {
               this.setBlockId(x, y, z, blocks.empty.id);
             }
+          }
+        }
+      }
+    }
+
+    generateTrees(rdm : RandomNumbers) {
+      // Position-based pseudo-random function for natural tree placement
+      function pseudoRandom2D(x: number, z: number, seed: number) {
+        let n = x * 374761393 + z * 668265263 + seed * 982451653;
+        n = (n ^ (n >> 13)) * 1274126177;
+        return ((n ^ (n >> 16)) >>> 0) / 4294967295;
+      }
+      const generateTreeTrunk = (x : number, z : number, rdm : RandomNumbers) => {
+        const minH = this.params.trees.trunk.minHeight;
+        const maxH = this.params.trees.trunk.maxHeight;
+        const h = Math.round(minH + (maxH - minH) * rdm.random());
+
+        // Find the topmost grass block at (x, z)
+        let topGrassY: number | null = null;
+        for (let y = this.size.height - 1; y >= 0; y--) {
+          if (this.getBlock(x, y, z)?.id === blocks.grass.id) {
+            topGrassY = y;
+            break;
+          }
+        }
+        if (topGrassY !== null) {
+          for (let treeY = topGrassY + 1; treeY <= topGrassY + h; treeY++) {
+            this.setBlockId(x, treeY, z, blocks.tree.id);
+          }
+          generateTreeCanopy(x, topGrassY + h, z, rdm);
+        }
+      }
+      const generateTreeCanopy = (centerX : number, centerY : number, centerZ : number, rdm : RandomNumbers) => {
+        const minR = this.params.trees.canopy.minRadius;
+        const maxR = this.params.trees.canopy.maxRadius;
+        const r = Math.round(minR + (maxR - minR) * rdm.random());
+
+        for (let x = -r; x <= r; x++) {
+          for (let y = -r; y <= r; y++) {
+            for (let z = -r; z <= r; z++) {
+              if (x ** 2 + y ** 2 + z ** 2 > r ** 2) continue;
+              const block = this.getBlock(centerX + x, centerY + y, centerZ + z);
+              if (block?.id !== blocks.empty.id) continue;
+              if (rdm.random() < this.params.trees.canopy.density) {
+                this.setBlockId(centerX + x, centerY + y, centerZ + z, blocks.leaves.id);
+              }
+            }
+          }
+        }
+      }
+
+      let offset = this.params.trees.canopy.maxRadius;
+      for (let x = offset; x < this.size.width - offset; x++) {
+        for (let z = offset; z < this.size.width - offset; z++) {
+          // Use world position for randomness
+          const worldX = x + this.position.x;
+          const worldZ = z + this.position.z;
+          if (pseudoRandom2D(worldX, worldZ, this.params.seed) < this.params.trees.frequency) {
+            generateTreeTrunk(x, z, rdm);
           }
         }
       }
