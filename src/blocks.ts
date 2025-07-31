@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { log } from 'three/tsl';
 
 const textureLoader = new THREE.TextureLoader();
 
