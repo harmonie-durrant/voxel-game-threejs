@@ -150,24 +150,18 @@ export class Player {
                     this.velocity.y += this.jumpSpeed;
                 }
                 break;
-            // If 1 is clicked, set active block to grass
-            case 'Digit1':
-                this.activeBlockId = blocks.grass.id;
-                break;
-            case 'Digit2':
-                this.activeBlockId = blocks.dirt.id;
-                break;
-            case 'Digit3':
-                this.activeBlockId = blocks.stone.id;
-                break;
-            case 'Digit4':
-                this.activeBlockId = blocks.coalOre.id;
-                break;
-            case 'Digit5':
-                this.activeBlockId = blocks.ironOre.id;
-                break;
             case 'Digit0':
-                this.activeBlockId = blocks.empty.id;
+            case 'Digit1':
+            case 'Digit2':
+            case 'Digit3':
+            case 'Digit4':
+            case 'Digit5':
+            case 'Digit6':
+            case 'Digit7':
+            case 'Digit8':
+            case 'Digit9':
+                this.activeBlockId = Number(e.code.replace('Digit', ''));
+                console.log(`Active block: ${e.key}`);
                 break;
             default:
                 break;
