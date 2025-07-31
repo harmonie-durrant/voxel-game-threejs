@@ -25,15 +25,15 @@ export class World extends THREE.Group {
 
   seed: number = 0;
   chunkSize: chunkSize = { width: 16, height: 64 };
-  renderDistance = 2;
+  renderDistance = 0;
 
   params : paramsType = {
     seed: 0,
     terrain: {
-      scale: 30,
-      magnitude: 0.5,
-      offset: 0.3,
-      dirtlayer: 3
+      scale: 60,
+      magnitude: 0.2,
+      offset: 0.1,
+      dirtlayer: 1
     },
   };
 
@@ -156,5 +156,25 @@ export class World extends THREE.Group {
       }
     });
     this.clear();
+  }
+
+  removeBlock(x : number, y : number, z : number) {
+    const coords = this.worldToChunkCoords(x, y, z);
+    const chunk = this.getChunk(coords.chunk.x, coords.chunk.z);
+    if (!chunk) return;
+    chunk.removeBlock(coords.block.x, coords.block.y, coords.block.z);
+    this.revealBlock(x - 1, y, z);
+    this.revealBlock(x + 1, y, z);
+    this.revealBlock(x, y - 1, z);
+    this.revealBlock(x, y + 1, z);
+    this.revealBlock(x, y, z - 1);
+    this.revealBlock(x, y, z + 1);
+  }
+
+  revealBlock(x : number, y : number, z : number) {
+    const coords = this.worldToChunkCoords(x, y, z);
+    const chunk = this.getChunk(coords.chunk.x, coords.chunk.z);
+    if (!chunk) return;
+    chunk.addBlockInstance(coords.block.x, coords.block.y, coords.block.z);
   }
 }

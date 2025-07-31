@@ -126,7 +126,7 @@ export class WorldChunk extends THREE.Group {
         .forEach(block => {
           if (block && 'material' in block) {
             const mesh = new THREE.InstancedMesh(geometry, block.material, maxCount);
-            mesh.name = block.name;
+            mesh.name = String(block.id);
             mesh.castShadow = true;
             mesh.receiveShadow = true;
             mesh.count = 0;
@@ -163,13 +163,59 @@ export class WorldChunk extends THREE.Group {
       return null;
     }
 
+    removeBlock(x : number, y : number, z : number) {
+      const block = this.getBlock(x, y, z);
+      if (!block || block.id === blocks.empty.id) return;
+      this.deleteBlockInstance(x, y, z);
+    }
+
+    deleteBlockInstance(x : number, y : number, z : number) {
+      const block = this.getBlock(x, y, z);
+      if (!block || block.instanceId === null) return;
+      const mesh = this.children.find((instanceMesh) => instanceMesh.name == String(block.id));
+      if (!mesh || !(mesh instanceof THREE.InstancedMesh)) return;
+
+      // Swap with last instance and decrease count to no longer render it
+      const instanceId = block.instanceId;
+      const lastIndex = mesh.count - 1;
+      const lastMatrix = new THREE.Matrix4();
+      if (instanceId !== lastIndex) {
+        mesh.getMatrixAt(lastIndex, lastMatrix);
+        const v = new THREE.Vector3();
+        v.setFromMatrixPosition(lastMatrix);
+        this.setBlockInstanceId(Math.round(v.x), Math.round(v.y), Math.round(v.z), instanceId);
+        mesh.setMatrixAt(instanceId, lastMatrix);
+      }
+      mesh.count--;
+
+      mesh.instanceMatrix.needsUpdate = true;
+      mesh.computeBoundingSphere();
+
+      this.setBlockInstanceId(x, y, z, null);
+      this.setBlockId(x, y, z, blocks.empty.id);
+    }
+
+    addBlockInstance(x : number, y : number, z : number) {
+      const block = this.getBlock(x, y, z);
+      if (!block || block.id === blocks.empty.id || block.instanceId !== null) return;
+      const mesh = this.children.find((instanceMesh) => instanceMesh.name == String(block.id));
+      if (!mesh || !(mesh instanceof THREE.InstancedMesh)) return;
+      const instanceId = mesh.count++;
+      this.setBlockInstanceId(x, y, z, instanceId);
+
+      const matrix = new THREE.Matrix4();
+      matrix.setPosition(x, y, z);
+      mesh.setMatrixAt(instanceId, matrix);
+      mesh.instanceMatrix.needsUpdate = true;
+    }
+
     setBlockId(x : number, y : number, z : number, id : number) {
       if (this.inBounds(x, y, z)) {
         this.data[x][y][z].id = id;
       }
     }
 
-    setBlockInstanceId(x : number, y : number, z : number, instanceId : number) {
+    setBlockInstanceId(x : number, y : number, z : number, instanceId : number | null) {
       if (this.inBounds(x, y, z)) {
         this.data[x][y][z].instanceId = instanceId;
       }

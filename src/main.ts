@@ -36,8 +36,8 @@ scene.add(world);
 const player = new Player(scene);
 const physics = new Physics(scene);
 
-
 const sun = new THREE.DirectionalLight();
+const sunHelper = new THREE.CameraHelper(sun.shadow.camera);
 
 function setupLights() {
   sun.position.set(50, 50, 50);
@@ -52,14 +52,19 @@ function setupLights() {
   sun.shadow.mapSize = new THREE.Vector2(1024, 1024);
   scene.add(sun);
   scene.add(sun.target);
-
-  const sunHelper = new THREE.CameraHelper(sun.shadow.camera);
   scene.add(sunHelper);
 
   const ambient = new THREE.AmbientLight();
   ambient.intensity = 0.1;
   scene.add(ambient);
 }
+
+function onMouseDown(event: MouseEvent) {
+  if (!player.controls.isLocked || !player.selectedCoords) return;
+  event.preventDefault();
+  world.removeBlock(player.selectedCoords.x, player.selectedCoords.y, player.selectedCoords.z);
+}
+document.addEventListener('mousedown', onMouseDown);
 
 // Render loop
 let previousTime = performance.now();
@@ -88,7 +93,7 @@ function animate() {
 }
 
 setupLights();
-createUI(scene, world, player);
+createUI(scene, world, player, sunHelper);
 animate();
 
 window.addEventListener('resize', () => {

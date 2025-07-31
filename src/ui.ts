@@ -4,7 +4,7 @@ import { World } from './world';
 import { resources } from './blocks';
 import type { Player } from './player';
 
-function createSceneFolder(gui : GUI, scene : THREE.Scene) {
+function createSceneFolder(gui : GUI, scene : THREE.Scene, sunHelper: THREE.CameraHelper) {
   const sceneFolder = gui.addFolder("Scene");
   if (scene.fog && (scene.fog instanceof THREE.Fog || scene.fog instanceof THREE.FogExp2)) {
     sceneFolder.add((scene.fog as THREE.Fog), "near", 1, 200, 1).name("Fog Near").onChange((value: number) => {
@@ -14,6 +14,7 @@ function createSceneFolder(gui : GUI, scene : THREE.Scene) {
       (scene.fog as THREE.Fog).far = value;
     });
   }
+  sceneFolder.add(sunHelper, "visible").name("Show Sun Helper");
 }
 
 function createPlayerFolder(gui : GUI, player : Player) {
@@ -57,11 +58,11 @@ function createResourcesFolder(gui : GUI, world : World) {
   });
 }
 
-export function createUI(scene : THREE.Scene, world : World, player : Player) {
+export function createUI(scene : THREE.Scene, world : World, player : Player, sunHelper: THREE.CameraHelper) {
   const gui = new GUI();
   gui.title("Dev menu");
 
-  createSceneFolder(gui, scene);
+  createSceneFolder(gui, scene, sunHelper);
   createPlayerFolder(gui, player);
   createWorldFolder(gui, world);
   createResourcesFolder(gui, world);
