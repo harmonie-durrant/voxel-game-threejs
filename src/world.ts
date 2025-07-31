@@ -178,10 +178,26 @@ export class World extends THREE.Group {
     chunk.addBlockInstance(coords.block.x, coords.block.y, coords.block.z);
   }
 
+  hideBlock(x : number, y : number, z : number) {
+    const coords = this.worldToChunkCoords(x, y, z);
+    const chunk = this.getChunk(coords.chunk.x, coords.chunk.z);
+    console.log("STARTING Hiding block at", coords.block.x, coords.block.y, coords.block.z);
+    if (!chunk || !chunk.isBlockHidden(coords.block.x, coords.block.y, coords.block.z)) return;
+    console.log("APPLYING Hiding block at", coords.block.x, coords.block.y, coords.block.z);
+    chunk.deleteBlockInstance(coords.block.x, coords.block.y, coords.block.z);
+  }
+
   addBlock(x : number, y : number, z : number, id : number) {
      const coords = this.worldToChunkCoords(x, y, z);
       const chunk = this.getChunk(coords.chunk.x, coords.chunk.z);
       if (!chunk) return;
       chunk.addBlock(coords.block.x, coords.block.y, coords.block.z, id);
+
+      this.hideBlock(x - 1, y, z);
+      this.hideBlock(x + 1, y, z);
+      this.hideBlock(x, y - 1, z);
+      this.hideBlock(x, y + 1, z);
+      this.hideBlock(x, y, z - 1);
+      this.hideBlock(x, y, z + 1);
   }
 }
