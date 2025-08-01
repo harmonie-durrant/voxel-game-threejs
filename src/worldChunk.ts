@@ -38,7 +38,7 @@ export class WorldChunk extends THREE.Group {
       this.initializeTerrain();
       this.generateResources(rdm);
       this.generateTerrain(rdm);
-      this.generateTrees(rdm);
+      this.generateTrees();
       this.generateClouds(rdm);
       this.loadPlayerChanges();
       this.generateMeshes();
@@ -117,7 +117,8 @@ export class WorldChunk extends THREE.Group {
       }
     }
 
-    generateTrees(rdm : RandomNumbers) {
+    generateTrees() {
+      const rdm = new RandomNumbers(this.params.seed);
       // Position-based pseudo-random function for natural tree placement
       function pseudoRandom2D(x: number, z: number, seed: number) {
         let n = x * 374761393 + z * 668265263 + seed * 982451653;
@@ -233,6 +234,7 @@ export class WorldChunk extends THREE.Group {
         this.size.width,
         1
       );
+      waterMesh.layers.set(1);
       this.add(waterMesh);
     }
 
