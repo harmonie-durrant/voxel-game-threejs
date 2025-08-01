@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { PointerLockControls } from 'three/examples/jsm/Addons.js';
 import { blocks } from './blocks';
+import { Tool } from './tool';
 
 import type { World } from './world';
 
@@ -28,13 +29,18 @@ export class Player {
     raycaser: THREE.Raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(), 0, 5);
     selectedCoords: THREE.Vector3 | null = null;
     selectionHelper: THREE.Mesh;
-    activeBlockId: number = blocks.grass.id;
+    activeBlockId: number = blocks.empty.id;
+
+    tool: Tool = new Tool();
 
     constructor(scene: THREE.Scene) {
         this.position.set(32, 16, 32);
         this.camera.layers.enable(1);
         scene.add(this.camera);
+        this.cameraHelper.visible = false;
         scene.add(this.cameraHelper);
+
+        this.camera.add(this.tool);
 
         document.addEventListener('keydown', this.onKeyDown.bind(this));
         document.addEventListener('keyup', this.onKeyUp.bind(this));
@@ -43,6 +49,8 @@ export class Player {
             new THREE.CylinderGeometry(this.radius, this.radius, this.height, 16),
             new THREE.MeshBasicMaterial({ wireframe: true })
         );
+        
+        this.boundsHelper.visible = false;
         scene.add(this.boundsHelper);
 
         const selectionMaterial = new THREE.MeshBasicMaterial({
@@ -69,6 +77,7 @@ export class Player {
 
     update(world : World) {
         this.updateRaycaster(world);
+        this.tool.update();
     }
 
     updateRaycaster(world : World) {
@@ -163,8 +172,10 @@ export class Player {
             case 'Digit7':
             case 'Digit8':
             case 'Digit9':
+                document.getElementById(`toolbar-${this.activeBlockId}`)?.classList.remove('selected');
                 this.activeBlockId = Number(e.code.replace('Digit', ''));
-                console.log(`Active block: ${e.key}`);
+                document.getElementById(`toolbar-${this.activeBlockId}`)?.classList.add('selected');
+                this.tool.visible = this.activeBlockId === blocks.empty.id;
                 break;
             default:
                 break;

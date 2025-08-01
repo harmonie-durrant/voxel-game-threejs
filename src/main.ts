@@ -6,6 +6,7 @@ import { Player } from './player';
 import { Physics } from './physics';
 import { World } from './world';
 import { blocks } from './blocks';
+import { ModelLoader } from './modelLoader';
 
 const stats = new Stats();
 stats.showPanel(0);
@@ -37,8 +38,20 @@ scene.fog = new THREE.Fog(0x80a0e0, 25, 70);
 const world = new World();
 world.generate();
 scene.add(world);
+
 const player = new Player(scene);
 const physics = new Physics(scene);
+
+const modelLoader = new ModelLoader();
+modelLoader.loadModels((models) => {
+  if (models.pickaxe) {
+    // Find the first Mesh in the Group and pass it to setMesh
+    const mesh = models.pickaxe.getObjectByProperty('type', 'Mesh') as THREE.Mesh;
+    if (mesh) {
+      player.tool.setMesh(mesh);
+    }
+  }
+});
 
 const sun = new THREE.DirectionalLight();
 const sunHelper = new THREE.CameraHelper(sun.shadow.camera);
@@ -56,6 +69,7 @@ function setupLights() {
   sun.shadow.mapSize = new THREE.Vector2(1024, 1024);
   scene.add(sun);
   scene.add(sun.target);
+  sunHelper.visible = false;
   scene.add(sunHelper);
 
   const ambient = new THREE.AmbientLight();
@@ -67,6 +81,7 @@ function onMouseDown(event: MouseEvent) {
   if (!player.controls.isLocked || !player.selectedCoords) return;
   event.preventDefault();
   if (player.activeBlockId === blocks.empty.id) {
+    player.tool.startAnimation();
     world.removeBlock(player.selectedCoords.x, player.selectedCoords.y, player.selectedCoords.z);
   } else {
     world.addBlock(player.selectedCoords.x, player.selectedCoords.y, player.selectedCoords.z, player.activeBlockId);
