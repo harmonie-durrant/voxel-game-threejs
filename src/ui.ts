@@ -36,10 +36,6 @@ function createWorldFolder(gui : GUI, world : World) {
   terrainFolder.add(world.params.terrain, "offset", 0, 1).name("Offset");
   terrainFolder.add(world.params.terrain, "dirtlayer", 0, 10, 1).name("Dirt Layer");
 
-  terrainFolder.onChange(() => {
-    world.generate();
-  });
-
   const treesFolder = worldFolder.addFolder("Trees");
   treesFolder.add(world.params.trees.trunk, "minHeight", 1, 10, 1).name("Trunk Min Height");
   treesFolder.add(world.params.trees.trunk, "maxHeight", 2, 14, 1).name("Trunk Max Height");
@@ -48,12 +44,12 @@ function createWorldFolder(gui : GUI, world : World) {
   treesFolder.add(world.params.trees.canopy, "density", 0, 1).name("Canopy Density");
   treesFolder.add(world.params.trees, "frequency", 0, 0.1).name("Tree Frequency");
 
-  treesFolder.onChange(() => {
-    world.generate();
-  });
+  const cloudsFolder = worldFolder.addFolder("Clouds");
+  cloudsFolder.add(world.params.clouds, "scale", 0, 100).name("Cloud Scale");
+  cloudsFolder.add(world.params.clouds, "density", 0, 1).name("Cloud Density");
 }
 
-function createResourcesFolder(gui : GUI, world : World) {
+function createResourcesFolder(gui : GUI) {
   const resourcesFolder = gui.addFolder("Resources");
   resources.forEach(resource => {
     const resourceFolder = resourcesFolder.addFolder(resource.name);
@@ -64,10 +60,6 @@ function createResourcesFolder(gui : GUI, world : World) {
     scaleFolder.add(resource.scale, "y", 10, 100).name("Y Scale");
     scaleFolder.add(resource.scale, "z", 10, 100).name("Z Scale");
   });
-
-  resourcesFolder.onChange(() => {
-    world.generate();
-  });
 }
 
 export function createUI(scene : THREE.Scene, world : World, player : Player, sunHelper: THREE.CameraHelper) {
@@ -77,5 +69,9 @@ export function createUI(scene : THREE.Scene, world : World, player : Player, su
   createSceneFolder(gui, scene, sunHelper);
   createPlayerFolder(gui, player);
   createWorldFolder(gui, world);
-  createResourcesFolder(gui, world);
+  createResourcesFolder(gui);
+
+  gui.onChange(() => {
+    world.generate();
+  });
 }

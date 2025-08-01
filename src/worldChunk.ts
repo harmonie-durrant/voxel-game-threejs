@@ -39,6 +39,7 @@ export class WorldChunk extends THREE.Group {
       this.generateResources(rdm);
       this.generateTerrain(rdm);
       this.generateTrees(rdm);
+      this.generateClouds(rdm);
       this.loadPlayerChanges();
       this.generateMeshes();
       this.loaded = true;
@@ -149,10 +150,11 @@ export class WorldChunk extends THREE.Group {
         for (let x = -r; x <= r; x++) {
           for (let y = -r; y <= r; y++) {
             for (let z = -r; z <= r; z++) {
+              const randomNumber = rdm.random();
               if (x ** 2 + y ** 2 + z ** 2 > r ** 2) continue;
               const block = this.getBlock(centerX + x, centerY + y, centerZ + z);
               if (block?.id !== blocks.empty.id) continue;
-              if (rdm.random() < this.params.trees.canopy.density) {
+              if (randomNumber < this.params.trees.canopy.density) {
                 this.setBlockId(centerX + x, centerY + y, centerZ + z, blocks.leaves.id);
               }
             }
@@ -168,6 +170,21 @@ export class WorldChunk extends THREE.Group {
           const worldZ = z + this.position.z;
           if (pseudoRandom2D(worldX, worldZ, this.params.seed) < this.params.trees.frequency) {
             generateTreeTrunk(x, z, rdm);
+          }
+        }
+      }
+    }
+
+    generateClouds(rdm : RandomNumbers) {
+      const simplex = new SimplexNoise(rdm);
+      for (let x = 0; x < this.size.width; x++) {
+        for (let z = 0; z < this.size.width; z++) {
+          const value = (simplex.noise(
+            (this.position.x + x) / this.params.clouds.scale,
+            (this.position.z + z) / this.params.clouds.scale
+          ) + 1) * 0.5;
+          if (value < this.params.clouds.density) {
+            this.setBlockId(x, this.size.height - 1, z, blocks.cloud.id);
           }
         }
       }
