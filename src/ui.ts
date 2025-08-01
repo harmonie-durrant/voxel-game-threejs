@@ -82,6 +82,6 @@ export function createUI(scene : THREE.Scene, world : World, player : Player, su
   createResourcesFolder(gui);
 
   gui.onChange(() => {
-    world.generate();
+    world.generate(true);
   });
 }

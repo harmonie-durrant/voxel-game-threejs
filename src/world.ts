@@ -81,6 +81,36 @@ export class World extends THREE.Group {
     super()
     this.seed = seed;
     this.chunk = null;
+
+    document.addEventListener('keydown', (e) => {
+      switch (e.code) {
+        case 'F1':
+          this.save();
+          break;
+        case 'F2':
+          this.load();
+          break;
+      }
+    });
+  }
+
+  save() {
+    localStorage.setItem('world_params', JSON.stringify(this.params));
+    localStorage.setItem('world_data', JSON.stringify(this.saveData.data));
+    document.getElementById('status')!.innerText = 'WORLD SAVED';
+    setTimeout(() => {
+      document.getElementById('status')!.innerText = '';
+    }, 3000);
+  }
+
+  load() {
+    this.params = JSON.parse(localStorage.getItem('world_params') || JSON.stringify(this.params));
+    this.saveData.data = JSON.parse(localStorage.getItem('world_data') || '{}');
+    document.getElementById('status')!.innerText = 'WORLD LOADED';
+    setTimeout(() => {
+      document.getElementById('status')!.innerText = '';
+    }, 3000);
+    this.generate();
   }
 
   update(player : Player) {
@@ -146,8 +176,9 @@ export class World extends THREE.Group {
     this.add(chunk);
   }
 
-  generate() {
-    this.saveData.clear();
+  generate(clearCache : boolean = false) {
+    if (clearCache)
+      this.saveData.clear();
     this.disposeChunks();
     for (let x = -this.renderDistance; x < this.renderDistance; x++) {
       for (let z = -this.renderDistance; z < this.renderDistance; z++) {
