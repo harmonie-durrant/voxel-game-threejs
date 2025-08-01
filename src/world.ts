@@ -53,7 +53,7 @@ export class World extends THREE.Group {
       magnitude: 10,
       offset: 4,
       dirtlayer: 1,
-      waterLevel: 10
+      waterLevel: 5
     },
     trees: {
       trunk: {
