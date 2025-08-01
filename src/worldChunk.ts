@@ -383,7 +383,9 @@ export class WorldChunk extends THREE.Group {
       const back = this.getBlock(x, y, z - 1) ?? blocks.empty;
 
       const isOpaque = (block: any) => {
-        return block && (block.id === blocks.empty.id || block.transparent === true);
+        const blockData = Object.values(blocks).find(b => b.id === block.id);
+        if (!blockData) return true;
+        return blockData?.id === blocks.empty.id || ('transparent' in blockData && (blockData as any).transparent === true);
       };
 
       if (
