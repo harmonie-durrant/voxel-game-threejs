@@ -93,6 +93,7 @@ export const blocks = {
             transparent: true,
             side: THREE.DoubleSide
         }),
+        transparent: true,
     },
     sand: {
         id: 8,
@@ -105,7 +106,6 @@ export const blocks = {
         name: "cloud",
         material: new THREE.MeshBasicMaterial({ color: 0xf0f0f0 }),
     }
-
 }
 
 export const resources = [
