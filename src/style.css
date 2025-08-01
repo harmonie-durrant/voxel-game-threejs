@@ -12,8 +12,74 @@ body {
   font-family: 'Minecraft';
 }
 
+#game_ui_container, #main_menu_container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+#main_menu {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  backdrop-filter: blur(2px) brightness(0.9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 2em;
+  text-align: center;
+}
+
+#main_menu_bg {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: url("/images/main_menu_background.png");
+  background-size: cover;
+  background-position: center;
+  z-index: 0;
+}
+
+.menu-button {
+  background-color: rgb(58, 58, 58);
+  border: 2px solid rgb(147, 147, 147);
+  border-radius: 4px;
+  color: white;
+  font-size: 1.5em;
+  padding: 8px 16px;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+.menu-button:hover {
+  background-color: rgb(147, 147, 147);
+}
+.menu-button:active {
+  background-color: rgb(58, 58, 58);
+}
+
+.hidden {
+  display: none !important;
+}
+
 h1 {
   font-size: 3em;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  margin: 0px;
+  margin-bottom: 10px;
+}
+
+p {
+  font-size: 1.5em;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  margin: 0px;
+  margin-bottom: 25px;
 }
 
 #info {
@@ -47,7 +113,8 @@ h1 {
 .toolbar-icon {
   width: 64px;
   height: 64px;
-  outline: 4px solid rgb(58, 58, 58);;
+  outline: 4px solid rgb(58, 58, 58);
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
 }
 
 .toolbar-icon.selected {
