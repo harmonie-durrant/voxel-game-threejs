@@ -16,4 +16,12 @@ document.addEventListener('DOMContentLoaded', () => {
     mainMenuController.abort();
     game = new Game(true);
   });
+  // Controls popup logic
+  const controlsPopup = document.getElementById('controls_popup');
+  document.getElementById('show_controls')?.addEventListener('click', () => {
+    controlsPopup?.classList.remove('hidden');
+  });
+  document.getElementById('close_controls')?.addEventListener('click', () => {
+    controlsPopup?.classList.add('hidden');
+  });
 }, { signal: mainMenuSignal });

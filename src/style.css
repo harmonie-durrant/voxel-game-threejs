@@ -37,6 +37,68 @@ body {
   font-size: 2em;
   text-align: center;
 }
+#main_menu {
+  backdrop-filter: blur(5px) brightness(0.8);
+}
+
+#controls_popup {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+#controls_popup .controls-content {
+  background: rgba(30,30,30,0.95);
+  border-radius: 12px;
+  padding: 32px 48px;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.5);
+  text-align: left;
+  color: #fff;
+  font-size: 1.2em;
+  position: relative;
+}
+
+.close-x {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 2em;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  z-index: 20;
+  transition: color 0.2s;
+}
+.close-x:hover {
+  color: #ff8888;
+}
+
+#controls_popup h2 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 2em;
+}
+
+#controls_popup ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 24px 0;
+}
+
+#controls_popup li {
+  margin-bottom: 10px;
+  font-size: 1.1em;
+}
 
 #main_menu_bg {
   position: absolute;
