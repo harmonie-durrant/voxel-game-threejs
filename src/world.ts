@@ -8,7 +8,8 @@ type terrainParams = {
   scale : number,
   magnitude : number,
   offset : number,
-  dirtlayer : number
+  dirtlayer : number,
+  waterLevel : number
 };
 
 export type paramsType = {
@@ -42,16 +43,17 @@ export class World extends THREE.Group {
   asyncLoading : boolean = true;
 
   seed: number = 0;
-  chunkSize: chunkSize = { width: 32, height: 48 };
-  renderDistance = 0;
+  chunkSize: chunkSize = { width: 16, height: 32 };
+  renderDistance = 2;
 
   params : paramsType = {
     seed: 0,
     terrain: {
       scale: 60,
-      magnitude: 0.2,
-      offset: 0.1,
-      dirtlayer: 1
+      magnitude: 10,
+      offset: 4,
+      dirtlayer: 1,
+      waterLevel: 10
     },
     trees: {
       trunk: {

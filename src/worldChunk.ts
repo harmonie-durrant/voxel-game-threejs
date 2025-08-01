@@ -97,16 +97,18 @@ export class WorldChunk extends THREE.Group {
           const scaledNoise = this.params.terrain.offset +
             this.params.terrain.magnitude * value;
 
-          let height = Math.floor(this.size.height * scaledNoise);
+          let height = Math.floor(scaledNoise);
           height = Math.max(0, Math.min(height, this.size.height - 1));
 
           for (let y = 0; y <= this.size.height; y++) {
-            if (y < height && this.getBlock(x, y, z)?.id === blocks.empty.id) {
+            if (y <= this.params.terrain.waterLevel && y <= height) {
+              this.setBlockId(x, y, z, blocks.sand.id);
+            } else if (y === height) {
+              this.setBlockId(x, y, z, blocks.grass.id);
+            } else if (y < height && this.getBlock(x, y, z)?.id === blocks.empty.id) {
               this.setBlockId(x, y , z, blocks.dirt.id);
             } else if (y >= height - this.params.terrain.dirtlayer && y < height) {
               this.setBlockId(x, y, z, blocks.dirt.id);
-            }else if (y === height) {
-              this.setBlockId(x, y, z, blocks.grass.id);
             } else if (y > height) {
               this.setBlockId(x, y, z, blocks.empty.id);
             }
@@ -209,8 +211,35 @@ export class WorldChunk extends THREE.Group {
       }
     }
 
+    generateWater() {
+      const material = new THREE.MeshLambertMaterial({
+        color: 0x9090e0,
+        transparent: true,
+        opacity: 0.5,
+        side: THREE.DoubleSide
+      });
+      const waterMesh = new THREE.Mesh(
+        new THREE.PlaneGeometry(),
+        material
+      );
+      waterMesh.rotateX(-Math.PI / 2.0);
+      waterMesh.position.set(
+        this.size.width / 2,
+        this.params.terrain.waterLevel,
+        this.size.width / 2
+      );
+      waterMesh.scale.set(
+        this.size.width,
+        this.size.width,
+        1
+      );
+      this.add(waterMesh);
+    }
+
     generateMeshes() {
       this.clear();
+
+      this.generateWater();
 
       const maxCount = (this.size.width ** 2) * this.size.height;
 

@@ -32,9 +32,10 @@ function createWorldFolder(gui : GUI, world : World) {
   const terrainFolder = worldFolder.addFolder("Terrain");
   terrainFolder.add(world.params, "seed", 1, 10000).name("Seed");
   terrainFolder.add(world.params.terrain, "scale", 10, 100).name("Scale");
-  terrainFolder.add(world.params.terrain, "magnitude", 0, 1).name("Magnitude");
-  terrainFolder.add(world.params.terrain, "offset", 0, 1).name("Offset");
+  terrainFolder.add(world.params.terrain, "magnitude", 0, 32, 1).name("Magnitude");
+  terrainFolder.add(world.params.terrain, "offset", 0, 32, 1).name("Offset");
   terrainFolder.add(world.params.terrain, "dirtlayer", 0, 10, 1).name("Dirt Layer");
+  terrainFolder.add(world.params.terrain, "waterLevel", 0, 32, 1).name("Water Level");
 
   const treesFolder = worldFolder.addFolder("Trees");
   treesFolder.add(world.params.trees.trunk, "minHeight", 1, 10, 1).name("Trunk Min Height");
