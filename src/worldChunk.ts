@@ -375,17 +375,21 @@ export class WorldChunk extends THREE.Group {
     }
 
     isBlockHidden(x : number, y : number, z : number) {
-      const up = this.getBlock(x, y + 1, z)?.id ?? blocks.empty.id;
-      const down = this.getBlock(x, y - 1, z)?.id ?? blocks.empty.id;
-      const left = this.getBlock(x + 1, y, z)?.id ?? blocks.empty.id;
-      const right = this.getBlock(x - 1, y, z)?.id ?? blocks.empty.id;
-      const forward = this.getBlock(x, y, z + 1)?.id ?? blocks.empty.id;
-      const back = this.getBlock(x, y, z - 1)?.id ?? blocks.empty.id;
+      const up = this.getBlock(x, y + 1, z) ?? blocks.empty;
+      const down = this.getBlock(x, y - 1, z) ?? blocks.empty;
+      const left = this.getBlock(x + 1, y, z) ?? blocks.empty;
+      const right = this.getBlock(x - 1, y, z) ?? blocks.empty;
+      const forward = this.getBlock(x, y, z + 1) ?? blocks.empty;
+      const back = this.getBlock(x, y, z - 1) ?? blocks.empty;
+
+      const isOpaque = (block: any) => {
+        return block && (block.id === blocks.empty.id || block.transparent === true);
+      };
 
       if (
-        up === blocks.empty.id || down === blocks.empty.id ||
-        left === blocks.empty.id || right === blocks.empty.id ||
-        forward === blocks.empty.id || back === blocks.empty.id
+        isOpaque(up) || isOpaque(down) ||
+        isOpaque(left) || isOpaque(right) ||
+        isOpaque(forward) || isOpaque(back)
       ) {
         return false;
       }
