@@ -116,7 +116,7 @@ function animate() {
 }
 
 setupLights();
-createUI(scene, world, player, sunHelper);
+createUI(scene, world, player, sunHelper, physics);
 animate();
 
 window.addEventListener('resize', () => {

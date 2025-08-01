@@ -2,9 +2,10 @@ import * as THREE from 'three';
 import GUI from 'lil-gui';
 import { World } from './world';
 import { resources } from './blocks';
-import type { Player } from './player';
+import { Physics } from './physics';
+import { Player } from './player';
 
-function createSceneFolder(gui : GUI, scene : THREE.Scene, sunHelper: THREE.CameraHelper) {
+function createSceneFolder(gui : GUI, scene : THREE.Scene, sunHelper: THREE.CameraHelper, physics: Physics) {
   const sceneFolder = gui.addFolder("Scene");
   sceneFolder.close();
   if (scene.fog && (scene.fog instanceof THREE.Fog || scene.fog instanceof THREE.FogExp2)) {
@@ -16,6 +17,7 @@ function createSceneFolder(gui : GUI, scene : THREE.Scene, sunHelper: THREE.Came
     });
   }
   sceneFolder.add(sunHelper, "visible").name("Show Sun Helper");
+  sceneFolder.add(physics.helpers, "visible").name("Show Physics Helpers");
 }
 
 function createPlayerFolder(gui : GUI, player : Player) {
@@ -72,11 +74,11 @@ function createResourcesFolder(gui : GUI) {
   });
 }
 
-export function createUI(scene : THREE.Scene, world : World, player : Player, sunHelper: THREE.CameraHelper) {
+export function createUI(scene : THREE.Scene, world : World, player : Player, sunHelper: THREE.CameraHelper, physics: Physics) {
   const gui = new GUI();
   gui.title("Dev menu");
 
-  createSceneFolder(gui, scene, sunHelper);
+  createSceneFolder(gui, scene, sunHelper, physics);
   createPlayerFolder(gui, player);
   createWorldFolder(gui, world);
   createResourcesFolder(gui);
