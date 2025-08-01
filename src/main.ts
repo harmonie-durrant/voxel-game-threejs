@@ -5,6 +5,8 @@ const mainMenuSignal = mainMenuController.signal;
 
 var game: Game | null = null;
 
+game;
+
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('start_game')?.addEventListener('click', () => {
     mainMenuController.abort();
