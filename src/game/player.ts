@@ -40,20 +40,17 @@ export class Player {
     inventoryAbortController: AbortController = new AbortController();
 
     constructor(scene: THREE.Scene, world: World, loadFromSave: boolean = false) {
+        if (loadFromSave) {
+            this.inventory.loadItemsFromSave(JSON.parse(localStorage.getItem('player_inventory') || '[]'));
+        }
 
-        this.inventory.addItem({
-            blockId: blocks.stone.id,
-            texture: blocks.stone.icon,
-            type: 'placeable',
-            amount: 64
-        });
-        
-        this.inventory.addItem({
-            blockId: blocks.tree.id,
-            texture: blocks.tree.icon,
-            type: 'placeable',
-            amount: 64
-        });
+        this.activeBlockId = this.inventory.getItemAt(0).blockId;
+        if (this.activeBlockId === -1) {
+            this.activeBlockId = blocks.empty.id;
+            this.tool.visible = true;
+        } else {
+            this.tool.visible = false;
+        }
 
         this.world = world;
         this.world.definePlayer(this);
@@ -109,6 +106,9 @@ export class Player {
     update(world : World) {
         this.updateRaycaster(world);
         this.tool.update();
+        if (Math.random() < 0.1) {
+            this.updateHotbarDisplay();
+        }
     }
 
     updateRaycaster(world : World) {
@@ -206,6 +206,30 @@ export class Player {
         }
     }
 
+    getHotbarActiveSlot(): number {
+        const hotbarElements = document.querySelectorAll('.toolbar-icon');
+        for (let i = 0; i < hotbarElements.length; i++) {
+            if (hotbarElements[i].classList.contains('selected')) {
+                return i;
+            }
+        }
+        return 0; // Default to the first slot if none is selected
+    }
+
+    useItem() {
+        // decrement the item amount in the inventory item selected by hotbar
+        const selectedIndex = this.getHotbarActiveSlot();
+        const item = this.inventory.getItemAt(selectedIndex);
+        if (item.blockId === -1) return;
+        if (item.amount > 1) {
+            item.amount--;
+            this.updateHotbarDisplay();
+        } else {
+            this.inventory.removeItem(selectedIndex);
+            this.updateHotbarDisplay();
+        }
+    }
+
     updateInventoryDisplay() {
         this.inventoryAbortController.abort();
         this.inventoryAbortController = new AbortController();
@@ -234,9 +258,6 @@ export class Player {
                     e.stopPropagation();
                     const index = Number(itemElement.getAttribute('data-id'));
                     const item = this.inventory.items[index];
-                    console.log('Clicked item:', item);
-                    console.log('Clicked index:', index);
-
                     if (item.blockId !== -1 && this.inventory.grabbedItem.blockId === -1) {
                         this.inventory.grabbedItem = item;
                         this.inventory.removeItem(index);
@@ -269,6 +290,23 @@ export class Player {
             this.closeInventory.bind(this),
             { signal: this.inventoryAbortController.signal }
         );
+    }
+
+    updateHotbarDisplay() {
+        for (let i = 0; i < 9; i++) {
+            const hotbarElement = document.getElementById(`toolbar-${i + 1}`);
+            if (!hotbarElement) continue;
+            const item = this.inventory.getItemAt(i);
+            if (item.blockId !== -1 && item.texture) {
+                hotbarElement.innerHTML = `
+                <img src="${item.texture}" alt="${Object.values(blocks).find(b => b.id === item.blockId)?.name || ''}" style="width: 64px; height: 64px; object-fit: cover;">
+                <span style="position: absolute; bottom: 0; right: 0; color: #fff;">${item.amount}</span>
+                `; // Clear previous content
+            } else {
+                hotbarElement.innerHTML = '';
+            }
+        }
+
     }
 
     updateGrabbedItemDisplay() {
@@ -305,6 +343,22 @@ export class Player {
             e.stopPropagation();
             this.controls.lock();
         }
+    }
+
+    selectHotBarSlot(slotIndex: number) {
+        if (slotIndex < 0 || slotIndex > 9) return;
+        const hotbarItem = this.inventory.getItemAt(slotIndex - 1);
+        if (!hotbarItem) return;
+
+        // Remove old selection
+        for (let i = 0; i < 10; i++) {
+            document.getElementById(`toolbar-${i}`)?.classList.remove('selected');
+        }
+        document.getElementById(`toolbar-${slotIndex}`)?.classList.add('selected');
+        console.log(`Selected hotbar slot ${slotIndex}:`, hotbarItem);
+        console.log('Active block ID:', hotbarItem.blockId === -1 ? blocks.empty.id : hotbarItem.blockId);
+        this.activeBlockId = hotbarItem.blockId === -1 ? blocks.empty.id : hotbarItem.blockId;
+        this.tool.visible = this.activeBlockId === blocks.empty.id;
     }
 
     onKeyDown(e: KeyboardEvent) {
@@ -345,10 +399,9 @@ export class Player {
             case 'Digit7':
             case 'Digit8':
             case 'Digit9':
-                document.getElementById(`toolbar-${this.activeBlockId}`)?.classList.remove('selected');
-                this.activeBlockId = Number(e.code.replace('Digit', ''));
-                document.getElementById(`toolbar-${this.activeBlockId}`)?.classList.add('selected');
-                this.tool.visible = this.activeBlockId === blocks.empty.id;
+                const hotbarIndex = Number(e.code.replace('Digit', ''));
+                if (hotbarIndex < 0 || hotbarIndex > 9) return;
+                this.selectHotBarSlot(hotbarIndex);
                 break;
             default:
                 break;

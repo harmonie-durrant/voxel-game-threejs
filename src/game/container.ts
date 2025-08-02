@@ -36,6 +36,26 @@ export class Container {
         return -1;
     }
 
+    getItemAt(index: number): ItemData {
+        if (index < 0 || index >= this.maxItems) {
+            return emptyItem;
+        }
+        return this.items[index];
+    }
+
+    loadItemsFromSave(items: ItemData[]): void {
+        this.items = Array(this.maxItems).fill(emptyItem);
+        if (!items || items.length === 0) {
+            return;
+        }
+        this.items = items;
+        // Fill remaining slots with empty items
+        for (let i = items.length; i < this.maxItems; i++) {
+            this.items[i] = emptyItem;
+        }
+        this.grabbedItem = emptyItem;
+    }
+
     addItem(item: ItemData, index: number = -1): boolean {
         if (index === -1) {
             index = this.getFirstEmptyIndex();
