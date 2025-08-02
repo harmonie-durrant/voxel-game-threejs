@@ -48,6 +48,7 @@ export class Player {
         this.world = world;
         this.world.definePlayer(this);
         this.position.set(0, 1, 0);
+
         if (!loadFromSave)
             this.world.respawnPlayer();
         else
@@ -99,7 +100,7 @@ export class Player {
     update(world : World) {
         this.updateRaycaster(world);
         this.tool.update();
-        if (Math.random() < 0.1) {
+        if (Math.random() < 0.005) {
             this.updateHotbarDisplay();
         }
     }

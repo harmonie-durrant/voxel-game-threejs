@@ -105,8 +105,9 @@ export class World extends THREE.Group {
   }
 
   respawnPlayer(position: { x: number; y: number; z: number } | null = null, rotation: { x: number; y: number; z: number } | null = null) {
+    this.generateSpawnArea(0, 0, 50);
     if (!this.player) return;
-    const spawnPoint = position || this.getSpawnPoint(this.player.position.x, this.player.position.z);
+    const spawnPoint = position || this.getSpawnPoint(0, 0);
     this.player.position.set(spawnPoint.x, spawnPoint.y + 3, spawnPoint.z);
     if (rotation) {
       this.player.camera.rotation.set(rotation.x, rotation.y, rotation.z);
@@ -141,6 +142,7 @@ export class World extends THREE.Group {
     setTimeout(() => {
       document.getElementById('status')!.innerText = '';
     }, 3000);
+    this.generateSpawnArea(0, 0, 50);
     this.respawnPlayer(
       JSON.parse(localStorage.getItem('player_position') || '{}'),
       JSON.parse(localStorage.getItem('player_rotation') || '{}')
@@ -233,13 +235,30 @@ export class World extends THREE.Group {
     return chunk.getBlock(coords.block.x, coords.block.y, coords.block.z);
   }
 
-  getSpawnPoint(x : number, z : number) {
-    // itterate x and z from 0 to 100, and find the first block that is not empty and is above the water level
-    for (let px = x; px < x + 100; px++) {
-      for (let pz = z; pz < z + 100; pz++) {
-        const topMostBlock = this.getTopMostBlock(px, pz);
-        if (topMostBlock.y >= this.params.terrain.waterLevel) {
-          return new THREE.Vector3(px, topMostBlock.y, pz);
+  generateSpawnArea(x: number, z: number, radius: number = 50) {
+    for (let px = x - radius; px < x + radius; px += this.chunkSize.width) {
+      for (let pz = z - radius; pz < z + radius; pz += this.chunkSize.width) {
+        const chunkCoords = this.worldToChunkCoords(px, 0, pz).chunk;
+        if (!this.getChunk(chunkCoords.x, chunkCoords.z)) {
+          this.generateChunk(chunkCoords.x, chunkCoords.z, true);
+        }
+      }
+    }
+  }
+
+  getSpawnPoint(x: number, z: number) {
+    const maxRadius = 50;
+    for (let r = 0; r <= maxRadius; r++) {
+      for (let dx = -r; dx <= r; dx++) {
+        for (let dz = -r; dz <= r; dz++) {
+          // Only check the edge of the current radius square
+          if (Math.abs(dx) !== r && Math.abs(dz) !== r) continue;
+          const px = x + dx;
+          const pz = z + dz;
+          const topMostBlock = this.getTopMostBlock(px, pz);
+          if (topMostBlock.y >= this.params.terrain.waterLevel) {
+            return new THREE.Vector3(px, topMostBlock.y, pz);
+          }
         }
       }
     }
@@ -250,6 +269,8 @@ export class World extends THREE.Group {
     const coords = this.worldToChunkCoords(x, 0, z);
     const chunk = this.getChunk(coords.chunk.x, coords.chunk.z);
     if (!chunk || !chunk.loaded) return new THREE.Vector3(x, 0, z);
+    console.log("getting top block at chunk: ", coords.chunk.x, coords.chunk.z);
+    console.log("getting top block at pos: ", coords.block.x, coords.block.y, coords.block.z);
     return chunk.getTopMostBlock(coords.block.x, coords.block.z);
   }
 

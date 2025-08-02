@@ -68,7 +68,7 @@ export class Game {
         if (loadFromSave) {
             this.world?.load(true);
         } else {
-            this.world.generateChunk(0, 0, true);
+            this.world.generateSpawnArea(0, 0, 50);
         }
         this.scene.add(this.world);
         
