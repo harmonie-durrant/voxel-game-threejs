@@ -72,7 +72,7 @@ export class Game {
         }
         this.scene.add(this.world);
         
-        this.player = new Player(this.scene, this.world);
+        this.player = new Player(this.scene, this.world, loadFromSave);
         this.physics = new Physics(this.scene);
         
         this.modelLoader = new ModelLoader();

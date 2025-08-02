@@ -77,6 +77,8 @@ export class World extends THREE.Group {
 
   saveData: WorldSaveData = new WorldSaveData();
 
+  player: Player | null = null;
+
   constructor(seed : number = 0) {
     super()
     this.seed = seed;
@@ -85,18 +87,45 @@ export class World extends THREE.Group {
     document.addEventListener('keydown', (e) => {
       switch (e.code) {
         case 'F1':
+          e.preventDefault();
+          e.stopPropagation();
           this.save();
           break;
         case 'F2':
+          e.preventDefault();
+          e.stopPropagation();
           this.load();
           break;
       }
     });
   }
 
+  definePlayer(player: Player) {
+    this.player = player;
+  }
+
+  respawnPlayer(position: { x: number; y: number; z: number } | null = null, rotation: { x: number; y: number; z: number } | null = null) {
+    if (!this.player) return;
+    const spawnPoint = position || this.getSpawnPoint(this.player.position.x, this.player.position.z);
+    this.player.position.set(spawnPoint.x, spawnPoint.y + 3, spawnPoint.z);
+    if (rotation) {
+      this.player.camera.rotation.set(rotation.x, rotation.y, rotation.z);
+    }
+  }
+
   save() {
     localStorage.setItem('world_params', JSON.stringify(this.params));
     localStorage.setItem('world_data', JSON.stringify(this.saveData.data));
+    localStorage.setItem('player_position', JSON.stringify({
+      x: this.player?.position.x || 0,
+      y: this.player?.position.y || 0,
+      z: this.player?.position.z || 0
+    }));
+    localStorage.setItem('player_rotation', JSON.stringify({
+      x: this.player?.camera.rotation.x || 0,
+      y: this.player?.camera.rotation.y || 0,
+      z: this.player?.camera.rotation.z || 0
+    }));
     document.getElementById('status')!.innerText = 'WORLD SAVED';
     setTimeout(() => {
       document.getElementById('status')!.innerText = '';
@@ -110,6 +139,10 @@ export class World extends THREE.Group {
     setTimeout(() => {
       document.getElementById('status')!.innerText = '';
     }, 3000);
+    this.respawnPlayer(
+      JSON.parse(localStorage.getItem('player_position') || '{}'),
+      JSON.parse(localStorage.getItem('player_rotation') || '{}')
+    );
     if (loadOnlyOrigin) {
       this.generateChunk(0, 0, true);
       return;

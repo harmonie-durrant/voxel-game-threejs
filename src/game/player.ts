@@ -33,11 +33,19 @@ export class Player {
 
     tool: Tool = new Tool();
 
-    constructor(scene: THREE.Scene, world: World) {
+    world: World
+
+    constructor(scene: THREE.Scene, world: World, loadFromSave: boolean = false) {
+        this.world = world;
+        this.world.definePlayer(this);
         this.position.set(0, 1, 0);
-        // Get nearest "spawnable" block , starting from 0,0 and spreading out to find learest block that is on or above the water level
-        const sp = world.getSpawnPoint(this.position.x, this.position.z);
-        this.position.set(sp.x, sp.y + 2, sp.z);
+        if (!loadFromSave)
+            this.world.respawnPlayer();
+        else
+            this.world.respawnPlayer(
+                JSON.parse(localStorage.getItem('player_position') || '{}'),
+                JSON.parse(localStorage.getItem('player_rotation') || '{}')
+            );
         this.camera.layers.enable(1);
         scene.add(this.camera);
         this.cameraHelper.visible = false;
@@ -157,8 +165,7 @@ export class Player {
                 this.input.x = this.maxSpeed;
                 break;
             case 'KeyR':
-                this.position.set(32, 16, 32);
-                this.velocity.set(0, 0, 0);
+                this.world.respawnPlayer();
                 break;
             case 'Space':
                 if (this.onGround) {
