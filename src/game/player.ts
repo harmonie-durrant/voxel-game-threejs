@@ -372,6 +372,22 @@ export class Player {
         this.updateToolVisibility();
     }
 
+    dropItem(amount: number) {
+        const selectedIndex = this.getHotbarActiveSlot();
+        const item = this.inventory.getItemAt(selectedIndex);
+        if (item.blockId === -1 || item.blockId === blocks.empty.id) return;
+        if (amount <= 0 || amount > item.amount)
+            amount = item.amount;
+        if (amount <= 0) return;
+        const droppedItem = { ...item, amount: amount };
+        this.inventory.items[selectedIndex].amount -= amount;
+        if (this.inventory.items[selectedIndex].amount <= 0) {
+            this.inventory.removeItem(selectedIndex);
+        }
+        this.updateHotbarDisplay();
+        this.world.dropItem(droppedItem, this.position.clone().sub(new THREE.Vector3(0, 1, 0)), this.camera.rotation);
+    }
+
     onKeyDown(e: KeyboardEvent) {
         if (!this.controls.isLocked) {
             this.controls.lock();
@@ -388,6 +404,9 @@ export class Player {
                 break;
             case 'KeyD':
                 this.input.x = this.maxSpeed;
+                break;
+            case 'KeyQ':
+                this.dropItem(1);
                 break;
             case 'KeyR':
                 this.world.respawnPlayer();

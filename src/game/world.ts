@@ -3,6 +3,8 @@ import { WorldChunk } from './worldChunk';
 import { WorldSaveData } from './worldSaveData';
 
 import type { Player } from './player';
+import type { ItemData } from './container';
+import { blocks } from './blocks';
 
 type terrainParams = {
   scale : number,
@@ -351,5 +353,76 @@ export class World extends THREE.Group {
       this.hideBlock(x, y, z - 1);
       this.hideBlock(x, y, z + 1);
       return true;
+  }
+
+  createItemEntity(item: ItemData, position: THREE.Vector3, initialForceAngle: THREE.Euler | null = null): THREE.Object3D {
+    const itemEntity = new THREE.Object3D();
+    itemEntity.position.copy(position);
+    itemEntity.userData.item = item;
+
+    // Add a pickup delay (in seconds)
+    itemEntity.userData.pickupDelay = 1; // 0.5 seconds before it can be picked up
+
+    // Add a mesh to represent the item visually
+    const geometry = new THREE.BoxGeometry(0.2, 0.2, 0.2);
+    const blockData = Object.values(blocks).find(b => b.id === item.blockId);
+    let material: THREE.Material;
+    if (blockData && 'material' in blockData && blockData.material) {
+      material = Array.isArray(blockData.material) ? blockData.material[0] : blockData.material;
+    } else {
+      material = new THREE.MeshLambertMaterial({ color: 0x888888 });
+    }
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    itemEntity.add(mesh);
+
+    // Physics properties
+    itemEntity.userData.velocity = new THREE.Vector3(0, 0, 0);
+    itemEntity.userData.gravity = new THREE.Vector3(0, -9.8, 0);
+
+    // Apply initial force if provided
+    if (initialForceAngle) {
+      // Use Euler angles to create a direction vector
+      // reverse initial force angle
+
+      const direction = new THREE.Vector3(0, 0, -1).applyEuler(initialForceAngle).normalize();
+      itemEntity.userData.velocity.copy(direction.multiplyScalar(4));
+    }
+
+    // Mark as item entity for update
+    itemEntity.userData.isItemEntity = true;
+
+    return itemEntity;
+  }
+
+  dropItem(item: ItemData, origin: THREE.Vector3, initialForceAngle: THREE.Euler | null = null): void {
+    if (!this.player) return;
+    const itemPosition = origin.clone().add(new THREE.Vector3(0, 1, 0));
+    const itemEntity = this.createItemEntity(item, itemPosition, initialForceAngle);
+    this.add(itemEntity);
+  }
+
+  /**
+   * Call this in your main game loop to update all item entities (gravity, ground collision)
+   * @param delta Time since last update in seconds
+   */
+  updateItemEntities(delta: number) {
+    for (const child of this.children) {
+      if (child.userData && child.userData.isItemEntity) {
+        // Apply gravity
+        child.userData.velocity.addScaledVector(child.userData.gravity, delta);
+        child.position.addScaledVector(child.userData.velocity, delta);
+
+        // Simple ground collision (assume y=0 is ground)
+        if (child.position.y < 0.125) {
+          child.position.y = 0.125;
+          child.userData.velocity.y = 0;
+          // Add friction
+          child.userData.velocity.x *= 0.7;
+          child.userData.velocity.z *= 0.7;
+        }
+      }
+    }
   }
 }

@@ -22,6 +22,10 @@ export class Physics {
   accumulator: number = 0;
   gravity: number = 32;
 
+  // Item entity physics defaults
+  itemGravity: number = 9.8;
+  itemFriction: number = 0.7;
+
   helpers: THREE.Group;
   
   constructor(scene: THREE.Scene) {
@@ -38,6 +42,87 @@ export class Physics {
       player.applyInputs(this.timeStep);
       player.updateBoundsHelper();
       this.detectCollisions(player, world);
+      
+      // --- Item entity physics and merging ---
+      // Gather all item entities
+      const itemEntities = world.children.filter(
+        (c) => c.userData && c.userData.isItemEntity
+      );
+
+      // Physics and collision
+      for (const child of itemEntities) {
+        if (!child.userData.gravity) {
+          child.userData.gravity = new THREE.Vector3(0, -this.itemGravity, 0);
+        } else {
+          child.userData.gravity.set(0, -this.itemGravity, 0);
+        }
+
+        // Apply gravity
+        if (!child.userData.velocity) child.userData.velocity = new THREE.Vector3();
+        child.userData.velocity.addScaledVector(child.userData.gravity, this.timeStep);
+        child.position.addScaledVector(child.userData.velocity, this.timeStep);
+
+        // Decrement pickup delay if present
+        if (typeof child.userData.pickupDelay === 'number' && child.userData.pickupDelay > 0) {
+          child.userData.pickupDelay -= this.timeStep;
+          if (child.userData.pickupDelay < 0) child.userData.pickupDelay = 0;
+        }
+
+        // Terrain collision: find the block directly below the item
+        const below = new THREE.Vector3(
+          Math.round(child.position.x),
+          Math.floor(child.position.y + 0.4),
+          Math.round(child.position.z)
+        );
+        const blockBelow = world.getBlock(below.x, below.y, below.z);
+        if (blockBelow && blockBelow.id !== blocks.empty.id) {
+          // Place item on top of the block
+          child.position.y = below.y + 0.6;
+          child.userData.velocity.y = 0;
+          // Friction
+          child.userData.velocity.x *= this.itemFriction;
+          child.userData.velocity.z *= this.itemFriction;
+        }
+      }
+
+      // --- Player pickup logic ---
+      const pickupDistance = 2; // slightly larger than merge distance
+      for (const item of itemEntities) {
+        if (item.position.distanceTo(player.position) < pickupDistance && item.userData.pickupDelay == 0) {
+          const pickedUp = player.inventory.addItem(item.userData.item);
+          if (pickedUp) {
+            world.remove(item as THREE.Object3D);
+            player.updateHotbarDisplay();
+          }
+        }
+      }
+
+      // --- Merging logic ---
+      const mergeDistance = 0.3; // merge if centers are within this distance
+      const toRemove = new Set();
+      for (let i = 0; i < itemEntities.length; i++) {
+        const a = itemEntities[i];
+        if (toRemove.has(a)) continue;
+        for (let j = i + 1; j < itemEntities.length; j++) {
+          const b = itemEntities[j];
+          if (toRemove.has(b)) continue;
+          // Only merge if same item type (optional: check a.userData.item)
+          if (a.userData.item && b.userData.item && a.userData.item.blockId === b.userData.item.blockId) {
+            if (a.position.distanceTo(b.position) < mergeDistance) {
+              // Merge: increment a's amount, remove b
+              a.userData.item.amount = (a.userData.item.amount || 1) + (b.userData.item.amount || 1);
+              console.log(`Merging item entities: ${a.userData.item.blockId} x${a.userData.item.amount}`);
+              toRemove.add(b);
+            }
+          }
+        }
+      }
+      // Remove merged entities from world
+      for (const ent of toRemove) {
+        console.log(`Removing merged item entity`);
+        world.remove(ent as THREE.Object3D);
+      }
+
       this.accumulator -= this.timeStep;
     }
   }

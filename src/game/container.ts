@@ -1,4 +1,4 @@
-type ItemData = {
+export type ItemData = {
     blockId: number;
     texture: string;
     type: string; // 'placeable' or 'tool' (more later...)
@@ -27,9 +27,9 @@ export class Container {
         ];
     }
 
-    getFirstEmptyIndex(): number {
+    getFirstOfSameData(item: ItemData): number {
         for (let i = 0; i < this.maxItems; i++) {
-            if (this.items[i].blockId === -1) {
+            if (this.items[i].blockId === item.blockId && this.items[i].amount < this.stackSize) {
                 return i;
             }
         }
@@ -58,7 +58,7 @@ export class Container {
 
     addItem(item: ItemData, index: number = -1): boolean {
         if (index === -1) {
-            index = this.getFirstEmptyIndex();
+            index = this.getFirstOfSameData(item);
             if (index === -1) {
                 return false; // No empty slot available
             }
