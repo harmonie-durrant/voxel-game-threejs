@@ -350,21 +350,25 @@ export class WorldChunk extends THREE.Group {
       mesh.computeBoundingSphere();
     }
 
-    addBlock(x : number, y : number, z : number, id : number) {
-      if (this.getBlock(x, y, z)?.id !== blocks.empty.id) return;
-      this.setBlockId(x, y, z, id);
+    addBlock(x : number, y : number, z : number, id : number): boolean {
+      if (this.getBlock(x, y, z)?.id !== blocks.empty.id) return false;
+      const set = this.setBlockId(x, y, z, id);
+      if (!set) return false;
       this.addBlockInstance(x, y, z);
       this.saveData.set(
         new THREE.Vector2(this.position.x, this.position.z),
         new THREE.Vector3(x, y, z),
         id
       );
+      return true;
     }
 
-    setBlockId(x : number, y : number, z : number, id : number) {
+    setBlockId(x : number, y : number, z : number, id : number): boolean {
       if (this.inBounds(x, y, z)) {
         this.data[x][y][z].id = id;
+        return true;
       }
+      return false;
     }
 
     setBlockInstanceId(x : number, y : number, z : number, instanceId : number | null) {

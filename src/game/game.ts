@@ -158,8 +158,10 @@ export class Game {
             this.player.tool.startAnimation();
             this.world.removeBlock(this.player.selectedCoords.x, this.player.selectedCoords.y, this.player.selectedCoords.z);
         } else {
-            this.world.addBlock(this.player.selectedCoords.x, this.player.selectedCoords.y, this.player.selectedCoords.z, this.player.activeBlockId);
-            this.player.useItem();
+            const added = this.world.addBlock(this.player.selectedCoords.x, this.player.selectedCoords.y, this.player.selectedCoords.z, this.player.activeBlockId);
+            if (added) {
+                this.player.useItem();
+            }
         }
     }
 

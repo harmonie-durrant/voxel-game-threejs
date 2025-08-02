@@ -316,11 +316,12 @@ export class World extends THREE.Group {
     chunk.deleteBlockInstance(coords.block.x, coords.block.y, coords.block.z);
   }
 
-  addBlock(x : number, y : number, z : number, id : number) {
+  addBlock(x : number, y : number, z : number, id : number): boolean {
      const coords = this.worldToChunkCoords(x, y, z);
       const chunk = this.getChunk(coords.chunk.x, coords.chunk.z);
-      if (!chunk) return;
-      chunk.addBlock(coords.block.x, coords.block.y, coords.block.z, id);
+      if (!chunk) return false;
+      const added = chunk.addBlock(coords.block.x, coords.block.y, coords.block.z, id);
+      if (!added) return false;
 
       this.hideBlock(x - 1, y, z);
       this.hideBlock(x + 1, y, z);
@@ -328,5 +329,6 @@ export class World extends THREE.Group {
       this.hideBlock(x, y + 1, z);
       this.hideBlock(x, y, z - 1);
       this.hideBlock(x, y, z + 1);
+      return true;
   }
 }
