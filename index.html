@@ -23,12 +23,26 @@
             <ul>
               <li><b>WASD</b> &rarr; Move</li>
               <li><b>Space</b> &rarr; Jump</li>
+              <li><b>E</b> &rarr; Inventory</li>
               <li><b>0-9</b> &rarr; Select block or tool</li>
               <li><b>F1</b> &rarr; Save</li>
               <li><b>F2</b> &rarr; Load from save</li>
               <li><b>C</b> &rarr; Orbit free cam</li>
             </ul>
-        <button id="close_controls" class="close-x" title="Close">&times;</button>
+          <button id="close_controls" class="close-x" title="Close">&times;</button>
+          </div>
+        </div>
+      </div>
+      <div id="world-creation-popup" class="hidden">
+        <div class="world-creation-content">
+          <h2>Create New World</h2>
+          <div class="world-creation-form">
+            <label for="world-seed">Seed (optional):</label>
+            <input type="text" id="world-seed" placeholder="Enter seed number" />
+            <div class="buttons-horizontal">
+              <button class="menu-button menu-button-thin" id="create-world">Create World</button>
+              <button class="menu-button menu-button-thin" id="close-world-creation">Cancel</button>
+            </div>
           </div>
         </div>
       </div>
@@ -51,7 +65,30 @@
           <img class="toolbar-icon selected" id="toolbar-0" src="/textures/pickaxe.png"></img>
         </div>
       </div>
+      <div id="inventory" class="hidden">
+        <div id="inventory-header">
+          <h2>Inventory</h2>
+          <button id="close-inventory" class="close-x" title="Close">&times;</button>
+        </div>
+        <div id="inventory-grid-container">
+          <div id="inventory-grid">
+          </div>
+        </div>
+        <div id="inventory-hotbar">
+          <div class="inventory-item" data-id="0"><img src="/textures/grass.png" alt="Grass"><span></span></div>
+          <div class="inventory-item" data-id="1"><img src="/textures/dirt.png" alt="Dirt"><span></span></div>
+          <div class="inventory-item" data-id="2"><img src="/textures/stone.png" alt="Stone"><span></span></div>
+          <div class="inventory-item" data-id="3"><img src="/textures/coal_ore.png" alt="Coal Ore"><span></span></div>
+          <div class="inventory-item" data-id="4"><img src="/textures/iron_ore.png" alt="Iron Ore"><span></span></div>
+          <div class="inventory-item" data-id="5"><img src="/textures/tree_top.png" alt="Tree Top"><span></span></div>
+          <div class="inventory-item" data-id="6"><img src="/textures/leaves.png" alt="Leaves"><span></span></div>
+          <div class="inventory-item" data-id="7"><img src="/textures/sand.png" alt="Sand"><span></span></div>
+          <div class="inventory-item" data-id="8" style="background-color: #fff;"><span></span></div>
+          <div class="inventory-item" data-id="9"><img src="/textures/pickaxe.png" alt="Pickaxe"><span></span></div>
+        </div>
+      </div>
       <div id="status"></div>
+      <div id="dragged-item" style="position: fixed; pointer-events: none; display: none; z-index: 1000;"></div>
     </div>
   </body>
 </html>

@@ -1,20 +1,20 @@
-import { Game } from "./game/game";
+import { WorldCreation } from "./menu/worldCreation";
 
 const mainMenuController = new AbortController();
 const mainMenuSignal = mainMenuController.signal;
 
-var game: Game | null = null;
+var worldcreation: WorldCreation = new WorldCreation();
 
-game;
+worldcreation;
 
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('start_game')?.addEventListener('click', () => {
+    worldcreation.openWorldCreationMenu();
     mainMenuController.abort();
-    game = new Game();
   });
   document.getElementById('load_game')?.addEventListener('click', () => {
+    worldcreation.startGameFromSave();
     mainMenuController.abort();
-    game = new Game(true);
   });
   // Controls popup logic
   const controlsPopup = document.getElementById('controls_popup');

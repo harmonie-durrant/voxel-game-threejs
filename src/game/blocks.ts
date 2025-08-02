@@ -26,7 +26,8 @@ const textures = {
 export const blocks = {
     empty: {
         id: 0,
-        name: "empty"
+        name: "empty",
+        icon: null,
     },
     grass: {
         id: 1,
@@ -39,13 +40,15 @@ export const blocks = {
             new THREE.MeshLambertMaterial({ map: textures.dirt }),
             new THREE.MeshLambertMaterial({ map: textures.grassSide }),
             new THREE.MeshLambertMaterial({ map: textures.grassSide }),
-        ]
+        ],
+        icon: "/textures/grass.png",
     },
     dirt: {
         id: 2,
         name: "dirt",
         color: 0x807020, // Brown
-        material: new THREE.MeshLambertMaterial({ map: textures.dirt })
+        material: new THREE.MeshLambertMaterial({ map: textures.dirt }),
+        icon: "/textures/dirt.png",
     },
     stone: {
         id: 3,
@@ -53,7 +56,8 @@ export const blocks = {
         color: 0x808080, // Gray
         material: new THREE.MeshLambertMaterial({ map: textures.stone }),
         scale: { x: 30, y: 30, z: 30 },
-        scarcity: 0.5
+        scarcity: 0.5,
+        icon: "/textures/stone.png",
     },
     coalOre: {
         id: 4,
@@ -61,7 +65,8 @@ export const blocks = {
         color: 0x353535, // Dark Gray
         material: new THREE.MeshLambertMaterial({ map: textures.coalOre }),
         scale: { x: 20, y: 20, z: 20 },
-        scarcity: 0.8
+        scarcity: 0.8,
+        icon: "/textures/coal_ore.png",
     },
     ironOre: {
         id: 5,
@@ -69,7 +74,8 @@ export const blocks = {
         color: 0xaaaaaa, // Dark Gray
         material: new THREE.MeshLambertMaterial({ map: textures.ironOre }),
         scale: { x: 60, y: 60, z: 60 },
-        scarcity: 0.9
+        scarcity: 0.9,
+        icon: "/textures/iron_ore.png",
     },
     tree: {
         id: 6,
@@ -82,7 +88,8 @@ export const blocks = {
             new THREE.MeshLambertMaterial({ map: textures.treeTop }),
             new THREE.MeshLambertMaterial({ map: textures.treeSide }),
             new THREE.MeshLambertMaterial({ map: textures.treeSide })
-        ]
+        ],
+        icon: "/textures/tree_top.png",
     },
     leaves: {
         id: 7,
@@ -94,12 +101,14 @@ export const blocks = {
             side: THREE.DoubleSide
         }),
         transparent: true,
+        icon: "/textures/leaves.png",
     },
     sand: {
         id: 8,
         name: "sand",
         color: 0xEDC9AF, // Sandy Brown
-        material: new THREE.MeshLambertMaterial({ map: textures.sand })
+        material: new THREE.MeshLambertMaterial({ map: textures.sand }),
+        icon: "/textures/sand.png",
     },
     cloud: {
         id: 9,

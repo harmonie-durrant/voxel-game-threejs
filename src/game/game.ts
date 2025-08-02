@@ -28,7 +28,7 @@ export class Game {
 
     cameraMode: String = 'first-person';
 
-    constructor(loadFromSave: boolean = false) {
+    constructor(loadFromSave: boolean = false, seed: number = 0) {
         const gameContainer = document.getElementById('game_ui_container');
         if (!gameContainer) {
             console.error('Game container not found');
@@ -55,7 +55,7 @@ export class Game {
         }
 
         this.orbitCamera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight);
-        this.orbitCamera.position.set(70, 32, 70);
+        this.orbitCamera.position.set(0, 0, 0);
         this.orbitCamera.layers.enable(1);
 
         // OrbitControls setup
@@ -64,7 +64,7 @@ export class Game {
 
         this.scene = new THREE.Scene();
         this.scene.fog = new THREE.Fog(0x80a0e0, 25, 70);
-        this.world = new World();
+        this.world = new World(seed);
         if (loadFromSave) {
             this.world?.load(true);
         } else {

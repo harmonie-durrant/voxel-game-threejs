@@ -2,8 +2,8 @@ import * as THREE from 'three';
 import { PointerLockControls } from 'three/examples/jsm/Addons.js';
 import { blocks } from './blocks';
 import { Tool } from './tool';
-
-import type { World } from './world';
+import { Container, emptyItem } from './container';
+import { World } from './world';
 
 const CENTER_SCREEN: THREE.Vector2 = new THREE.Vector2();
 
@@ -35,7 +35,26 @@ export class Player {
 
     world: World
 
+    inventory: Container = new Container(36);
+    inventoryShown: boolean = false;
+    inventoryAbortController: AbortController = new AbortController();
+
     constructor(scene: THREE.Scene, world: World, loadFromSave: boolean = false) {
+
+        this.inventory.addItem({
+            blockId: blocks.stone.id,
+            texture: blocks.stone.icon,
+            type: 'placeable',
+            amount: 64
+        });
+        
+        this.inventory.addItem({
+            blockId: blocks.tree.id,
+            texture: blocks.tree.icon,
+            type: 'placeable',
+            amount: 64
+        });
+
         this.world = world;
         this.world.definePlayer(this);
         this.position.set(0, 1, 0);
@@ -148,8 +167,138 @@ export class Player {
         this.boundsHelper.position.y -= this.height / 2;
     }
 
+    closeInventory() {
+        const inventoryElement = document.getElementById('inventory');
+        if (!inventoryElement) return;
+        inventoryElement.classList.add('hidden');
+        this.controls.lock();
+        this.inventoryShown = false;
+        this.inventoryAbortController.abort();
+        const dragged = document.getElementById('dragged-item')!;
+        if (dragged.style.display === 'block') {
+            dragged.style.display = 'none';
+            dragged.innerHTML = ''; // Clear the dragged item
+        }
+        if (this.inventory.grabbedItem.blockId !== -1) {
+            const addedToInventory = this.inventory.addItem(this.inventory.grabbedItem);
+            if (!addedToInventory) {
+                //TODO: Drop item on the ground if inventory is empty
+                console.warn('Inventory is full, item not added:', this.inventory.grabbedItem);
+            }
+            this.inventory.grabbedItem = emptyItem;
+        }
+    }
+
+    toggleInventory() {
+        const inventoryElement = document.getElementById('inventory');
+        if (inventoryElement) {
+            if (inventoryElement.classList.contains('hidden')) {
+                inventoryElement.classList.remove('hidden');
+                this.controls.unlock();
+                this.inventoryShown = true;
+                this.updateInventoryDisplay();
+            } else {
+                inventoryElement.classList.add('hidden');
+                this.controls.lock();
+                this.inventoryShown = false;
+                this.inventoryAbortController.abort(); // Clear any ongoing inventory updates
+            }
+        }
+    }
+
+    updateInventoryDisplay() {
+        this.inventoryAbortController.abort();
+        this.inventoryAbortController = new AbortController();
+        if (!this.inventoryShown) return;
+        const inventoryGrid = document.getElementById('inventory-grid');
+        if (inventoryGrid) {
+            inventoryGrid.innerHTML = ''; // Clear previous items
+            var index = 0;
+            for (const item of this.inventory.items) {
+                // create inventory item elements
+                const itemElement = document.createElement('div');
+                itemElement.classList.add('inventory-item');
+                itemElement.setAttribute('data-id', index.toString());
+                if (item.blockId != -1 && item.texture) {
+                    const itemImage = document.createElement('img');
+                    itemImage.src = item.texture;
+                    itemImage.alt = Object.values(blocks).find(b => b.id === item.blockId)?.name || '';
+                    itemElement.appendChild(itemImage);
+                    const itemCount = document.createElement('span');
+                    itemCount.innerText = item.amount.toString();
+                    itemElement.appendChild(itemCount);
+                }
+                inventoryGrid.appendChild(itemElement);
+                itemElement.addEventListener('click', (e) => {
+                    const index = Number(itemElement.getAttribute('data-id'));
+                    const item = this.inventory.items[index];
+                    console.log('Clicked item:', item);
+                    console.log('Clicked index:', index);
+
+                    if (item.blockId !== -1 && this.inventory.grabbedItem.blockId === -1) {
+                        this.inventory.grabbedItem = item;
+                        this.inventory.removeItem(index);
+                        this.updateGrabbedItemDisplay();
+                    } else if (this.inventory.grabbedItem.blockId !== -1) {
+                        const added = this.inventory.addItem(this.inventory.grabbedItem, index);
+                        if (added) {
+                            this.inventory.grabbedItem = emptyItem;
+                            this.updateGrabbedItemDisplay();
+                        } else {
+                            console.warn('Inventory is full, item not added:', this.inventory.grabbedItem);
+                        }
+                    }
+                    this.updateInventoryDisplay();
+                });
+                index++;
+            }
+            document.addEventListener('mousemove', (e) => {
+                if (!this.inventoryShown || this.inventory.grabbedItem.blockId === -1) return;
+                const dragged = document.getElementById('dragged-item');
+                if (!dragged) return;
+                if (dragged.style.display === 'block') {
+                    dragged.style.left = `${e.clientX + 5}px`;
+                    dragged.style.top = `${e.clientY + 5}px`;
+                }
+            }, { signal: this.inventoryAbortController.signal });
+        }
+        document.getElementById('close-inventory')!.addEventListener(
+            'click',
+            this.closeInventory.bind(this),
+            { signal: this.inventoryAbortController.signal }
+        );
+    }
+
+    updateGrabbedItemDisplay() {
+        const isEmpty = this.inventory.grabbedItem.blockId === -1;
+        const dragged = document.getElementById('dragged-item')!;
+        dragged.innerHTML = '';
+        dragged.style.display = 'block';
+
+        dragged.innerHTML = '';
+        if (isEmpty) {
+            dragged.style.display = 'none';
+            return;
+        }
+        dragged.style.display = 'block';
+
+        const img = document.createElement('img');
+        img.src = this.inventory.grabbedItem.texture;
+        img.style.width = '32px';
+        img.style.height = '32px';
+        dragged.appendChild(img);
+
+        const span = document.createElement('span');
+        span.innerText = this.inventory.grabbedItem.amount.toString();
+        span.style.position = 'absolute';
+        span.style.bottom = '0';
+        span.style.right = '0';
+        span.style.color = '#fff';
+        dragged.appendChild(span);
+    }
+
     onMouseDown(e: MouseEvent) {
-        if (!this.controls.isLocked) {
+        if (!this.controls.isLocked && !this.inventoryShown) {
             e.preventDefault();
             e.stopPropagation();
             this.controls.lock();
@@ -175,6 +324,9 @@ export class Player {
                 break;
             case 'KeyR':
                 this.world.respawnPlayer();
+                break;
+            case 'KeyE':
+                this.toggleInventory();
                 break;
             case 'Space':
                 if (this.onGround) {

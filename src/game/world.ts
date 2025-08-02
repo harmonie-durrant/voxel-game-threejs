@@ -81,7 +81,7 @@ export class World extends THREE.Group {
 
   constructor(seed : number = 0) {
     super()
-    this.seed = seed;
+    this.params.seed = seed;
     this.chunk = null;
 
     document.addEventListener('keydown', (e) => {
