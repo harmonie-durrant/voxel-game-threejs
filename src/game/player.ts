@@ -230,6 +230,8 @@ export class Player {
                 }
                 inventoryGrid.appendChild(itemElement);
                 itemElement.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
                     const index = Number(itemElement.getAttribute('data-id'));
                     const item = this.inventory.items[index];
                     console.log('Clicked item:', item);
