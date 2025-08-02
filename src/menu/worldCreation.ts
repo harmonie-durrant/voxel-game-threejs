@@ -41,7 +41,7 @@ export class WorldCreation {
     }
 
     closeWorldCreationMenu(): void {
-        const worldCreationMenu = document.getElementById('world-creation-menu');
+        const worldCreationMenu = document.getElementById('world-creation-popup');
         if (worldCreationMenu) {
             worldCreationMenu.classList.add('hidden');
             this.abortController.abort();
