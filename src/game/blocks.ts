@@ -42,6 +42,9 @@ export const blocks = {
             new THREE.MeshLambertMaterial({ map: textures.grassSide }),
         ],
         icon: "/textures/grass.png",
+        itemsToDrop: [
+            { blockId: 1, count: 1 },
+        ]
     },
     dirt: {
         id: 2,
@@ -49,6 +52,9 @@ export const blocks = {
         color: 0x807020, // Brown
         material: new THREE.MeshLambertMaterial({ map: textures.dirt }),
         icon: "/textures/dirt.png",
+        itemsToDrop: [
+            { blockId: 2, count: 1 },
+        ]
     },
     stone: {
         id: 3,
@@ -58,6 +64,9 @@ export const blocks = {
         scale: { x: 30, y: 30, z: 30 },
         scarcity: 0.5,
         icon: "/textures/stone.png",
+        itemsToDrop: [
+            { blockId: 3, count: 1 },
+        ]
     },
     coalOre: {
         id: 4,
@@ -67,6 +76,9 @@ export const blocks = {
         scale: { x: 20, y: 20, z: 20 },
         scarcity: 0.8,
         icon: "/textures/coal_ore.png",
+        itemsToDrop: [
+            { blockId: 4, count: 1 },
+        ]
     },
     ironOre: {
         id: 5,
@@ -76,6 +88,9 @@ export const blocks = {
         scale: { x: 60, y: 60, z: 60 },
         scarcity: 0.9,
         icon: "/textures/iron_ore.png",
+        itemsToDrop: [
+            { blockId: 5, count: 1 },
+        ]
     },
     tree: {
         id: 6,
@@ -90,6 +105,9 @@ export const blocks = {
             new THREE.MeshLambertMaterial({ map: textures.treeSide })
         ],
         icon: "/textures/tree_top.png",
+        itemsToDrop: [
+            { blockId: 6, count: 1 },
+        ]
     },
     leaves: {
         id: 7,
@@ -102,6 +120,7 @@ export const blocks = {
         }),
         transparent: true,
         icon: "/textures/leaves.png",
+        itemsToDrop: []
     },
     sand: {
         id: 8,
@@ -109,6 +128,9 @@ export const blocks = {
         color: 0xEDC9AF, // Sandy Brown
         material: new THREE.MeshLambertMaterial({ map: textures.sand }),
         icon: "/textures/sand.png",
+        itemsToDrop: [
+            { blockId: 8, count: 1 },
+        ]
     },
     cloud: {
         id: 9,
