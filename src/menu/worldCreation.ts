@@ -25,7 +25,7 @@ export class WorldCreation {
             worldCreationPopup.classList.remove('hidden');
             document.getElementById('create-world')?.addEventListener('click', () => {
                 const seedInput = document.getElementById('world-seed') as HTMLInputElement;
-                if (!seedInput) {
+                if (!seedInput || !seedInput.value || seedInput.value.trim() === '') {
                     this.start_game(Math.random() * 1000000); // Generate a random seed if input is not found
                     this.abortController.abort();
                     return;
