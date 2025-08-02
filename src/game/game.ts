@@ -159,7 +159,7 @@ export class Game {
             this.world.removeBlock(this.player.selectedCoords.x, this.player.selectedCoords.y, this.player.selectedCoords.z);
         } else {
             this.world.addBlock(this.player.selectedCoords.x, this.player.selectedCoords.y, this.player.selectedCoords.z, this.player.activeBlockId);
-            this.player.useItem(this.player.activeBlockId);
+            this.player.useItem();
         }
     }
 

@@ -136,7 +136,7 @@ export class World extends THREE.Group {
   load(loadOnlyOrigin: boolean = false) {
     this.params = JSON.parse(localStorage.getItem('world_params') || JSON.stringify(this.params));
     this.saveData.data = JSON.parse(localStorage.getItem('world_data') || '{}');
-    this.player?.inventory.loadItemsFromSave(JSON.parse(localStorage.getItem('player_inventory') || '[]'));
+    this.player?.loadInventoryFromSave();
     document.getElementById('status')!.innerText = 'WORLD LOADED';
     setTimeout(() => {
       document.getElementById('status')!.innerText = '';

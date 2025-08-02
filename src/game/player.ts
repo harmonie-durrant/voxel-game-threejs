@@ -40,17 +40,10 @@ export class Player {
     inventoryAbortController: AbortController = new AbortController();
 
     constructor(scene: THREE.Scene, world: World, loadFromSave: boolean = false) {
-        if (loadFromSave) {
-            this.inventory.loadItemsFromSave(JSON.parse(localStorage.getItem('player_inventory') || '[]'));
-        }
-
-        this.activeBlockId = this.inventory.getItemAt(0).blockId;
-        if (this.activeBlockId === -1) {
-            this.activeBlockId = blocks.empty.id;
-            this.tool.visible = true;
-        } else {
-            this.tool.visible = false;
-        }
+        if (loadFromSave)
+            this.loadInventoryFromSave();
+        this.activeBlockId = this.inventory.getItemAt(this.getHotbarActiveSlot()).blockId;
+        this.updateToolVisibility();
 
         this.world = world;
         this.world.definePlayer(this);
@@ -220,7 +213,7 @@ export class Player {
         // decrement the item amount in the inventory item selected by hotbar
         const selectedIndex = this.getHotbarActiveSlot();
         const item = this.inventory.getItemAt(selectedIndex);
-        if (item.blockId === -1) return;
+        if (item.blockId === -1 || item.blockId === blocks.empty.id) return;
         if (item.amount > 1) {
             item.amount--;
             this.updateHotbarDisplay();
@@ -292,6 +285,23 @@ export class Player {
         );
     }
 
+    updateToolVisibility() {
+        if (this.activeBlockId === -1) {
+            this.activeBlockId = blocks.empty.id;
+            this.tool.visible = true;
+        } else {
+            this.tool.visible = false;
+        }
+    }
+
+    loadInventoryFromSave() {
+        const savedInventory = JSON.parse(localStorage.getItem('player_inventory') || '[]');
+        this.inventory.loadItemsFromSave(savedInventory);
+        this.updateHotbarDisplay();
+        this.activeBlockId = this.inventory.getItemAt(this.getHotbarActiveSlot()).blockId;
+        this.updateToolVisibility();
+    }
+
     updateHotbarDisplay() {
         for (let i = 0; i < 9; i++) {
             const hotbarElement = document.getElementById(`toolbar-${i + 1}`);
@@ -358,7 +368,7 @@ export class Player {
         console.log(`Selected hotbar slot ${slotIndex}:`, hotbarItem);
         console.log('Active block ID:', hotbarItem.blockId === -1 ? blocks.empty.id : hotbarItem.blockId);
         this.activeBlockId = hotbarItem.blockId === -1 ? blocks.empty.id : hotbarItem.blockId;
-        this.tool.visible = this.activeBlockId === blocks.empty.id;
+        this.updateToolVisibility();
     }
 
     onKeyDown(e: KeyboardEvent) {
