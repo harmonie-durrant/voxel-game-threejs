@@ -65,10 +65,14 @@ export class Game {
         this.scene = new THREE.Scene();
         this.scene.fog = new THREE.Fog(0x80a0e0, 25, 70);
         this.world = new World();
-        this.world.generate(true);
+        if (loadFromSave) {
+            this.world?.load(true);
+        } else {
+            this.world.generateChunk(0, 0, true);
+        }
         this.scene.add(this.world);
-
-        this.player = new Player(this.scene);
+        
+        this.player = new Player(this.scene, this.world);
         this.physics = new Physics(this.scene);
         
         this.modelLoader = new ModelLoader();
@@ -89,10 +93,6 @@ export class Game {
         createUI(this.scene, this.world, this.player, this.sunHelper, this.physics);
         this.animate();
         this.addEventListeners();
-
-        if (loadFromSave) {
-            this.world?.load();
-        }
         this.player.controls.lock();
     }
 

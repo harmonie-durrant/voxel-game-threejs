@@ -288,6 +288,16 @@ export class WorldChunk extends THREE.Group {
       return null;
     }
 
+    getTopMostBlock(x : number, z : number) {
+      for (let y = this.size.height - 1; y >= 0; y--) {
+        const block = this.getBlock(x, y, z);
+        if (block && block.id !== blocks.empty.id && block.id !== blocks.cloud.id) {
+          return new THREE.Vector3(x, y, z);
+        }
+      }
+      return new THREE.Vector3(x, 0, z);
+    }
+
     removeBlock(x : number, y : number, z : number) {
       const block = this.getBlock(x, y, z);
       if (!block || block.id === blocks.empty.id) return;

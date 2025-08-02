@@ -103,13 +103,17 @@ export class World extends THREE.Group {
     }, 3000);
   }
 
-  load() {
+  load(loadOnlyOrigin: boolean = false) {
     this.params = JSON.parse(localStorage.getItem('world_params') || JSON.stringify(this.params));
     this.saveData.data = JSON.parse(localStorage.getItem('world_data') || '{}');
     document.getElementById('status')!.innerText = 'WORLD LOADED';
     setTimeout(() => {
       document.getElementById('status')!.innerText = '';
     }, 3000);
+    if (loadOnlyOrigin) {
+      this.generateChunk(0, 0, true);
+      return;
+    }
     this.generate();
   }
 
@@ -164,11 +168,11 @@ export class World extends THREE.Group {
     });
   }
 
-  generateChunk(x : number, z : number) {
+  generateChunk(x : number, z : number, generateNow: boolean = false) {
     const chunk = new WorldChunk(this.chunkSize, this.params, this.saveData);
     chunk.position.set(x * this.chunkSize.width, 0, z * this.chunkSize.width);
     chunk.userData = { x, z };
-    if (this.asyncLoading) {
+    if (this.asyncLoading && !generateNow) {
       requestIdleCallback(chunk.generate.bind(chunk), { timeout: 1000 });
     } else {
       chunk.generate();
@@ -192,6 +196,26 @@ export class World extends THREE.Group {
     const chunk = this.getChunk(coords.chunk.x, coords.chunk.z);
     if (!chunk || !chunk.loaded) return null;
     return chunk.getBlock(coords.block.x, coords.block.y, coords.block.z);
+  }
+
+  getSpawnPoint(x : number, z : number) {
+    // itterate x and z from 0 to 100, and find the first block that is not empty and is above the water level
+    for (let px = x; px < x + 100; px++) {
+      for (let pz = z; pz < z + 100; pz++) {
+        const topMostBlock = this.getTopMostBlock(px, pz);
+        if (topMostBlock.y >= this.params.terrain.waterLevel) {
+          return new THREE.Vector3(px, topMostBlock.y, pz);
+        }
+      }
+    }
+    return new THREE.Vector3(x, 0, z); // fallback if no block found
+  }
+
+  getTopMostBlock(x : number, z : number) {
+    const coords = this.worldToChunkCoords(x, 0, z);
+    const chunk = this.getChunk(coords.chunk.x, coords.chunk.z);
+    if (!chunk || !chunk.loaded) return new THREE.Vector3(x, 0, z);
+    return chunk.getTopMostBlock(coords.block.x, coords.block.z);
   }
 
   worldToChunkCoords(x : number, y : number, z : number) {
