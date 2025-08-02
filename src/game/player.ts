@@ -54,6 +54,7 @@ export class Player {
         this.camera.add(this.tool);
 
         document.addEventListener('keydown', this.onKeyDown.bind(this));
+        document.addEventListener('mousedown', this.onMouseDown.bind(this));
         document.addEventListener('keyup', this.onKeyUp.bind(this));
 
         this.boundsHelper = new THREE.Mesh(
@@ -145,6 +146,14 @@ export class Player {
     updateBoundsHelper() {
         this.boundsHelper.position.copy(this.position);
         this.boundsHelper.position.y -= this.height / 2;
+    }
+
+    onMouseDown(e: MouseEvent) {
+        if (!this.controls.isLocked) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.controls.lock();
+        }
     }
 
     onKeyDown(e: KeyboardEvent) {
