@@ -322,9 +322,11 @@ export class WorldChunk extends THREE.Group {
         if (!blockData) return;
         if (!Array.isArray(blockData.itemsToDrop)) return;
         for (const item of blockData.itemsToDrop) {
+          const dropBlockData = Object.values(blocks).find(b => b.id === item.blockId) as blocksType | undefined;
+          if (!dropBlockData) return;
           this.world.dropItem({
-            blockId: blockId,
-            texture: typeof blockData.icon === 'string' ? blockData.icon : '',
+            blockId: item.blockId,
+            texture: typeof dropBlockData.icon === 'string' ? dropBlockData.icon : '',
             type: 'placeable',
             amount: item.count
           }, dropPosition);
