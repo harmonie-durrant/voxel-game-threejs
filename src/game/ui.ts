@@ -68,9 +68,11 @@ function createResourcesFolder(gui : GUI) {
 
     const scaleFolder = resourceFolder.addFolder("Scale");
     scaleFolder.close();
-    scaleFolder.add(resource.scale, "x", 10, 100).name("X Scale");
-    scaleFolder.add(resource.scale, "y", 10, 100).name("Y Scale");
-    scaleFolder.add(resource.scale, "z", 10, 100).name("Z Scale");
+    if (resource.scale) {
+      scaleFolder.add(resource.scale, "x", 10, 100).name("X Scale");
+      scaleFolder.add(resource.scale, "y", 10, 100).name("Y Scale");
+      scaleFolder.add(resource.scale, "z", 10, 100).name("Z Scale");
+    }
   });
 }
 
