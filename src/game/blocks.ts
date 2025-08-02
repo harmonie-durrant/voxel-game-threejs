@@ -23,11 +23,24 @@ const textures = {
     sand: loadTexture('textures/sand.png')
 };
 
-export const blocks = {
+export type blocksType = {
+    [key: string]: {
+        id: number;
+        name: string;
+        color?: number;
+        material?: THREE.Material | THREE.Material[];
+        icon?: string;
+        scale?: { x: number, y: number, z: number };
+        scarcity?: number;
+        transparent?: boolean;
+        itemsToDrop?: { blockId: number, count: number }[];
+    }
+}
+
+export const blocks: blocksType = {
     empty: {
         id: 0,
         name: "empty",
-        icon: null,
     },
     grass: {
         id: 1,

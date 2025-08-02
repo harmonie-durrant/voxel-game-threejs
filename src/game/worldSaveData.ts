@@ -19,14 +19,12 @@ export class WorldSaveData {
     get(chunPos : THREE.Vector2, blockPos : THREE.Vector3) {
         const key = this.getKey(chunPos, blockPos);
         const blockId = this.data[key];
-        console.log(`Retrieving value ${blockId} for key ${key}`);
         return blockId;
     }
 
     set(chunPos : THREE.Vector2, blockPos : THREE.Vector3, blockId : number) {
         const key = this.getKey(chunPos, blockPos);
         this.data[key] = blockId;
-        console.log(`Setting key ${key} to ${blockId}`);
     }
 
     getKey(chunPos : THREE.Vector2, blockPos : THREE.Vector3) : string {

@@ -1,3 +1,5 @@
+import { blocks } from "./blocks";
+
 export type ItemData = {
     blockId: number;
     texture: string;
@@ -27,9 +29,14 @@ export class Container {
         ];
     }
 
-    getFirstOfSameData(item: ItemData): number {
+    getFirstOfSameDataOrEmpty(item: ItemData): number {
         for (let i = 0; i < this.maxItems; i++) {
             if (this.items[i].blockId === item.blockId && this.items[i].amount < this.stackSize) {
+                return i;
+            }
+        }
+        for (let i = 0; i < this.maxItems; i++) {
+            if (this.items[i].blockId === -1 || this.items[i].amount === 0 || this.items[i].blockId === blocks.empty.id) {
                 return i;
             }
         }
@@ -57,8 +64,9 @@ export class Container {
     }
 
     addItem(item: ItemData, index: number = -1): boolean {
+        console.log(`Adding item: ${item.blockId} x${item.amount} at index ${index}`);
         if (index === -1) {
-            index = this.getFirstOfSameData(item);
+            index = this.getFirstOfSameDataOrEmpty(item);
             if (index === -1) {
                 return false; // No empty slot available
             }

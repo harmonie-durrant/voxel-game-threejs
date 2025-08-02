@@ -111,7 +111,6 @@ export class Physics {
             if (a.position.distanceTo(b.position) < mergeDistance) {
               // Merge: increment a's amount, remove b
               a.userData.item.amount = (a.userData.item.amount || 1) + (b.userData.item.amount || 1);
-              console.log(`Merging item entities: ${a.userData.item.blockId} x${a.userData.item.amount}`);
               toRemove.add(b);
             }
           }
@@ -119,7 +118,6 @@ export class Physics {
       }
       // Remove merged entities from world
       for (const ent of toRemove) {
-        console.log(`Removing merged item entity`);
         world.remove(ent as THREE.Object3D);
       }
 

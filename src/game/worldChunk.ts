@@ -1,10 +1,10 @@
 import * as THREE from 'three';
 import { SimplexNoise } from 'three/examples/jsm/Addons.js';
 import { RandomNumbers } from './random';
-import { blocks, resources } from './blocks';
+import { blocks, resources, type blocksType } from './blocks';
 import { WorldSaveData } from './worldSaveData';
 
-import type { paramsType, chunkSize } from './world';
+import type { paramsType, chunkSize, World } from './world';
 
 const geometry = new THREE.BoxGeometry();
 
@@ -24,12 +24,15 @@ export class WorldChunk extends THREE.Group {
 
     saveData: WorldSaveData;
 
-    constructor(size : chunkSize, params : paramsType, saveData: WorldSaveData) {
+    world: World;
+
+    constructor(size : chunkSize, params : paramsType, saveData: WorldSaveData, world: World) {
         super();
         this.loaded = false;
         this.size = size;
         this.data = [];
         this.params = params;
+        this.world = world;
         this.saveData = saveData;
     }
 
@@ -70,11 +73,16 @@ export class WorldChunk extends THREE.Group {
         for (let x = 0; x < this.size.width; x++) {
           for (let y = 0; y < this.size.height; y++) {
             for (let z = 0; z < this.size.width; z++) {
+              let rScale = resource.scale;
+              if (!rScale) {
+                rScale = { x: 1, y: 1, z: 1 };
+              }
               const value = simplex.noise3d(
-                (this.position.x + x) / resource.scale.x,
-                (this.position.y + y) / resource.scale.y,
-                (this.position.z + z) / resource.scale.z
+                (this.position.x + x) / rScale.x,
+                (this.position.y + y) / rScale.y,
+                (this.position.z + z) / rScale.z
               );
+              if (!resource.scarcity) return;
               if (value > resource.scarcity) {
                 this.setBlockId(x, y, z, resource.id);
               }
@@ -298,9 +306,10 @@ export class WorldChunk extends THREE.Group {
       return new THREE.Vector3(x, 0, z);
     }
 
-    removeBlock(x : number, y : number, z : number) {
+    removeBlock(x : number, y : number, z : number, dropItems: boolean = false, dropPosition: THREE.Vector3 | null = null) {
       const block = this.getBlock(x, y, z);
       if (!block || block.id === blocks.empty.id) return;
+      const blockId = block.id;
       this.deleteBlockInstance(x, y, z);
       this.setBlockId(x, y, z, blocks.empty.id);
       this.saveData.set(
@@ -308,6 +317,19 @@ export class WorldChunk extends THREE.Group {
         new THREE.Vector3(x, y, z),
         blocks.empty.id
       );
+      if (dropItems && dropPosition) {
+        const blockData = Object.values(blocks).find(b => b.id === blockId) as blocksType | undefined;
+        if (!blockData) return;
+        if (!Array.isArray(blockData.itemsToDrop)) return;
+        for (const item of blockData.itemsToDrop) {
+          this.world.dropItem({
+            blockId: blockId,
+            texture: typeof blockData.icon === 'string' ? blockData.icon : '',
+            type: 'placeable',
+            amount: item.count
+          }, dropPosition);
+        }
+      }
     }
 
     deleteBlockInstance(x : number, y : number, z : number) {

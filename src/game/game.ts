@@ -72,7 +72,7 @@ export class Game {
         }
         this.scene.add(this.world);
         
-        this.player = new Player(this.scene, this.world, loadFromSave);
+        this.player = new Player(this.scene, this.world, this, loadFromSave);
         this.physics = new Physics(this.scene);
         
         this.modelLoader = new ModelLoader();
@@ -156,7 +156,7 @@ export class Game {
         event.preventDefault();
         if (this.player.activeBlockId === blocks.empty.id) {
             this.player.tool.startAnimation();
-            this.world.removeBlock(this.player.selectedCoords.x, this.player.selectedCoords.y, this.player.selectedCoords.z);
+            this.world.removeBlock(this.player.selectedCoords.x, this.player.selectedCoords.y, this.player.selectedCoords.z, true);
         } else {
             const added = this.world.addBlock(this.player.selectedCoords.x, this.player.selectedCoords.y, this.player.selectedCoords.z, this.player.activeBlockId);
             if (added) {

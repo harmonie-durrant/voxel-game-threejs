@@ -4,10 +4,13 @@ import { blocks } from './blocks';
 import { Tool } from './tool';
 import { Container, emptyItem } from './container';
 import { World } from './world';
+import type { Game } from './game';
 
 const CENTER_SCREEN: THREE.Vector2 = new THREE.Vector2();
 
 export class Player {
+    game: Game;
+
     radius: number = 0.5;
     height: number = 1.75;
 
@@ -39,7 +42,8 @@ export class Player {
     inventoryShown: boolean = false;
     inventoryAbortController: AbortController = new AbortController();
 
-    constructor(scene: THREE.Scene, world: World, loadFromSave: boolean = false) {
+    constructor(scene: THREE.Scene, world: World, game: Game, loadFromSave: boolean = false) {
+        this.game = game;
         if (loadFromSave)
             this.loadInventoryFromSave();
         this.activeBlockId = this.inventory.getItemAt(this.getHotbarActiveSlot()).blockId;
@@ -349,6 +353,7 @@ export class Player {
     }
 
     onMouseDown(e: MouseEvent) {
+        if (this.game.cameraMode !== 'first-person') return;
         if (!this.controls.isLocked && !this.inventoryShown) {
             e.preventDefault();
             e.stopPropagation();
@@ -366,8 +371,6 @@ export class Player {
             document.getElementById(`toolbar-${i}`)?.classList.remove('selected');
         }
         document.getElementById(`toolbar-${slotIndex}`)?.classList.add('selected');
-        console.log(`Selected hotbar slot ${slotIndex}:`, hotbarItem);
-        console.log('Active block ID:', hotbarItem.blockId === -1 ? blocks.empty.id : hotbarItem.blockId);
         this.activeBlockId = hotbarItem.blockId === -1 ? blocks.empty.id : hotbarItem.blockId;
         this.updateToolVisibility();
     }

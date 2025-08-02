@@ -4,7 +4,7 @@ import { WorldSaveData } from './worldSaveData';
 
 import type { Player } from './player';
 import type { ItemData } from './container';
-import { blocks } from './blocks';
+import { blocks, type blocksType } from './blocks';
 
 type terrainParams = {
   scale : number,
@@ -208,7 +208,7 @@ export class World extends THREE.Group {
   }
 
   generateChunk(x : number, z : number, generateNow: boolean = false) {
-    const chunk = new WorldChunk(this.chunkSize, this.params, this.saveData);
+    const chunk = new WorldChunk(this.chunkSize, this.params, this.saveData, this);
     chunk.position.set(x * this.chunkSize.width, 0, z * this.chunkSize.width);
     chunk.userData = { x, z };
     if (this.asyncLoading && !generateNow) {
@@ -271,8 +271,6 @@ export class World extends THREE.Group {
     const coords = this.worldToChunkCoords(x, 0, z);
     const chunk = this.getChunk(coords.chunk.x, coords.chunk.z);
     if (!chunk || !chunk.loaded) return new THREE.Vector3(x, 0, z);
-    console.log("getting top block at chunk: ", coords.chunk.x, coords.chunk.z);
-    console.log("getting top block at pos: ", coords.block.x, coords.block.y, coords.block.z);
     return chunk.getTopMostBlock(coords.block.x, coords.block.z);
   }
 
@@ -310,11 +308,11 @@ export class World extends THREE.Group {
     this.clear();
   }
 
-  removeBlock(x : number, y : number, z : number) {
+  removeBlock(x : number, y : number, z : number, dropItems: boolean = false) {
     const coords = this.worldToChunkCoords(x, y, z);
     const chunk = this.getChunk(coords.chunk.x, coords.chunk.z);
     if (!chunk) return;
-    chunk.removeBlock(coords.block.x, coords.block.y, coords.block.z);
+    chunk.removeBlock(coords.block.x, coords.block.y, coords.block.z, dropItems, new THREE.Vector3(x, y - 1, z));
     this.revealBlock(x - 1, y, z);
     this.revealBlock(x + 1, y, z);
     this.revealBlock(x, y - 1, z);
@@ -333,9 +331,7 @@ export class World extends THREE.Group {
   hideBlock(x : number, y : number, z : number) {
     const coords = this.worldToChunkCoords(x, y, z);
     const chunk = this.getChunk(coords.chunk.x, coords.chunk.z);
-    console.log("STARTING Hiding block at", coords.block.x, coords.block.y, coords.block.z);
     if (!chunk || !chunk.isBlockHidden(coords.block.x, coords.block.y, coords.block.z)) return;
-    console.log("APPLYING Hiding block at", coords.block.x, coords.block.y, coords.block.z);
     chunk.deleteBlockInstance(coords.block.x, coords.block.y, coords.block.z);
   }
 
@@ -365,7 +361,7 @@ export class World extends THREE.Group {
 
     // Add a mesh to represent the item visually
     const geometry = new THREE.BoxGeometry(0.2, 0.2, 0.2);
-    const blockData = Object.values(blocks).find(b => b.id === item.blockId);
+    const blockData = Object.values(blocks).find(b => b.id === item.blockId) as blocksType | undefined;
     let material: THREE.Material;
     if (blockData && 'material' in blockData && blockData.material) {
       material = Array.isArray(blockData.material) ? blockData.material[0] : blockData.material;
