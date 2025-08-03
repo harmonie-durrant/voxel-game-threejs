@@ -3,7 +3,7 @@ import { blocks } from "./blocks";
 export type ItemData = {
     blockId: number;
     texture: string;
-    type: string; // 'placeable' or 'tool' (more later...)
+    type: string; // 'placeable' or 'tool' or 'item'
     amount: number;
 };
 
@@ -63,6 +63,16 @@ export class Container {
         this.grabbedItem = emptyItem;
     }
 
+    hasItem(blockId: number, amount: number): boolean {
+        let totalAmount = 0;
+        for (const item of this.items) {
+            if (item.blockId === blockId) {
+                totalAmount += item.amount;
+            }
+        }
+        return totalAmount >= amount;
+    }
+
     addItem(item: ItemData, index: number = -1): boolean {
         console.log(`Adding item: ${item.blockId} x${item.amount} at index ${index}`);
         if (index === -1) {
@@ -87,12 +97,16 @@ export class Container {
         return true;
     }
 
-    removeItem(index: number): ItemData {
+    removeItem(index: number, amount: number = -1): ItemData {
         if (index < 0 || index >= this.maxItems) {
             return emptyItem;
         }
         const removedItem = this.items[index];
-        this.items[index] = emptyItem;
+        if (amount === -1 || amount >= removedItem.amount) {
+            this.items[index] = emptyItem;
+        } else {
+            this.items[index].amount -= amount;
+        }
         return removedItem;
     }
 }

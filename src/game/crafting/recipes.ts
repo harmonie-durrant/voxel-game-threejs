@@ -1,16 +1,16 @@
 import { blocks } from "../blocks";
 
-type Recipe = {
+export type Recipe = {
     icon: string,
     name: string,
     neededMaterials: {
         blockId: number,
         amount: number
     }[],
-    result: {
+    results: {
         blockId: number,
         amount: number
-    },
+    }[],
     needsWorkbench: boolean
 }
 
@@ -18,54 +18,64 @@ type Recipes = {
     [key: string]: Recipe
 };
 
-export const recipes: Recipes = {
-    workbench: {
-        icon: '/textures/workbench.png',
-        name: 'Workbench',
-        neededMaterials: [
-            { blockId: blocks.tree.id, amount: 4 },
-        ],
-        result: {
-            blockId: blocks.workbench.id,
-            amount: 1
+export function getRecipes(): Recipes {
+    return {
+        workbench: {
+            icon: '/textures/workbench.png',
+            name: 'Workbench',
+            neededMaterials: [
+                { blockId: blocks.planks.id, amount: 4 },
+            ],
+            results: [
+                {
+                    blockId: blocks.workbench.id,
+                    amount: 1
+                }
+            ],
+            needsWorkbench: false
         },
-        needsWorkbench: false
-    },
-    planks: {
-        icon: '/textures/planks.png',
-        name: 'Planks',
-        neededMaterials: [
-            { blockId: blocks.tree.id, amount: 1 }
-        ],
-        result: {
-            blockId: blocks.planks.id,
-            amount: 4
+        planks: {
+            icon: '/textures/planks.png',
+            name: 'Planks',
+            neededMaterials: [
+                { blockId: blocks.tree.id, amount: 1 }
+            ],
+            results: [
+                {
+                    blockId: blocks.planks.id,
+                    amount: 4
+                }
+            ],
+            needsWorkbench: false
         },
-        needsWorkbench: false
-    },
-    sticks: {
-        icon: '/textures/stick.png',
-        name: 'Sticks',
-        neededMaterials: [
-            { blockId: blocks.planks.id, amount: 2 }
-        ],
-        result: {
-            blockId: blocks.sticks.id,
-            amount: 4
+        sticks: {
+            icon: '/textures/stick.png',
+            name: 'Sticks',
+            neededMaterials: [
+                { blockId: blocks.planks.id, amount: 2 }
+            ],
+            results: [
+                {
+                    blockId: blocks.sticks.id,
+                    amount: 4
+                }
+            ],
+            needsWorkbench: false
         },
-        needsWorkbench: false
-    },
-    woodenPickaxe: {
-        icon: '/textures/wooden_pickaxe.png',
-        name: 'Wooden Pickaxe',
-        neededMaterials: [
-            { blockId: blocks.tree.id, amount: 3 },
-            { blockId: blocks.stick.id, amount: 2 }
-        ],
-        result: {
-            blockId: blocks.woodenPickaxe.id,
-            amount: 1
+        woodenPickaxe: {
+            icon: '/textures/wooden_pickaxe.png',
+            name: 'Wooden Pickaxe',
+            neededMaterials: [
+                { blockId: blocks.tree.id, amount: 3 },
+                { blockId: blocks.sticks.id, amount: 2 }
+            ],
+            results: [
+                {
+                    blockId: blocks.woodenPickaxe.id,
+                    amount: 1
+                }
+            ],
+            needsWorkbench: true
         },
-        needsWorkbench: true
-    },
-}
+    };
+};

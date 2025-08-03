@@ -1,4 +1,7 @@
 import * as THREE from 'three';
+import type { Player } from './player';
+import type { World } from './world';
+import { WorkbenchUI } from './crafting/workbenchUI';
 
 const textureLoader = new THREE.TextureLoader();
 
@@ -39,6 +42,7 @@ export type blocksType = {
         scarcity?: number;
         transparent?: boolean;
         itemsToDrop?: { blockId: number, count: number }[];
+        onInteract?: (player: Player, world: World) => void; // Define the interaction function
     }
 }
 
@@ -204,7 +208,12 @@ export const blocks: blocksType = {
         icon: "/textures/blocks/workbench_side.png",
         itemsToDrop: [
             { blockId: 13, count: 1 },
-        ]
+        ],
+        onInteract: (player: Player, world: World) => {
+            world;
+            player.controls.unlock();
+            WorkbenchUI.openUI(player);
+        }
     },
     cobblestone: {
         id: 14,
@@ -224,3 +233,7 @@ export const resources = [
     blocks.coalOre,
     blocks.ironOre
 ]
+
+export const interactableBlocks = [
+    blocks.workbench
+];

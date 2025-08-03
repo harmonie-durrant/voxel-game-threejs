@@ -6,7 +6,7 @@ import { Player } from './player';
 import { Physics } from './physics';
 import { World } from './world';
 import { ModelLoader } from './modelLoader';
-import { blocks } from './blocks';
+import { interactableBlocks } from './blocks';
 
 export class Game {
     stats: Stats | null = null;
@@ -154,14 +154,27 @@ export class Game {
     }
 
     onMouseDown(event: MouseEvent) {
+        // left click or right click
         if (!this.player || !this.world) return;
         if (!this.player.controls.isLocked || !this.player.selectedCoords) return;
         event.preventDefault();
-        if (this.player.activeBlockId === blocks.empty.id) {
+        event.stopPropagation();
+        const isLeftClick = event.button === 0;
+        if (isLeftClick) {
             this.player.tool.startAnimation();
             this.world.removeBlock(this.player.selectedCoords.x, this.player.selectedCoords.y, this.player.selectedCoords.z, true);
-        } else {
-            const added = this.world.addBlock(this.player.selectedCoords.x, this.player.selectedCoords.y, this.player.selectedCoords.z, this.player.activeBlockId);
+            return;
+        }
+        const block = this.world.getBlock(this.player.selectedCoords.x, this.player.selectedCoords.y, this.player.selectedCoords.z);
+        if (block) {
+            for (const interactable of interactableBlocks) {
+                if (interactable.id === block.id && interactable.onInteract) {
+                    interactable.onInteract(this.player, this.world);
+                    return;
+                }
+            }
+            if (!this.player.selectedCoordsPlace) return;
+            const added = this.world.addBlock(this.player.selectedCoordsPlace.x, this.player.selectedCoordsPlace.y, this.player.selectedCoordsPlace.z, this.player.activeBlockId);
             if (added) {
                 this.player.useItem();
             }

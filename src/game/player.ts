@@ -5,6 +5,7 @@ import { Tool } from './tool';
 import { Container, emptyItem } from './container';
 import { World } from './world';
 import type { Game } from './game';
+import { WorkbenchUI } from './crafting/workbenchUI';
 
 const CENTER_SCREEN: THREE.Vector2 = new THREE.Vector2();
 
@@ -31,6 +32,7 @@ export class Player {
 
     raycaser: THREE.Raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(), 0, 5);
     selectedCoords: THREE.Vector3 | null = null;
+    selectedCoordsPlace: THREE.Vector3 | null = null;
     selectionHelper: THREE.Mesh;
     activeBlockId: number = blocks.empty.id;
 
@@ -39,7 +41,7 @@ export class Player {
     world: World
 
     inventory: Container = new Container(36);
-    inventoryShown: boolean = false;
+    uiShown: boolean = false;
     inventoryAbortController: AbortController = new AbortController();
 
     constructor(scene: THREE.Scene, world: World, game: Game, loadFromSave: boolean = false) {
@@ -130,7 +132,8 @@ export class Player {
                 this.selectedCoords = chunk.position.clone();
                 this.selectedCoords.applyMatrix4(blockMatrix);
                 if (this.activeBlockId !== blocks.empty.id && intersection.normal) {
-                    this.selectedCoords.add(intersection.normal);
+                    this.selectedCoordsPlace = this.selectedCoords.clone();
+                    this.selectedCoordsPlace.add(intersection.normal);
                 }
             } else {
                 this.selectedCoords = intersection.point.clone().floor();
@@ -170,7 +173,7 @@ export class Player {
         if (!inventoryElement) return;
         inventoryElement.classList.add('hidden');
         this.controls.lock();
-        this.inventoryShown = false;
+        this.uiShown = false;
         this.inventoryAbortController.abort();
         const dragged = document.getElementById('dragged-item')!;
         if (dragged.style.display === 'block') {
@@ -193,12 +196,12 @@ export class Player {
             if (inventoryElement.classList.contains('hidden')) {
                 inventoryElement.classList.remove('hidden');
                 this.controls.unlock();
-                this.inventoryShown = true;
+                this.uiShown = true;
                 this.updateInventoryDisplay();
             } else {
                 inventoryElement.classList.add('hidden');
                 this.controls.lock();
-                this.inventoryShown = false;
+                this.uiShown = false;
                 this.inventoryAbortController.abort(); // Clear any ongoing inventory updates
             }
         }
@@ -231,7 +234,7 @@ export class Player {
     updateInventoryDisplay() {
         this.inventoryAbortController.abort();
         this.inventoryAbortController = new AbortController();
-        if (!this.inventoryShown) return;
+        if (!this.uiShown) return;
         const inventoryGrid = document.getElementById('inventory-grid');
         if (inventoryGrid) {
             inventoryGrid.innerHTML = ''; // Clear previous items
@@ -274,7 +277,7 @@ export class Player {
                 index++;
             }
             document.addEventListener('mousemove', (e) => {
-                if (!this.inventoryShown || this.inventory.grabbedItem.blockId === -1) return;
+                if (!this.uiShown || this.inventory.grabbedItem.blockId === -1) return;
                 const dragged = document.getElementById('dragged-item');
                 if (!dragged) return;
                 if (dragged.style.display === 'block') {
@@ -354,7 +357,7 @@ export class Player {
 
     onMouseDown(e: MouseEvent) {
         if (this.game.cameraMode !== 'first-person') return;
-        if (!this.controls.isLocked && !this.inventoryShown) {
+        if (!this.controls.isLocked && !this.uiShown) {
             e.preventDefault();
             e.stopPropagation();
             this.controls.lock();
@@ -416,6 +419,9 @@ export class Player {
                 break;
             case 'KeyE':
                 this.toggleInventory();
+                break;
+            case 'KeyV':
+                WorkbenchUI.openUI(this, 'crafting');
                 break;
             case 'Space':
                 if (this.onGround) {
