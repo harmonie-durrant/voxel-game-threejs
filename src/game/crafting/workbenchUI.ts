@@ -32,7 +32,7 @@ export class WorkbenchUI {
 
         // Remove the required materials from the player's inventory
         for (const material of recipe.neededMaterials) {
-            player.inventory.removeItem(material.blockId, material.amount);
+            player.inventory.removeItemByBlockId(material.blockId, material.amount);
         }
 
         const block = Object.values(blocks).find(b => b.id === recipe.results[0].blockId);

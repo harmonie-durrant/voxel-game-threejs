@@ -3,7 +3,7 @@ import { blocks } from "./blocks";
 export type ItemData = {
     blockId: number;
     texture: string;
-    type: string; // 'placeable' or 'tool' or 'item'
+    type: string; // 'placeable' or 'tool' (more later...)
     amount: number;
 };
 
@@ -97,16 +97,35 @@ export class Container {
         return true;
     }
 
-    removeItem(index: number, amount: number = -1): ItemData {
+    removeItemByBlockId(blockId: number, amount: number): boolean {
+        let totalRemoved = 0;
+        for (let i = 0; i < this.maxItems; i++) {
+            if (this.items[i].blockId === blockId) {
+                if (this.items[i].amount >= amount) {
+                    this.items[i].amount -= amount;
+                    totalRemoved += amount;
+                    if (this.items[i].amount <= 0) {
+                        this.items[i] = emptyItem; // Clear the slot if empty
+                    }
+                    return true;
+                } else {
+                    totalRemoved += this.items[i].amount;
+                    this.items[i] = emptyItem; // Clear the slot
+                }
+            }
+            if (totalRemoved >= amount) {
+                return true;
+            }
+        }
+        return false; // Not enough items to remove
+    }
+
+    removeItem(index: number): ItemData {
         if (index < 0 || index >= this.maxItems) {
             return emptyItem;
         }
         const removedItem = this.items[index];
-        if (amount === -1 || amount >= removedItem.amount) {
-            this.items[index] = emptyItem;
-        } else {
-            this.items[index].amount -= amount;
-        }
+        this.items[index] = emptyItem;
         return removedItem;
     }
 }
