@@ -66,7 +66,7 @@ export function getRecipes(): Recipes {
             icon: '/textures/wooden_pickaxe.png',
             name: 'Wooden Pickaxe',
             neededMaterials: [
-                { blockId: blocks.tree.id, amount: 3 },
+                { blockId: blocks.planks.id, amount: 3 },
                 { blockId: blocks.sticks.id, amount: 2 }
             ],
             results: [
