@@ -28,11 +28,17 @@ function createPlayerFolder(gui : GUI, player : Player) {
   playerFolder.add(player.boundsHelper, "visible").name("Show Bounds Helper");
 }
 
-function createWorldFolder(gui : GUI, world : World) {
+function createWorldFolder(gui : GUI, world : World, player : Player) {
   const worldFolder = gui.addFolder("World");
   worldFolder.close();
   worldFolder.add(world, "renderDistance", 0, 16, 1).name("Render Distance")
   worldFolder.add(world, "asyncLoading").name("Async chunk loading")
+
+  worldFolder.onChange(() => {
+    world.loading = true;
+    world.update(player);
+    world.loading = false;
+  });
 
   const terrainFolder = worldFolder.addFolder("Terrain");
   terrainFolder.close();
@@ -43,6 +49,10 @@ function createWorldFolder(gui : GUI, world : World) {
   terrainFolder.add(world.params.terrain, "dirtlayer", 0, 10, 1).name("Dirt Layer");
   terrainFolder.add(world.params.terrain, "waterLevel", 0, 32, 1).name("Water Level");
 
+  terrainFolder.onChange(() => {
+    world.generate(true);
+  });
+
   const treesFolder = worldFolder.addFolder("Trees");
   treesFolder.close();
   treesFolder.add(world.params.trees.trunk, "minHeight", 1, 10, 1).name("Trunk Min Height");
@@ -52,13 +62,21 @@ function createWorldFolder(gui : GUI, world : World) {
   treesFolder.add(world.params.trees.canopy, "density", 0, 1).name("Canopy Density");
   treesFolder.add(world.params.trees, "frequency", 0, 0.1).name("Tree Frequency");
 
+  treesFolder.onChange(() => {
+    world.generate(true);
+  });
+
   const cloudsFolder = worldFolder.addFolder("Clouds");
   cloudsFolder.close();
   cloudsFolder.add(world.params.clouds, "scale", 0, 100).name("Cloud Scale");
   cloudsFolder.add(world.params.clouds, "density", 0, 1).name("Cloud Density");
+
+  cloudsFolder.onChange(() => {
+    world.generate(true);
+  });
 }
 
-function createResourcesFolder(gui : GUI) {
+function createResourcesFolder(gui : GUI, world: World) {
   const resourcesFolder = gui.addFolder("Resources");
   resourcesFolder.close();
   resources.forEach(resource => {
@@ -74,6 +92,10 @@ function createResourcesFolder(gui : GUI) {
       scaleFolder.add(resource.scale, "z", 10, 100).name("Z Scale");
     }
   });
+
+  resourcesFolder.onChange(() => {
+    world.generate(true);
+  });
 }
 
 export function createUI(scene : THREE.Scene, world : World, player : Player, sunHelper: THREE.CameraHelper, physics: Physics) {
@@ -82,10 +104,6 @@ export function createUI(scene : THREE.Scene, world : World, player : Player, su
 
   createSceneFolder(gui, scene, sunHelper, physics);
   createPlayerFolder(gui, player);
-  createWorldFolder(gui, world);
-  createResourcesFolder(gui);
-
-  gui.onChange(() => {
-    world.generate(true);
-  });
+  createWorldFolder(gui, world, player);
+  createResourcesFolder(gui, world);
 }

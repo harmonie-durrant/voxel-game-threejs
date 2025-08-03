@@ -42,6 +42,8 @@ export type chunkSize = {
 
 export class World extends THREE.Group {
 
+  loading : boolean = true;
+
   asyncLoading : boolean = true;
 
   seed: number = 0;
@@ -83,6 +85,7 @@ export class World extends THREE.Group {
 
   constructor(seed : number = 0) {
     super()
+    this.loading = true;
     this.params.seed = seed;
     this.chunk = null;
 
@@ -153,7 +156,8 @@ export class World extends THREE.Group {
       this.generateChunk(0, 0, true);
       return;
     }
-    this.generate();
+    this.generate(false, true);
+    this.loading = false;
   }
 
   update(player : Player) {
@@ -219,13 +223,14 @@ export class World extends THREE.Group {
     this.add(chunk);
   }
 
-  generate(clearCache : boolean = false) {
+  generate(clearCache : boolean = false, generateNow: boolean = false, dispose: boolean = true) {
     if (clearCache)
       this.saveData.clear();
-    this.disposeChunks();
+    if (dispose)
+      this.disposeChunks();
     for (let x = -this.renderDistance; x < this.renderDistance; x++) {
       for (let z = -this.renderDistance; z < this.renderDistance; z++) {
-        this.generateChunk(x, z);
+        this.generateChunk(x, z, generateNow);
       }
     }
   }
@@ -246,6 +251,7 @@ export class World extends THREE.Group {
         }
       }
     }
+    this.loading = false;
   }
 
   getSpawnPoint(x: number, z: number) {

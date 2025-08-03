@@ -17,7 +17,7 @@ const contactMaterial = new THREE.MeshBasicMaterial({
 const contactGeometry = new THREE.SphereGeometry(0.05, 6, 6);
 
 export class Physics {
-  simulationRate: number = 200;
+  simulationRate: number = 250;
   timeStep: number = 1 / this.simulationRate;
   accumulator: number = 0;
   gravity: number = 32;
@@ -35,6 +35,7 @@ export class Physics {
   }
 
   update (dt : number, player : Player, world : World) {
+    if (world.loading) return;
     this.accumulator += dt;
     while (this.accumulator >= this.timeStep) {
       this.helpers.clear();
