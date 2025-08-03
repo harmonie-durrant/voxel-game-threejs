@@ -139,25 +139,45 @@ export class World extends THREE.Group {
     }, 3000);
   }
 
-  load(loadOnlyOrigin: boolean = false) {
-    this.params = JSON.parse(localStorage.getItem('world_params') || JSON.stringify(this.params));
-    this.saveData.data = JSON.parse(localStorage.getItem('world_data') || '{}');
-    this.player?.loadInventoryFromSave();
+  load(loadOnlyOrigin: boolean = false): boolean {
+    const params_tmp = JSON.parse(localStorage.getItem('world_params') || JSON.stringify(this.params));
+    // Verify if the params are valid
+    if (!params_tmp || !params_tmp.seed || !params_tmp.terrain || !params_tmp.terrain.scale || !params_tmp.terrain.magnitude || !params_tmp.terrain.offset || !params_tmp.terrain.dirtlayer || !params_tmp.terrain.waterLevel) {
+      console.error('Invalid world parameters');
+      return false;
+    } else {
+      this.params = params_tmp;
+    }
+    const data = JSON.parse(localStorage.getItem('world_data') || '{}');
+    if (data) {
+      this.saveData.data = data;
+    } else {
+      console.error('No world data found');
+      return false;
+    }
+    if (!this.player?.loadInventoryFromSave()) {
+      console.error('Failed to load player inventory');
+      return false;
+    }
+    const playerPosition = JSON.parse(localStorage.getItem('player_position') || '{}');
+    const playerRotation = JSON.parse(localStorage.getItem('player_rotation') || '{}');
+    if (!playerPosition || !playerRotation) {
+      console.error('No player position or rotation found');
+      return false;
+    }
     document.getElementById('status')!.innerText = 'WORLD LOADED';
     setTimeout(() => {
       document.getElementById('status')!.innerText = '';
     }, 3000);
     this.generateSpawnArea(0, 0, 50);
-    this.respawnPlayer(
-      JSON.parse(localStorage.getItem('player_position') || '{}'),
-      JSON.parse(localStorage.getItem('player_rotation') || '{}')
-    );
+    this.respawnPlayer(playerPosition, playerRotation);
     if (loadOnlyOrigin) {
       this.generateChunk(0, 0, true);
-      return;
+      return true;
     }
     this.generate(false, true);
     this.loading = false;
+    return true;
   }
 
   update(player : Player) {

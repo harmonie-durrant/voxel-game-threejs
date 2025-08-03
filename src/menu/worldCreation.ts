@@ -1,4 +1,5 @@
 import { Game } from "../game/game";
+import { toast } from "../main";
 
 
 export class WorldCreation {
@@ -9,14 +10,17 @@ export class WorldCreation {
     constructor() {}
 
     startGameFromSave(): void {
-        this.closeWorldCreationMenu();
-        // If save exists 
-        if (localStorage.getItem('world_data')) {
+        try {
             this.game = new Game(true);
-            return;
+            this.closeWorldCreationMenu();
+        } catch (error) {
+            console.error('Failed to load game from save:', error);
+            toast.addNotification({
+                type: 'error',
+                message: 'Failed to load game from save.\nPlease check your save file or save a game first.',
+                showFor: 5000
+            });
         }
-        console.error('No saved game found');
-        //TODO: show error toast message
     }
 
     openWorldCreationMenu(): void {
@@ -49,7 +53,7 @@ export class WorldCreation {
     }
 
     start_game(seed: number): void {
-        this.closeWorldCreationMenu();
         this.game = new Game(false, seed);
+        this.closeWorldCreationMenu();
     }
 }

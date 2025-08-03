@@ -34,6 +34,15 @@ export class Game {
             console.error('Game container not found');
             return;
         }
+        this.world = new World(seed);
+        if (loadFromSave) {
+            const loaded = this.world?.load(true);
+            if (!loaded) {
+                throw new Error("Failed to load world from save.");
+            }
+        } else {
+            this.world.generateSpawnArea(0, 0, 50);
+        }
         this.stats = new Stats();
         this.stats.showPanel(0);
         gameContainer.append(this.stats.dom);
@@ -64,12 +73,6 @@ export class Game {
 
         this.scene = new THREE.Scene();
         this.scene.fog = new THREE.Fog(0x80a0e0, 25, 70);
-        this.world = new World(seed);
-        if (loadFromSave) {
-            this.world?.load(true);
-        } else {
-            this.world.generateSpawnArea(0, 0, 50);
-        }
         this.scene.add(this.world);
         
         this.player = new Player(this.scene, this.world, this, loadFromSave);

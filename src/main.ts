@@ -1,11 +1,14 @@
 import { WorldCreation } from "./menu/worldCreation";
+import { Toast } from "./toast";
 
 const mainMenuController = new AbortController();
 const mainMenuSignal = mainMenuController.signal;
 
 var worldcreation: WorldCreation = new WorldCreation();
-
 worldcreation;
+
+export const toast = new Toast();
+toast;
 
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('start_game')?.addEventListener('click', () => {
