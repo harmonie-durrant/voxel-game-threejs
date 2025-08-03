@@ -155,10 +155,7 @@ export class World extends THREE.Group {
       console.error('No world data found');
       return false;
     }
-    if (!this.player?.loadInventoryFromSave()) {
-      console.error('Failed to load player inventory');
-      return false;
-    }
+    this.player?.loadInventoryFromSave();
     const playerPosition = JSON.parse(localStorage.getItem('player_position') || '{}');
     const playerRotation = JSON.parse(localStorage.getItem('player_rotation') || '{}');
     if (!playerPosition || !playerRotation) {

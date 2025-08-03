@@ -395,7 +395,7 @@ export class Player {
     }
 
     onKeyDown(e: KeyboardEvent) {
-        if (!this.controls.isLocked) {
+        if (!this.controls.isLocked && !this.uiShown) {
             this.controls.lock();
         }
         switch (e.code) {

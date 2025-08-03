@@ -207,7 +207,9 @@ export class Game {
                 this.orbitCamera?.updateProjectionMatrix();
                 this.controls?.update();
             } else {
-                this.player.controls.lock();
+                if (!this.player.uiShown) {
+                    this.player.controls.lock();
+                }
             }
         }
         //TODO: Add more key bindings for debugging and other features
