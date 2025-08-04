@@ -14,10 +14,10 @@ export class WorkbenchUI {
                 return false;
             }
         }
-        return WorkbenchUI.isCorrectMode(recipe, player, mode);
+        return WorkbenchUI.isCorrectMode(recipe, mode);
     }
 
-    static isCorrectMode(recipe: Recipe, player: Player, mode: 'workbench' | 'crafting' = 'workbench'): boolean {
+    static isCorrectMode(recipe: Recipe, mode: 'workbench' | 'crafting' = 'workbench'): boolean {
         if (mode === 'crafting' && recipe.needsWorkbench) {
             return false;
         }
@@ -26,7 +26,7 @@ export class WorkbenchUI {
 
     static craftRecipe(recipe: Recipe, player: Player, mode: 'workbench' | 'crafting' = 'workbench') {
         // Check if the player is allowed to craft this recipe in the current mode
-        if (!WorkbenchUI.isCorrectMode(recipe, player, mode)) {
+        if (!WorkbenchUI.isCorrectMode(recipe, mode)) {
             toast.addNotification({
                 type: 'error',
                 message: `You need a workbench to craft ${recipe.name}.`,
@@ -106,7 +106,7 @@ export class WorkbenchUI {
                 }
                 const recipes = getRecipes();
                 Object.values(recipes).forEach(recipe => {
-                    const missingWorkbench = !WorkbenchUI.isCorrectMode(recipe, player, mode);
+                    const missingWorkbench = !WorkbenchUI.isCorrectMode(recipe, mode);
                     const missingItems = !WorkbenchUI.isCraftable(recipe, player, mode);
                     const recipeElement = document.createElement('div');
                     recipeElement.classList.add('crafting-recipe');

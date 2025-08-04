@@ -1,4 +1,5 @@
 import { blocks } from "./blocks";
+import type { Player } from "./player";
 
 export type ItemData = {
     blockId: number;
