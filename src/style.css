@@ -120,7 +120,7 @@ body {
   background-repeat: repeat-x;
   background-position: 0 center;
   z-index: 0;
-  animation: panorama-scroll 30s linear infinite;
+  animation: panorama-scroll 60s linear infinite;
 }
 
 @keyframes panorama-scroll {
