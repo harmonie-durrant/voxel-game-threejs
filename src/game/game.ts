@@ -70,6 +70,7 @@ export class Game {
         // OrbitControls setup
         this.controls = new OrbitControls(this.orbitCamera, this.renderer.domElement);
         this.controls.target.set(32, 8, 32);
+        this.controls.enabled = false;
 
         this.scene = new THREE.Scene();
         this.scene.fog = new THREE.Fog(0x80a0e0, 25, 70);
@@ -146,7 +147,7 @@ export class Game {
         if (this.scene && this.renderer && this.orbitCamera) {
             const camera = (this.cameraMode === 'orbit') ? this.orbitCamera : this.player?.camera;
             if (camera) {
-                this.renderer?.render(this.scene, camera);
+                this.renderer.render(this.scene, camera);
             }
         }
         this.stats?.end();
@@ -154,17 +155,20 @@ export class Game {
     }
 
     onMouseDown(event: MouseEvent) {
-        // left click or right click
+        if (this.cameraMode === 'orbit') return;
         if (!this.player || !this.world) return;
         if (!this.player.controls.isLocked || !this.player.selectedCoords) return;
+
         event.preventDefault();
         event.stopPropagation();
+
         const isLeftClick = event.button === 0;
         if (isLeftClick) {
             this.player.tool.startAnimation();
             this.world.removeBlock(this.player.selectedCoords.x, this.player.selectedCoords.y, this.player.selectedCoords.z, true);
             return;
         }
+
         const block = this.world.getBlock(this.player.selectedCoords.x, this.player.selectedCoords.y, this.player.selectedCoords.z);
         if (block) {
             for (const interactable of interactableBlocks) {
@@ -199,14 +203,39 @@ export class Game {
         if (!this.player) return;
         if (event.key === 'c') {
             this.cameraMode = (this.cameraMode === 'first-person') ? 'orbit' : 'first-person';
+            const uiContainer = document.getElementById('ui-container');
             if (this.cameraMode === 'orbit') {
-                this.player.controls.unlock();
+                if (uiContainer) {
+                    uiContainer.innerHTML = '';
+                    uiContainer.classList.add('hidden');
+                    this.player.uiShown = false;
+                }
+                if (this.controls) {
+                    this.controls.enabled = true;
+                }
+                // make orbit camera follow player position
                 this.orbitCamera?.position.copy(this.player.position);
-                this.orbitCamera?.position.add(new THREE.Vector3(10, 0, 10));
                 this.orbitCamera?.lookAt(this.player.position);
-                this.orbitCamera?.updateProjectionMatrix();
+                if (document.pointerLockElement) {
+                    document.exitPointerLock();
+                }
+                this.player.firstPersonController.abort();
+                this.player.firstPersonController = new AbortController();
+                this.player.uiShown = false;
+                this.player.controls.unlock();
                 this.controls?.update();
             } else {
+                if (uiContainer) {
+                    uiContainer.innerHTML = '';
+                    uiContainer.classList.remove('hidden');
+                    this.player.uiShown = false;
+                }
+                if (this.controls) {
+                    this.controls.enabled = false;
+                }
+                document.addEventListener('keydown', this.player.onKeyDown.bind(this.player), { signal: this.player.firstPersonController.signal });
+                document.addEventListener('mousedown', this.player.onMouseDown.bind(this.player), { signal: this.player.firstPersonController.signal });
+                document.addEventListener('keyup', this.player.onKeyUp.bind(this.player), { signal: this.player.firstPersonController.signal });
                 if (!this.player.uiShown) {
                     this.player.controls.lock();
                 }

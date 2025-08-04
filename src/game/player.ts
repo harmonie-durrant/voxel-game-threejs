@@ -12,6 +12,8 @@ const CENTER_SCREEN: THREE.Vector2 = new THREE.Vector2();
 export class Player {
     game: Game;
 
+    firstPersonController: AbortController = new AbortController();
+
     radius: number = 0.5;
     height: number = 1.75;
 
@@ -69,9 +71,9 @@ export class Player {
 
         this.camera.add(this.tool);
 
-        document.addEventListener('keydown', this.onKeyDown.bind(this));
-        document.addEventListener('mousedown', this.onMouseDown.bind(this));
-        document.addEventListener('keyup', this.onKeyUp.bind(this));
+        document.addEventListener('keydown', this.onKeyDown.bind(this), { signal: this.firstPersonController.signal });
+        document.addEventListener('mousedown', this.onMouseDown.bind(this), { signal: this.firstPersonController.signal });
+        document.addEventListener('keyup', this.onKeyUp.bind(this), { signal: this.firstPersonController.signal });
 
         this.boundsHelper = new THREE.Mesh(
             new THREE.CylinderGeometry(this.radius, this.radius, this.height, 16),
@@ -356,7 +358,9 @@ export class Player {
     }
 
     onMouseDown(e: MouseEvent) {
-        if (this.game.cameraMode !== 'first-person') return;
+        if (this.game.cameraMode === 'orbit') {
+            return;
+        }
         if (!this.controls.isLocked && !this.uiShown) {
             e.preventDefault();
             e.stopPropagation();
@@ -395,6 +399,10 @@ export class Player {
     }
 
     onKeyDown(e: KeyboardEvent) {
+        if (this.game.cameraMode === 'orbit') {
+            this.controls.unlock();
+            return;
+        }
         if (!this.controls.isLocked && !this.uiShown) {
             this.controls.lock();
         }
