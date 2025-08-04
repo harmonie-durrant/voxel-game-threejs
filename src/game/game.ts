@@ -213,9 +213,15 @@ export class Game {
                 if (this.controls) {
                     this.controls.enabled = true;
                 }
-                // make orbit camera follow player position
-                this.orbitCamera?.position.copy(this.player.position);
-                this.orbitCamera?.lookAt(this.player.position);
+                // make orbit camera start at the player's position
+                if (this.orbitCamera && this.player) {
+                    console.log("Orbit camera enabled, setting position and lookAt", this.orbitCamera.position, this.player.position);
+                    this.orbitCamera.position.copy(this.player.position).add(new THREE.Vector3(10, 0, 10));
+                    this.controls?.target.copy(this.player.position);
+                    this.orbitCamera.lookAt(this.player.position);
+                    this.orbitCamera.updateProjectionMatrix();
+                    console.log("Orbit camera enabled, setting position and lookAt", this.orbitCamera.position, this.player.position);
+                }
                 if (document.pointerLockElement) {
                     document.exitPointerLock();
                 }
