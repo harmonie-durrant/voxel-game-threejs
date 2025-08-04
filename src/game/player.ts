@@ -277,6 +277,7 @@ export class Player {
                 console.warn('Inventory is full, item not added:', this.inventory.grabbedItem);
             }
             this.inventory.grabbedItem = emptyItem;
+            this.updateGrabbedItemDisplay();
         }
     }
 
@@ -289,10 +290,7 @@ export class Player {
                 this.uiShown = true;
                 this.updateInventoryDisplay();
             } else {
-                inventoryElement.classList.add('hidden');
-                this.controls.lock();
-                this.uiShown = false;
-                this.inventoryAbortController.abort(); // Clear any ongoing inventory updates
+                this.closeInventory();
             }
         }
     }
@@ -513,22 +511,28 @@ export class Player {
         }
         switch (e.code) {
             case 'KeyW':
-                this.input.z = this.maxSpeed;
+                if (!this.uiShown)
+                    this.input.z = this.maxSpeed;
                 break;
             case 'KeyS':
-                this.input.z = -this.maxSpeed;
+                if (!this.uiShown)
+                    this.input.z = -this.maxSpeed;
                 break;
             case 'KeyA':
-                this.input.x = -this.maxSpeed;
+                if (!this.uiShown)
+                    this.input.x = -this.maxSpeed;
                 break;
             case 'KeyD':
-                this.input.x = this.maxSpeed;
+                if (!this.uiShown)
+                    this.input.x = this.maxSpeed;
                 break;
             case 'KeyQ':
-                this.dropItem(1);
+                if (!this.uiShown)
+                    this.dropItem(1);
                 break;
             case 'KeyR':
-                this.world.respawnPlayer();
+                if (!this.uiShown)
+                    this.world.respawnPlayer();
                 break;
             case 'KeyE':
                 this.toggleInventory();
@@ -537,7 +541,7 @@ export class Player {
                 WorkbenchUI.openUI(this, 'crafting');
                 break;
             case 'Space':
-                if (this.onGround) {
+                if (this.onGround && !this.uiShown) {
                     this.velocity.y += this.jumpSpeed;
                 }
                 break;
@@ -551,6 +555,8 @@ export class Player {
             case 'Digit7':
             case 'Digit8':
             case 'Digit9':
+                if (this.uiShown)
+                    break;
                 const hotbarIndex = Number(e.code.replace('Digit', ''));
                 if (hotbarIndex < 0 || hotbarIndex > 9) return;
                 this.selectHotBarSlot(hotbarIndex);
