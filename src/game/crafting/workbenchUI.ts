@@ -190,6 +190,7 @@ export class WorkbenchUI {
         if (uiContainer) {
             uiContainer.innerHTML = '';
         }
+        player.controls.lock();
         player.uiShown = false;
     }
 }
