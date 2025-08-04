@@ -271,7 +271,7 @@ export class Player {
             dragged.innerHTML = ''; // Clear the dragged item
         }
         if (this.inventory.grabbedItem.blockId !== -1) {
-            const addedToInventory = this.inventory.addItem(this.inventory.grabbedItem);
+            const addedToInventory = this.inventory.addItem(this.inventory.grabbedItem, -1, this);
             if (!addedToInventory) {
                 //TODO: Drop item on the ground if inventory is empty
                 console.warn('Inventory is full, item not added:', this.inventory.grabbedItem);
@@ -354,7 +354,7 @@ export class Player {
                         this.inventory.removeItem(index);
                         this.updateGrabbedItemDisplay();
                     } else if (this.inventory.grabbedItem.blockId !== -1) {
-                        const added = this.inventory.addItem(this.inventory.grabbedItem, index);
+                        const added = this.inventory.addItem(this.inventory.grabbedItem, index, this);
                         if (added) {
                             this.inventory.grabbedItem = emptyItem;
                             this.updateGrabbedItemDisplay();

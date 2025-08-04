@@ -57,7 +57,7 @@ export class WorkbenchUI {
             texture: block?.icon || '/textures/unknown.png',
             type: block?.placeable ? 'placeable' : 'item',
             amount: recipe.results[0].amount
-        });
+        }, -1, player);
         player.updateHotbarDisplay();
 
         toast.addNotification({
@@ -81,6 +81,7 @@ export class WorkbenchUI {
             console.error('UI container not found');
             return;
         }
+        uiContainer.classList.remove('hidden');
         fetch('ui.html')
             .then(response => {
                 if (!response.ok) {
@@ -189,6 +190,7 @@ export class WorkbenchUI {
         const uiContainer = document.getElementById('ui-container');
         if (uiContainer) {
             uiContainer.innerHTML = '';
+            uiContainer.classList.add('hidden');
         }
         player.controls.lock();
         player.uiShown = false;

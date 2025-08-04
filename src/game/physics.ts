@@ -90,7 +90,7 @@ export class Physics {
       const pickupDistance = 2; // slightly larger than merge distance
       for (const item of itemEntities) {
         if (item.position.distanceTo(player.position) < pickupDistance && item.userData.pickupDelay == 0) {
-          const pickedUp = player.inventory.addItem(item.userData.item);
+          const pickedUp = player.inventory.addItem(item.userData.item, -1, player);
           if (pickedUp) {
             world.remove(item as THREE.Object3D);
             player.updateHotbarDisplay();

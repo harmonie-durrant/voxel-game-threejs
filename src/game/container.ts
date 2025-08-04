@@ -73,7 +73,7 @@ export class Container {
         return totalAmount >= amount;
     }
 
-    addItem(item: ItemData, index: number = -1): boolean {
+    addItem(item: ItemData, index: number = -1, player: Player | null = null): boolean {
         console.log(`Adding item: ${item.blockId} x${item.amount} at index ${index}`);
         if (index === -1) {
             index = this.getFirstOfSameDataOrEmpty(item);
@@ -91,9 +91,15 @@ export class Container {
                 return false;
             }
             this.items[index].amount += item.amount;
+            if (player) {
+                player.updateHotbarDisplay();
+            }
             return true;
         }
         this.items[index] = item;
+        if (player) {
+            player.updateHotbarDisplay();
+        }
         return true;
     }
 
