@@ -93,6 +93,7 @@ export class Player {
         scene.add(this.selectionHelper);
 
         this.raycaser.layers.set(0);
+        this.updateHotbarDisplay();
     }
 
     get worldVelocity(): THREE.Vector3 {
@@ -108,9 +109,6 @@ export class Player {
     update(world : World) {
         this.updateRaycaster(world);
         this.tool.update();
-        if (Math.random() < 0.005) {
-            this.updateHotbarDisplay();
-        }
     }
 
     updateRaycaster(world : World) {
@@ -296,7 +294,8 @@ export class Player {
     }
 
     updateToolVisibility() {
-        if (this.activeBlockId === -1) {
+        console.log('Updating tool visibility: ', this.activeBlockId);
+        if (this.activeBlockId === -1 || this.activeBlockId === blocks.empty.id) {
             this.activeBlockId = blocks.empty.id;
             this.tool.visible = true;
         } else {
@@ -317,16 +316,32 @@ export class Player {
             const hotbarElement = document.getElementById(`toolbar-${i + 1}`);
             if (!hotbarElement) continue;
             const item = this.inventory.getItemAt(i);
-            if (item.blockId !== -1 && item.texture) {
+
+            const currentImage = hotbarElement.querySelector('img');
+            const currentCount = hotbarElement.querySelector('span');
+            if (currentImage && currentCount) {
+                if (currentImage.src !== item.texture) {
+                    currentImage.src = item.texture;
+                }
+                if (item.amount === 1) {
+                    currentCount.innerText = '';
+                } else if (item.amount > 1) {
+                    currentCount.innerText = item.amount.toString();
+                } else {
+                    hotbarElement.innerHTML = ''; // Clear the hotbar slot if the item is empty
+                }
+            } else if (item.blockId !== -1 && item.texture) {
                 hotbarElement.innerHTML = `
-                <img src="${item.texture}" alt="${Object.values(blocks).find(b => b.id === item.blockId)?.name || ''}" style="width: 64px; height: 64px; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; right: 0; color: #fff;">${item.amount}</span>
-                `; // Clear previous content
+                    <img src="${item.texture}" alt="${Object.values(blocks).find(b => b.id === item.blockId)?.name || ''}" style="width: 64px; height: 64px; object-fit: cover;">
+                    <span style="position: absolute; bottom: 0; right: 0; color: #fff;">${item.amount}</span>
+                `;
             } else {
-                hotbarElement.innerHTML = '';
+                hotbarElement.innerHTML = ''; // Clear the hotbar slot if the item is empty
             }
         }
-
+        const selectedIndex = this.getHotbarActiveSlot();
+        this.activeBlockId = this.inventory.getItemAt(selectedIndex).blockId;
+        this.updateToolVisibility();
     }
 
     updateGrabbedItemDisplay() {
