@@ -9,7 +9,7 @@ export class WorldCreation {
 
     constructor() {}
 
-    startGameFromSave(): void {
+    startGameFromSave(mainMenuController: AbortController): void {
         try {
             this.game = new Game(true);
             this.closeWorldCreationMenu();
@@ -21,24 +21,26 @@ export class WorldCreation {
                 showFor: 5000
             });
         }
+        mainMenuController.abort();
     }
 
-    openWorldCreationMenu(): void {
+    openWorldCreationMenu(mainMenuController: AbortController): void {
         const worldCreationPopup = document.getElementById('world-creation-popup');
         if (worldCreationPopup) {
             worldCreationPopup.classList.remove('hidden');
-            document.getElementById('create-world')?.addEventListener('click', () => {
-                const seedInput = document.getElementById('world-seed') as HTMLInputElement;
-                if (!seedInput || !seedInput.value || seedInput.value.trim() === '') {
-                    this.start_game(Math.random() * 1000000); // Generate a random seed if input is not found
-                    this.abortController.abort();
-                    return;
-                }
-                const seed = parseInt(seedInput.value, 10);
-                this.start_game(seed);
-                this.abortController.abort();
-            }, { signal: this.abortController.signal });
         }
+        document.getElementById('create-world')?.addEventListener('click', () => {
+            const seedInput = document.getElementById('world-seed') as HTMLInputElement;
+            if (!seedInput || !seedInput.value || seedInput.value.trim() === '') {
+                this.start_game(Math.random() * 1000000); // Generate a random seed if input is not found
+                this.abortController.abort();
+                return;
+            }
+            const seed = parseInt(seedInput.value, 10);
+            this.start_game(seed);
+            this.abortController.abort();
+            mainMenuController.abort();
+        }, { signal: this.abortController.signal });
         document.getElementById('close-world-creation')?.addEventListener('click', () => {
             this.closeWorldCreationMenu();
         }, { signal: this.abortController.signal });
@@ -49,6 +51,7 @@ export class WorldCreation {
         if (worldCreationMenu) {
             worldCreationMenu.classList.add('hidden');
             this.abortController.abort();
+            this.abortController = new AbortController();
         }
     }
 

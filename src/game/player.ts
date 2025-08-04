@@ -7,6 +7,7 @@ import { Container, emptyItem } from './container';
 import { World } from './world';
 import type { Game } from './game';
 import { WorkbenchUI } from './crafting/workbenchUI';
+import { worldcreation } from '../main';
 
 const CENTER_SCREEN: THREE.Vector2 = new THREE.Vector2();
 
@@ -501,6 +502,54 @@ export class Player {
         this.world.dropItem(droppedItem, this.position.clone().sub(new THREE.Vector3(0, 1, 0)), this.camera.rotation);
     }
 
+    takeScreenshot() {
+        if (!worldcreation.game?.renderer) {
+            console.warn('Renderer not available for screenshot');
+            return;
+        }
+        worldcreation.game.renderer.render(this.scene, this.camera);
+        worldcreation.game.renderer.domElement.toBlob((blob: Blob | null) => {
+            if (!blob) {
+                console.warn('Failed to create screenshot blob');
+                return;
+            }
+            var a = document.createElement('a');
+            var url = URL.createObjectURL(blob);
+            a.href = url;
+            a.download = 'canvas.png';
+            a.click();
+        }, 'image/png', 1.0);
+    }
+
+    takePanoramicScreenshot() {
+        if (!worldcreation.game?.renderer) {
+            console.warn('Renderer not available for panoramic screenshot');
+            return;
+        }
+        // use this.takeScreenshot method to take all images needed for a panoramic screenshot
+        const panoramaCount = 14; // Number of images to take for a full panorama
+        const angleStep = (2 * Math.PI) / panoramaCount;
+        const originalRotationY = this.camera.rotation.y;
+        const originalPosition = this.position.clone();
+        const screenshots: Blob[] = [];
+        for (let i = 0; i < panoramaCount; i++) {
+            const angle = i * angleStep;
+            this.camera.rotation.y = originalRotationY + angle;
+            this.position.copy(originalPosition);
+            this.takeScreenshot();
+            worldcreation.game.renderer.domElement.toBlob((blob: Blob | null) => {
+                if (blob) {
+                    screenshots.push(blob);
+                }
+                if (screenshots.length === panoramaCount) {
+                    // All screenshots taken, process them as needed
+                    console.log('Panoramic screenshots taken:', screenshots.length);
+                    // You can now save or process the screenshots array
+                }
+            }, 'image/png', 1.0);
+        }
+    }
+
     onKeyDown(e: KeyboardEvent) {
         if (this.game.cameraMode === 'orbit') {
             this.controls.unlock();
@@ -539,6 +588,9 @@ export class Player {
                 break;
             case 'KeyV':
                 WorkbenchUI.openUI(this, 'crafting');
+                break;
+            case 'KeyP':
+                this.takePanoramicScreenshot();
                 break;
             case 'Space':
                 if (this.onGround && !this.uiShown) {

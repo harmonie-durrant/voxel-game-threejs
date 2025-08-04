@@ -3,19 +3,17 @@ import { Toast } from "./toast";
 
 const mainMenuController = new AbortController();
 
-var worldcreation: WorldCreation = new WorldCreation();
+export var worldcreation: WorldCreation = new WorldCreation();
 worldcreation;
 
 export const toast = new Toast();
 toast;
 
 document.getElementById('start_game')?.addEventListener('click', () => {
-  worldcreation.openWorldCreationMenu();
-  mainMenuController.abort();
+  worldcreation.openWorldCreationMenu(mainMenuController);
 }, { signal: mainMenuController.signal });
 document.getElementById('load_game')?.addEventListener('click', () => {
-  worldcreation.startGameFromSave();
-  mainMenuController.abort();
+  worldcreation.startGameFromSave(mainMenuController);
 }, { signal: mainMenuController.signal });
 // Controls popup logic
 const controlsPopup = document.getElementById('controls_popup');
