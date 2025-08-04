@@ -226,7 +226,7 @@ export const blocks: blocksType = {
         name: "wooden pickaxe",
         placeable: false,
         icon: "/textures/items/wooden_pickaxe.png",
-        speedMultiplier: 1.5,
+        speedMultiplier: 1.15,
         toolType: 'pickaxe',
         toolTier: 1
     },
@@ -275,7 +275,7 @@ export const blocks: blocksType = {
         name: "stone pickaxe",
         placeable: false,
         icon: "/textures/items/stone_pickaxe.png",
-        speedMultiplier: 2,
+        speedMultiplier: 1.4,
         toolType: 'pickaxe',
         toolTier: 2
     },
@@ -284,7 +284,7 @@ export const blocks: blocksType = {
         name: "iron pickaxe",
         placeable: false,
         icon: "/textures/items/iron_pickaxe.png",
-        speedMultiplier: 2.5,
+        speedMultiplier: 1.7,
         toolType: 'pickaxe',
         toolTier: 3
     },
@@ -293,8 +293,44 @@ export const blocks: blocksType = {
         name: "diamond pickaxe",
         placeable: false,
         icon: "/textures/items/diamond_pickaxe.png",
-        speedMultiplier: 3,
+        speedMultiplier: 2,
         toolType: 'pickaxe',
+        toolTier: 4
+    },
+    woodenAxe: {
+        id: 18,
+        name: "wooden axe",
+        placeable: false,
+        icon: "/textures/items/wooden_axe.png",
+        speedMultiplier: 1.15,
+        toolType: 'axe',
+        toolTier: 1
+    },
+    stoneAxe: {
+        id: 19,
+        name: "stone axe",
+        placeable: false,
+        icon: "/textures/items/stone_axe.png",
+        speedMultiplier: 1.4,
+        toolType: 'axe',
+        toolTier: 2
+    },
+    ironAxe: {
+        id: 20,
+        name: "iron axe",
+        placeable: false,
+        icon: "/textures/items/iron_axe.png",
+        speedMultiplier: 1.7,
+        toolType: 'axe',
+        toolTier: 3
+    },
+    diamondAxe: {
+        id: 21,
+        name: "diamond axe",
+        placeable: false,
+        icon: "/textures/items/diamond_axe.png",
+        speedMultiplier: 2,
+        toolType: 'axe',
         toolTier: 4
     },
 }

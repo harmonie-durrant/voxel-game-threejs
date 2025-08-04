@@ -122,5 +122,65 @@ export function getRecipes(): Recipes {
             ],
             needsWorkbench: true
         },
+        woodenAxe: {
+            icon: '/textures/wooden_axe.png',
+            name: 'Wooden Axe',
+            neededMaterials: [
+                { blockId: blocks.planks.id, amount: 3 },
+                { blockId: blocks.sticks.id, amount: 2 }
+            ],
+            results: [
+                {
+                    blockId: blocks.woodenAxe.id,
+                    amount: 1
+                }
+            ],
+            needsWorkbench: true
+        },
+        stoneAxe: {
+            icon: '/textures/stone_axe.png',
+            name: 'Stone Axe',
+            neededMaterials: [
+                { blockId: blocks.cobblestone.id, amount: 3 },
+                { blockId: blocks.sticks.id, amount: 2 }
+            ],
+            results: [
+                {
+                    blockId: blocks.stoneAxe.id,
+                    amount: 1
+                }
+            ],
+            needsWorkbench: true
+        },
+        ironAxe: {
+            icon: '/textures/iron_axe.png',
+            name: 'Iron Axe',
+            neededMaterials: [
+                { blockId: blocks.ironOre.id, amount: 3 },
+                { blockId: blocks.sticks.id, amount: 2 }
+            ],
+            results: [
+                {
+                    blockId: blocks.ironAxe.id,
+                    amount: 1
+                }
+            ],
+            needsWorkbench: true
+        },
+        diamondAxe: {
+            icon: '/textures/diamond_axe.png',
+            name: 'Diamond Axe',
+            neededMaterials: [
+                { blockId: blocks.ironOre.id, amount: 3 },
+                { blockId: blocks.sticks.id, amount: 2 }
+            ],
+            results: [
+                {
+                    blockId: blocks.diamondAxe.id,
+                    amount: 1
+                }
+            ],
+            needsWorkbench: true
+        }
     };
 };

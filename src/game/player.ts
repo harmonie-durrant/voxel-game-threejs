@@ -151,8 +151,26 @@ export class Player {
             }
             return;
         }
+        if (
+            this.selectedCoords &&
+            (this.selectedCoords.x !== this.miningBlock.pos.x ||
+            this.selectedCoords.y !== this.miningBlock.pos.y ||
+            this.selectedCoords.z !== this.miningBlock.pos.z)
+        ) {
+            console.log('Selected coords changed, resetting mining block', this.selectedCoords, this.miningBlock?.pos);
+            if (this.miningBlock_tmp) {
+                if (this.miningBlock_tmp.progressHelper)
+                    this.scene.remove(this.miningBlock_tmp.progressHelper);
+            }
+            this.miningBlock = {
+                pos: this.selectedCoords?.clone() || new THREE.Vector3(),
+                block: this.selectedCoords ? this.world.getBlock(this.selectedCoords.x, this.selectedCoords.y, this.selectedCoords.z) : null,
+                startTime: performance.now()
+            };
+        }
         this.miningBlock_tmp = this.miningBlock;
         const block = this.miningBlock.block;
+        if (!block) return;
         const blockData = Object.values(blocks).find(b => b.id === block.id);
         if (!blockData) return;
         const elapsedTime = performance.now() - this.miningBlock.startTime;
@@ -160,11 +178,18 @@ export class Player {
         const currentHeldItem = this.inventory.getItemAt(this.getHotbarActiveSlot());
         const currentHeldBlockData = Object.values(blocks).find(b => b.id === currentHeldItem.blockId);
         var speedMultiplier = 1;
-        if (currentHeldBlockData &&currentHeldBlockData.speedMultiplier)
+        if (currentHeldBlockData && currentHeldBlockData.speedMultiplier)
             speedMultiplier = currentHeldBlockData.speedMultiplier;
+        const currentToolTier = currentHeldBlockData?.toolTier || 0;
+        const currentToolType = currentHeldBlockData?.toolType || 'none';
+        const requiredToolTier = blockData.requiredToolTier || 0;
+        const requiredToolType = blockData.requiredToolType || 'none';
+        const shouldDropItems = currentToolTier >= requiredToolTier;
+        if (currentToolType !== requiredToolType && requiredToolType !== 'none')
+            speedMultiplier = 1;
         const progress = Math.min(elapsedTime / (requiredTime / speedMultiplier), 1);
         if (progress >= 1) {
-            this.world.removeBlock(this.miningBlock.pos.x, this.miningBlock.pos.y, this.miningBlock.pos.z, true);
+            this.world.removeBlock(this.miningBlock.pos.x, this.miningBlock.pos.y, this.miningBlock.pos.z, shouldDropItems);
             this.updateRaycaster(this.world);
             this.miningBlock = {
                 pos: this.selectedCoords?.clone() || new THREE.Vector3(),
