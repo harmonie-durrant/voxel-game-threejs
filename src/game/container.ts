@@ -30,6 +30,16 @@ export class Container {
         ];
     }
 
+    getItemCount(blockId: number): number {
+        let count = 0;
+        for (const item of this.items) {
+            if (item.blockId === blockId) {
+                count += item.amount;
+            }
+        }
+        return count;
+    }
+
     getFirstOfSameDataOrEmpty(item: ItemData): number {
         for (let i = 0; i < this.maxItems; i++) {
             if (this.items[i].blockId === item.blockId && this.items[i].amount < this.stackSize) {

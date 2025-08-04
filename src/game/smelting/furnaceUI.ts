@@ -1,41 +1,25 @@
 import { toast } from "../../main";
 import { blocks } from "../blocks";
 import type { Player } from "../player";
-import { getRecipes } from "./recipes";
-import type { Recipe } from "./recipes";
+import { getSmeltingRecipes } from "./smeltingRecipes";
+import type { SmeltingRecipe } from "./smeltingRecipes";
 
-export class WorkbenchUI {
-    static workbenchController: AbortController = new AbortController();
+export class FurnaceUI {
+    static furnaceController: AbortController = new AbortController();
 
-    static isCraftable(recipe: Recipe, player: Player, mode: 'workbench' | 'crafting' = 'workbench'): boolean {
+    static isSmeltable(recipe: SmeltingRecipe, player: Player): boolean {
         // Check if the player has the required materials
         for (const material of recipe.neededMaterials) {
             if (!player.inventory.hasItem(material.blockId, material.amount)) {
                 return false;
             }
         }
-        return WorkbenchUI.isCorrectMode(recipe, mode);
-    }
-
-    static isCorrectMode(recipe: Recipe, mode: 'workbench' | 'crafting' = 'workbench'): boolean {
-        if (mode === 'crafting' && recipe.needsWorkbench) {
-            return false;
-        }
         return true;
     }
 
-    static craftRecipe(recipe: Recipe, player: Player, mode: 'workbench' | 'crafting' = 'workbench') {
-        // Check if the player is allowed to craft this recipe in the current mode
-        if (!WorkbenchUI.isCorrectMode(recipe, mode)) {
-            toast.addNotification({
-                type: 'error',
-                message: `You need a workbench to craft ${recipe.name}.`,
-                showFor: 5000
-            });
-            return;
-        }
+    static craftRecipe(recipe: SmeltingRecipe, player: Player) {
         // Check if the recipe is craftable
-        if (!WorkbenchUI.isCraftable(recipe, player, mode)) {
+        if (!FurnaceUI.isSmeltable(recipe, player)) {
             toast.addNotification({
                 type: 'error',
                 message: `You do not have enough items to craft ${recipe.name}.`,
@@ -51,13 +35,16 @@ export class WorkbenchUI {
 
         const block = Object.values(blocks).find(b => b.id === recipe.results[0].blockId);
 
-        // Add the crafted item to the player's inventory
-        player.inventory.addItem({
+        const itemToAdd = {
             blockId: recipe.results[0].blockId,
             texture: block?.icon || '/textures/unknown.png',
             type: block?.placeable ? 'placeable' : 'item',
             amount: recipe.results[0].amount
-        }, -1, player);
+        };
+
+        // Add the crafted item to the player's inventory
+        player.inventory.addItem(itemToAdd);
+
         player.updateHotbarDisplay();
 
         toast.addNotification({
@@ -65,24 +52,24 @@ export class WorkbenchUI {
             message: `Crafted ${recipe.name}!`,
             showFor: 1000
         });
-        WorkbenchUI.openUI(player, mode, true);
+        FurnaceUI.openUI(player, true);
     }
 
-    static openUI(player: Player, mode: 'workbench' | 'crafting' = 'workbench', isRefresh: boolean = false) {
+    static openUI(player: Player, isRefresh: boolean = false) {
         if (player.uiShown) {
-            WorkbenchUI.closeUI(player);
+            FurnaceUI.closeUI(player);
             if (!isRefresh)
                 return;
         }
-        WorkbenchUI.workbenchController.abort();
-        WorkbenchUI.workbenchController = new AbortController();
+        FurnaceUI.furnaceController.abort();
+        FurnaceUI.furnaceController = new AbortController();
         const uiContainer = document.getElementById('ui-container');
         if (!uiContainer) {
             console.error('UI container not found');
             return;
         }
         uiContainer.classList.remove('hidden');
-        fetch('ui/workbench.html')
+        fetch('ui/furnace.html')
             .then(response => {
                 if (!response.ok) {
                     return null;
@@ -95,23 +82,22 @@ export class WorkbenchUI {
                 }
                 uiContainer.innerHTML = htmlContent;
                 player.uiShown = true;
-                const recipeList = document.getElementById('crafting-list');
+                const recipeList = document.getElementById('smelting-list');
                 if (!recipeList) {
                     toast.addNotification({
                         type: 'error',
-                        message: 'Crafting list not found in UI.',
+                        message: 'Smelting list not found in UI.',
                         showFor: 5000
                     });
                     return;
                 }
-                const recipes = getRecipes();
+                const recipes = getSmeltingRecipes();
                 Object.values(recipes).forEach(recipe => {
-                    const missingWorkbench = !WorkbenchUI.isCorrectMode(recipe, mode);
-                    const missingItems = !WorkbenchUI.isCraftable(recipe, player, mode);
+                    const missingItems = !FurnaceUI.isSmeltable(recipe, player);
                     const recipeElement = document.createElement('div');
-                    recipeElement.classList.add('crafting-recipe');
+                    recipeElement.classList.add('smelting-recipe');
                     recipeElement.innerHTML = `
-                        <div class="crafting-items">
+                        <div class="smelting-items">
                             ${recipe.neededMaterials.map(item => {
                                 // Get block from blockId
                                 const block = Object.values(blocks).find(b => b.id === item.blockId);
@@ -120,35 +106,35 @@ export class WorkbenchUI {
                                 }
                                 const isMissing = !player.inventory.hasItem(item.blockId, item.amount);
                                 return `
-                                    <div class="crafting-item ${missingWorkbench ? 'missing-workbench' : ''} ${!missingWorkbench && missingItems && isMissing ? 'missing' : ''}">
+                                    <div class="smelting-item ${missingItems && isMissing ? 'missing' : ''}">
                                         <img src="${block?.icon}" alt="${block?.name}">
-                                        <span class="crafting-item-count">${isMissing ? item.amount : item.amount}</span>
+                                        <span class="smelting-item-count">${isMissing ? player.inventory.getItemCount(item.blockId) + " / " + item.amount : item.amount}</span>
                                     </div>
                                 `;
                             }).join('')}
                         </div>
-                        <span class="crafting-arrow">→</span>
-                        <div class="crafting-items">
+                        <span class="smelting-arrow">→</span>
+                        <div class="smelting-items">
                             ${recipe.results.map(result => {
                                 const block = Object.values(blocks).find(b => b.id === result.blockId);
                                 if (!block) {
                                     return '';
                                 }
                                 return `
-                                    <div class="crafting-item ${missingWorkbench ? 'missing-workbench' : ''} ${(!missingWorkbench && missingItems) ? 'missing' : ''}">
+                                    <div class="smelting-item ${missingItems ? 'missing' : ''}">
                                         <img src="${block?.icon}" alt="${block?.name}">
-                                        <span class="crafting-item-count">${result.amount}</span>
+                                        <span class="smelting-item-count">${result.amount}</span>
                                     </div>
                                 `;
                             }).join('')}
                         </div>
-                        <button class="crafting-button ${(missingWorkbench || missingItems) ? 'crafting-button-disabled' : ''}" data-recipe="${recipe.name}">Craft</button>
+                        <button class="smelting-button ${missingItems ? 'smelting-button-disabled' : ''}" data-recipe="${recipe.name}">Smelt</button>
                     `;
                     recipeList.appendChild(recipeElement);
                 })
                 player.controls.unlock();
-                const craftingButtons = document.querySelectorAll('.crafting-button');
-                craftingButtons.forEach(button => {
+                const smeltingButtons = document.querySelectorAll('.smelting-button');
+                smeltingButtons.forEach(button => {
                     button.addEventListener('click', (event) => {
                         const recipeName = (event.currentTarget as HTMLButtonElement).dataset.recipe;
                         if (!recipeName) {
@@ -168,7 +154,7 @@ export class WorkbenchUI {
                             });
                             return;
                         }
-                        WorkbenchUI.craftRecipe(recipe, player, mode);
+                        FurnaceUI.craftRecipe(recipe, player);
                     });
                 });
             })
@@ -176,17 +162,17 @@ export class WorkbenchUI {
                 console.error('There was a problem with the fetch operation:', error);
                 uiContainer.innerHTML = '<p>Error loading content.</p>';
             });
-        const closeButton = document.getElementById('close-crafting-ui');
+        const closeButton = document.getElementById('close-smelting-ui');
         if (closeButton) {
             closeButton.addEventListener('click', () => {
-                WorkbenchUI.closeUI(player);
-            }, { signal: WorkbenchUI.workbenchController.signal });
+                FurnaceUI.closeUI(player);
+            }, { signal: FurnaceUI.furnaceController.signal });
         }
     }
 
     static closeUI(player: Player) {
-        WorkbenchUI.workbenchController.abort();
-        WorkbenchUI.workbenchController = new AbortController();
+        FurnaceUI.furnaceController.abort();
+        FurnaceUI.furnaceController = new AbortController();
         const uiContainer = document.getElementById('ui-container');
         if (uiContainer) {
             uiContainer.innerHTML = '';

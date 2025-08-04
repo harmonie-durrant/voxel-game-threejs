@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import type { Player } from './player';
 import type { World } from './world';
 import { WorkbenchUI } from './crafting/workbenchUI';
+import { FurnaceUI } from './smelting/furnaceUI';
 
 const textureLoader = new THREE.TextureLoader();
 
@@ -28,6 +29,9 @@ const textures = {
     cobblestone: loadTexture('textures/blocks/cobblestone.png'),
     workbenchSide: loadTexture('textures/blocks/workbench_side.png'),
     workbenchTop: loadTexture('textures/blocks/workbench_top.png'),
+    furnaceSide: loadTexture('textures/blocks/furnace_side.png'),
+    furnaceTop: loadTexture('textures/blocks/furnace_top.png'),
+    furnaceFront: loadTexture('textures/blocks/furnace_front.png'),
 };
 
 type ToolType = 'pickaxe' | 'axe' | 'shovel' | 'hoe' | 'none';
@@ -124,7 +128,7 @@ export const blocks: blocksType = {
         scarcity: 0.8,
         icon: "/textures/blocks/coal_ore.png",
         itemsToDrop: [
-            { blockId: 4, count: 1 },
+            { blockId: 25, count: 1 },
         ]
     },
     ironOre: {
@@ -333,6 +337,50 @@ export const blocks: blocksType = {
         toolType: 'axe',
         toolTier: 4
     },
+    furnace: {
+        id: 22,
+        name: "furnace",
+        placeable: true,
+        color: 0x808080, // Gray
+        hardness: 3,
+        requiredToolTier: 0,
+        requiredToolType: 'pickaxe',
+        material: [
+            new THREE.MeshLambertMaterial({ map: textures.furnaceSide }),
+            new THREE.MeshLambertMaterial({ map: textures.furnaceSide }),
+            new THREE.MeshLambertMaterial({ map: textures.furnaceTop }),
+            new THREE.MeshLambertMaterial({ map: textures.furnaceTop }),
+            new THREE.MeshLambertMaterial({ map: textures.furnaceSide }),
+            new THREE.MeshLambertMaterial({ map: textures.furnaceSide }),
+        ],
+        icon: "/textures/blocks/furnace_side.png",
+        itemsToDrop: [
+            { blockId: 22, count: 1 },
+        ],
+        onInteract: (player: Player, world: World) => {
+            world;
+            player.controls.unlock();
+            FurnaceUI.openUI(player);
+        }
+    },
+    charcoal: {
+        id: 23,
+        name: "charcoal",
+        placeable: false,
+        icon: "/textures/items/charcoal.png",
+    },
+    ironIngot: {
+        id: 24,
+        name: "iron ingot",
+        placeable: false,
+        icon: "/textures/items/iron_ingot.png",
+    },
+    coal: {
+        id: 25,
+        name: "coal",
+        placeable: false,
+        icon: "/textures/items/coal.png",
+    }
 }
 
 export const resources = [
@@ -342,5 +390,11 @@ export const resources = [
 ]
 
 export const interactableBlocks = [
-    blocks.workbench
+    blocks.workbench,
+    blocks.furnace
 ];
+
+export const fuel = [
+    blocks.coal,
+    blocks.charcoal
+]

@@ -96,7 +96,7 @@ export function getRecipes(): Recipes {
             icon: '/textures/iron_pickaxe.png',
             name: 'Iron Pickaxe',
             neededMaterials: [
-                { blockId: blocks.ironOre.id, amount: 3 },
+                { blockId: blocks.ironIngot.id, amount: 3 },
                 { blockId: blocks.sticks.id, amount: 2 }
             ],
             results: [
@@ -156,7 +156,7 @@ export function getRecipes(): Recipes {
             icon: '/textures/iron_axe.png',
             name: 'Iron Axe',
             neededMaterials: [
-                { blockId: blocks.ironOre.id, amount: 3 },
+                { blockId: blocks.ironIngot.id, amount: 3 },
                 { blockId: blocks.sticks.id, amount: 2 }
             ],
             results: [
@@ -177,6 +177,20 @@ export function getRecipes(): Recipes {
             results: [
                 {
                     blockId: blocks.diamondAxe.id,
+                    amount: 1
+                }
+            ],
+            needsWorkbench: true
+        },
+        furnace: {
+            icon: '/textures/blocks/furnace_side.png',
+            name: "Furnace",
+            neededMaterials: [
+                { blockId: blocks.cobblestone.id, amount: 8 }
+            ],
+            results: [
+                {
+                    blockId: blocks.furnace.id,
                     amount: 1
                 }
             ],
