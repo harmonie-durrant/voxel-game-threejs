@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { PointerLockControls } from 'three/examples/jsm/Addons.js';
 import { blocks } from './blocks';
+import type { worldData } from './worldChunk';
 import { Tool } from './tool';
 import { Container, emptyItem } from './container';
 import { World } from './world';
@@ -10,6 +11,7 @@ import { WorkbenchUI } from './crafting/workbenchUI';
 const CENTER_SCREEN: THREE.Vector2 = new THREE.Vector2();
 
 export class Player {
+    scene: THREE.Scene;
     game: Game;
 
     firstPersonController: AbortController = new AbortController();
@@ -37,6 +39,19 @@ export class Player {
     selectedCoordsPlace: THREE.Vector3 | null = null;
     selectionHelper: THREE.Mesh;
     activeBlockId: number = blocks.empty.id;
+    miningBlock: {
+        pos: THREE.Vector3;
+        block: worldData | null;
+        startTime: number;
+        progressHelper?: THREE.Mesh;
+    } | null = null;
+    miningBlock_tmp: {
+        pos: THREE.Vector3;
+        block: worldData | null;
+        startTime: number;
+        progressHelper?: THREE.Mesh;
+    } | null = null;
+    isMining: boolean = false;
 
     tool: Tool = new Tool();
 
@@ -47,6 +62,7 @@ export class Player {
     inventoryAbortController: AbortController = new AbortController();
 
     constructor(scene: THREE.Scene, world: World, game: Game, loadFromSave: boolean = false) {
+        this.scene = scene;
         this.game = game;
         if (loadFromSave)
             this.loadInventoryFromSave();
@@ -106,9 +122,83 @@ export class Player {
         return this.camera.position;
     }
 
-    update(world : World) {
+    update(world : World, isLeftClick: boolean = false) {
         this.updateRaycaster(world);
         this.tool.update();
+        this.updateBreakProgress(isLeftClick);
+    }
+
+    updateBreakProgress(isLeftClick: boolean) {
+        if (!this.isMining || this.uiShown) {
+            this.isMining = false;
+            this.miningBlock = null;
+            if (isLeftClick && !this.uiShown) {
+                this.miningBlock = {
+                    pos: this.selectedCoordsPlace ? this.selectedCoordsPlace.clone() : new THREE.Vector3(),
+                    block: this.selectedCoordsPlace ? this.world.getBlock(this.selectedCoordsPlace.x, this.selectedCoordsPlace.y, this.selectedCoordsPlace.z) : null,
+                    startTime: performance.now()
+                };
+                this.miningBlock_tmp = this.miningBlock;
+                this.isMining = true;
+            }
+        }
+        if (!this.miningBlock || !this.miningBlock.block) {
+            if (this.miningBlock_tmp) {
+                if (this.miningBlock_tmp.progressHelper)
+                    this.scene.remove(this.miningBlock_tmp.progressHelper);
+                this.miningBlock_tmp = null;
+            }
+            return;
+        }
+        this.miningBlock_tmp = this.miningBlock;
+        const block = this.miningBlock.block;
+        const blockData = Object.values(blocks).find(b => b.id === block.id);
+        if (!blockData) return;
+        const elapsedTime = performance.now() - this.miningBlock.startTime;
+        const requiredTime = blockData.hardness ? blockData.hardness * 1000 : 1000;
+        const currentHeldItem = this.inventory.getItemAt(this.getHotbarActiveSlot());
+        const currentHeldBlockData = Object.values(blocks).find(b => b.id === currentHeldItem.blockId);
+        var speedMultiplier = 1;
+        if (currentHeldBlockData &&currentHeldBlockData.speedMultiplier)
+            speedMultiplier = currentHeldBlockData.speedMultiplier;
+        const progress = Math.min(elapsedTime / (requiredTime / speedMultiplier), 1);
+        if (progress >= 1) {
+            this.world.removeBlock(this.miningBlock.pos.x, this.miningBlock.pos.y, this.miningBlock.pos.z, true);
+            this.updateRaycaster(this.world);
+            this.miningBlock = {
+                pos: this.selectedCoords?.clone() || new THREE.Vector3(),
+                block: this.selectedCoords ? this.world.getBlock(this.selectedCoords.x, this.selectedCoords.y, this.selectedCoords.z) : null,
+                startTime: performance.now() + 100
+            };
+            if (this.miningBlock_tmp?.progressHelper)
+                this.scene.remove(this.miningBlock_tmp.progressHelper);
+            this.miningBlock_tmp = this.miningBlock;
+            return;
+        }
+        this.tool.startAnimation();
+        if (!this.miningBlock.progressHelper) {
+            const blockGeometry = new THREE.BoxGeometry(1, 1, 1);
+            const blockMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.4 });
+            this.miningBlock.progressHelper = new THREE.Mesh(blockGeometry, blockMaterial);
+            this.miningBlock.progressHelper.position.copy(this.miningBlock.pos);
+            this.miningBlock.progressHelper.scale.set(1.01, 1.01, 1.01);
+            this.scene.add(this.miningBlock.progressHelper);
+            this.miningBlock_tmp = this.miningBlock;
+        }
+        
+        // Update the progress helper color from green to red based on progress
+        if (this.miningBlock.progressHelper && this.miningBlock.progressHelper.material instanceof THREE.MeshBasicMaterial) {
+            // Interpolate from green (0x00ff00) to red (0xff0000)
+            // Green: R=0, G=255, B=0
+            // Red: R=255, G=0, B=0
+            const red = Math.floor(progress * 255);
+            const green = Math.floor((1 - progress) * 255);
+            const blue = 0;
+            
+            // Combine RGB values into a single hex color
+            const color = (red << 16) | (green << 8) | blue;
+            this.miningBlock.progressHelper.material.color.setHex(color);
+        }
     }
 
     updateRaycaster(world : World) {

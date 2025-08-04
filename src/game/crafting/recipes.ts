@@ -77,5 +77,50 @@ export function getRecipes(): Recipes {
             ],
             needsWorkbench: true
         },
+        stonePickaxe: {
+            icon: '/textures/stone_pickaxe.png',
+            name: 'Stone Pickaxe',
+            neededMaterials: [
+                { blockId: blocks.cobblestone.id, amount: 3 },
+                { blockId: blocks.sticks.id, amount: 2 }
+            ],
+            results: [
+                {
+                    blockId: blocks.stonePickaxe.id,
+                    amount: 1
+                }
+            ],
+            needsWorkbench: true
+        },
+        ironPickaxe: {
+            icon: '/textures/iron_pickaxe.png',
+            name: 'Iron Pickaxe',
+            neededMaterials: [
+                { blockId: blocks.ironOre.id, amount: 3 },
+                { blockId: blocks.sticks.id, amount: 2 }
+            ],
+            results: [
+                {
+                    blockId: blocks.ironPickaxe.id,
+                    amount: 1
+                }
+            ],
+            needsWorkbench: true
+        },
+        diamondPickaxe: {
+            icon: '/textures/diamond_pickaxe.png',
+            name: 'Diamond Pickaxe',
+            neededMaterials: [
+                { blockId: blocks.ironOre.id, amount: 3 },
+                { blockId: blocks.sticks.id, amount: 2 }
+            ],
+            results: [
+                {
+                    blockId: blocks.diamondPickaxe.id,
+                    amount: 1
+                }
+            ],
+            needsWorkbench: true
+        },
     };
 };

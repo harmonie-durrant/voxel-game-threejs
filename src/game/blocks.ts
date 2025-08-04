@@ -30,11 +30,16 @@ const textures = {
     workbenchTop: loadTexture('textures/blocks/workbench_top.png'),
 };
 
+type ToolType = 'pickaxe' | 'axe' | 'shovel' | 'hoe' | 'none';
+
 export type blocksType = {
     [key: string]: {
         id: number;
         name: string;
         placeable: boolean;
+        hardness?: number;
+        requiredToolTier?: number;
+        requiredToolType?: ToolType;
         color?: number;
         material?: THREE.Material | THREE.Material[];
         icon?: string;
@@ -42,7 +47,10 @@ export type blocksType = {
         scarcity?: number;
         transparent?: boolean;
         itemsToDrop?: { blockId: number, count: number }[];
-        onInteract?: (player: Player, world: World) => void; // Define the interaction function
+        onInteract?: (player: Player, world: World) => void;
+        speedMultiplier?: number;
+        toolType?: ToolType;
+        toolTier?: number;
     }
 }
 
@@ -57,6 +65,9 @@ export const blocks: blocksType = {
         name: "grass",
         placeable: true,
         color: 0x559020, // Green
+        hardness: 0.5,
+        requiredToolTier: 0,
+        requiredToolType: 'shovel',
         material: [
             new THREE.MeshLambertMaterial({ map: textures.grassSide }),
             new THREE.MeshLambertMaterial({ map: textures.grassSide }),
@@ -75,6 +86,9 @@ export const blocks: blocksType = {
         name: "dirt",
         placeable: true,
         color: 0x807020, // Brown
+        hardness: 0.5,
+        requiredToolTier: 0,
+        requiredToolType: 'shovel',
         material: new THREE.MeshLambertMaterial({ map: textures.dirt }),
         icon: "/textures/blocks/dirt.png",
         itemsToDrop: [
@@ -86,9 +100,12 @@ export const blocks: blocksType = {
         name: "stone",
         placeable: true,
         color: 0x808080, // Gray
+        hardness: 1.5,
+        requiredToolTier: 1,
+        requiredToolType: 'pickaxe',
         material: new THREE.MeshLambertMaterial({ map: textures.stone }),
         scale: { x: 30, y: 30, z: 30 },
-        scarcity: 0.5,
+        scarcity: 0.05,
         icon: "/textures/blocks/stone.png",
         itemsToDrop: [
             { blockId: 14, count: 1 },
@@ -99,6 +116,9 @@ export const blocks: blocksType = {
         name: "coal ore",
         placeable: true,
         color: 0x353535, // Dark Gray
+        hardness: 1.5,
+        requiredToolTier: 1,
+        requiredToolType: 'pickaxe',
         material: new THREE.MeshLambertMaterial({ map: textures.coalOre }),
         scale: { x: 20, y: 20, z: 20 },
         scarcity: 0.8,
@@ -112,6 +132,9 @@ export const blocks: blocksType = {
         name: "iron ore",
         placeable: true,
         color: 0xaaaaaa, // Dark Gray
+        hardness: 1.5,
+        requiredToolTier: 2,
+        requiredToolType: 'pickaxe',
         material: new THREE.MeshLambertMaterial({ map: textures.ironOre }),
         scale: { x: 60, y: 60, z: 60 },
         scarcity: 0.9,
@@ -125,6 +148,9 @@ export const blocks: blocksType = {
         name: "tree",
         placeable: true,
         color: 0x8B4513, // Saddle Brown
+        hardness: 2,
+        requiredToolTier: 0,
+        requiredToolType: 'axe',
         material: [
             new THREE.MeshLambertMaterial({ map: textures.treeSide }),
             new THREE.MeshLambertMaterial({ map: textures.treeSide }),
@@ -143,6 +169,9 @@ export const blocks: blocksType = {
         name: "leaves",
         placeable: true,
         color: 0x00ff00, // Green
+        hardness: 0.2,
+        requiredToolTier: 0,
+        requiredToolType: 'hoe',
         material: new THREE.MeshLambertMaterial({
             map: textures.leaves,
             transparent: true,
@@ -157,6 +186,9 @@ export const blocks: blocksType = {
         name: "sand",
         placeable: true,
         color: 0xEDC9AF, // Sandy Brown
+        hardness: 0.5,
+        requiredToolTier: 0,
+        requiredToolType: 'shovel',
         material: new THREE.MeshLambertMaterial({ map: textures.sand }),
         icon: "/textures/blocks/sand.png",
         itemsToDrop: [
@@ -174,6 +206,9 @@ export const blocks: blocksType = {
         name: "planks",
         placeable: true,
         color: 0xD2B48C, // Tan
+        hardness: 2,
+        requiredToolTier: 0,
+        requiredToolType: 'axe',
         material: new THREE.MeshLambertMaterial({ map: textures.oakPlanks }),
         icon: "/textures/blocks/oak_planks.png",
         itemsToDrop: [
@@ -191,12 +226,18 @@ export const blocks: blocksType = {
         name: "wooden pickaxe",
         placeable: false,
         icon: "/textures/items/wooden_pickaxe.png",
+        speedMultiplier: 1.5,
+        toolType: 'pickaxe',
+        toolTier: 1
     },
     workbench: {
         id: 13,
         name: "workbench",
         placeable: true,
         color: 0x8B4513, // Saddle Brown
+        hardness: 2,
+        requiredToolTier: 0,
+        requiredToolType: 'axe',
         material: [
             new THREE.MeshLambertMaterial({ map: textures.workbenchSide }),
             new THREE.MeshLambertMaterial({ map: textures.workbenchSide }),
@@ -220,12 +261,42 @@ export const blocks: blocksType = {
         name: "cobblestone",
         placeable: true,
         color: 0x808080, // Gray
+        hardness: 1.5,
+        requiredToolTier: 1,
+        requiredToolType: 'pickaxe',
         material: new THREE.MeshLambertMaterial({ map: textures.cobblestone }),
         icon: "/textures/blocks/cobblestone.png",
         itemsToDrop: [
             { blockId: 14, count: 1 },
         ]
-    }
+    },
+    stonePickaxe: {
+        id: 15,
+        name: "stone pickaxe",
+        placeable: false,
+        icon: "/textures/items/stone_pickaxe.png",
+        speedMultiplier: 2,
+        toolType: 'pickaxe',
+        toolTier: 2
+    },
+    ironPickaxe: {
+        id: 16,
+        name: "iron pickaxe",
+        placeable: false,
+        icon: "/textures/items/iron_pickaxe.png",
+        speedMultiplier: 2.5,
+        toolType: 'pickaxe',
+        toolTier: 3
+    },
+    diamondPickaxe: {
+        id: 17,
+        name: "diamond pickaxe",
+        placeable: false,
+        icon: "/textures/items/diamond_pickaxe.png",
+        speedMultiplier: 3,
+        toolType: 'pickaxe',
+        toolTier: 4
+    },
 }
 
 export const resources = [

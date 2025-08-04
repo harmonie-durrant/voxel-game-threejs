@@ -8,7 +8,7 @@ import type { paramsType, chunkSize, World } from './world';
 
 const geometry = new THREE.BoxGeometry();
 
-type worldData = {
+export type worldData = {
   id : number,
   instanceId : number |  null
 };

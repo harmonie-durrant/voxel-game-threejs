@@ -47,17 +47,17 @@ export class World extends THREE.Group {
   asyncLoading : boolean = true;
 
   seed: number = 0;
-  chunkSize: chunkSize = { width: 16, height: 32 };
-  renderDistance = 2;
+  chunkSize: chunkSize = { width: 16, height: 64 };
+  renderDistance = 3;
 
   params : paramsType = {
     seed: 0,
     terrain: {
-      scale: 60,
-      magnitude: 10,
-      offset: 4,
+      scale: 64,
+      magnitude: 18,
+      offset: 28,
       dirtlayer: 1,
-      waterLevel: 5
+      waterLevel: 8
     },
     trees: {
       trunk: {
@@ -66,14 +66,14 @@ export class World extends THREE.Group {
       },
       canopy: {
         minRadius: 2,
-        maxRadius: 4,
-        density: 0.9
+        maxRadius: 3,
+        density: 0.7
       },
       frequency: 0.0055
     },
     clouds: {
       scale: 30,
-      density: 0.25
+      density: 0.2
     }
   };
 

@@ -74,6 +74,21 @@
     height: 75%;
     object-fit: contain;
   }
+  .missing-workbench {
+    background-color: rgba(255, 0, 0, 0.2);
+    opacity: 0.8;
+    .crafting-item-count {
+      color: gray;
+    }
+  }
+  .missing {
+    background-color: rgba(255, 0, 0, 0.2);
+    font-weight: bold;
+    opacity: 0.8;
+    .crafting-item-count {
+      color: red;
+    }
+  }
   .crafting-item-count {
     position: absolute;
     bottom: 4px;
@@ -98,6 +113,13 @@
   }
   .crafting-button:hover {
     background-color: #45a049;
+  }
+  .crafting-button-disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+  .crafting-button-disabled:hover {
+    background-color: #ccc;
   }
 </style>
 <div class="crafting-popup">

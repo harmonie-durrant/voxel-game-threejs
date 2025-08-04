@@ -28,6 +28,8 @@ export class Game {
 
     cameraMode: String = 'first-person';
 
+    isLeftClick: boolean = false;
+
     constructor(loadFromSave: boolean = false, seed: number = 0) {
         const gameContainer = document.getElementById('game_ui_container');
         if (!gameContainer) {
@@ -132,7 +134,7 @@ export class Game {
 
         if (this.player?.controls.isLocked) {
             if (this.world) {
-                this.player?.update(this.world);
+                this.player?.update(this.world, this.isLeftClick);
                 this.physics?.update(dt, this.player, this.world);
                 this.world?.update(this.player);
             }
@@ -141,6 +143,11 @@ export class Game {
                 this.sun.position.copy(this.player.position);
                 this.sun.position.add(new THREE.Vector3(50, 50, 50));
                 this.sun.target.position.copy(this.player.position);
+            }
+        } else {
+            if (this.player) {
+                this.player.isMining = false;
+                this.player.miningBlock = null;
             }
         }
 
@@ -164,8 +171,19 @@ export class Game {
 
         const isLeftClick = event.button === 0;
         if (isLeftClick) {
+            this.isLeftClick = true;
             this.player.tool.startAnimation();
-            this.world.removeBlock(this.player.selectedCoords.x, this.player.selectedCoords.y, this.player.selectedCoords.z, true);
+            this.player.isMining = true;
+            const selectedBlock = this.world.getBlock(this.player.selectedCoords.x, this.player.selectedCoords.y, this.player.selectedCoords.z);
+            if (!selectedBlock) {
+                this.player.miningBlock = null;
+                return;
+            }
+            this.player.miningBlock = {
+                pos: this.player.selectedCoords.clone(),
+                block: this.world.getBlock(this.player.selectedCoords.x, this.player.selectedCoords.y, this.player.selectedCoords.z),
+                startTime: performance.now()
+            };
             return;
         }
 
@@ -182,6 +200,23 @@ export class Game {
             if (added) {
                 this.player.useItem();
             }
+        }
+    }
+
+    onMouseUp(event: MouseEvent) {
+        if (this.cameraMode === 'orbit') return;
+        if (!this.player || !this.world) return;
+        if (!this.player.controls.isLocked) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        const isLeftClick = event.button === 0;
+        if (isLeftClick) {
+            this.isLeftClick = false;
+            this.player.isMining = false;
+            this.player.miningBlock = null;
+            return;
         }
     }
 
@@ -252,6 +287,7 @@ export class Game {
 
     addEventListeners() {
         document.addEventListener('mousedown', this.onMouseDown.bind(this));
+        document.addEventListener('mouseup', this.onMouseUp.bind(this));
         window.addEventListener('resize', this.onWindowResize.bind(this));
         window.addEventListener('keydown', this.onKeyDown.bind(this));
     }

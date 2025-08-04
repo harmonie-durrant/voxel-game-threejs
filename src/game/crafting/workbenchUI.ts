@@ -14,17 +14,31 @@ export class WorkbenchUI {
                 return false;
             }
         }
-        if (mode === 'crafting' && recipe.needsWorkbench)
+        return WorkbenchUI.isCorrectMode(recipe, player, mode);
+    }
+
+    static isCorrectMode(recipe: Recipe, player: Player, mode: 'workbench' | 'crafting' = 'workbench'): boolean {
+        if (mode === 'crafting' && recipe.needsWorkbench) {
             return false;
+        }
         return true;
     }
 
     static craftRecipe(recipe: Recipe, player: Player, mode: 'workbench' | 'crafting' = 'workbench') {
+        // Check if the player is allowed to craft this recipe in the current mode
+        if (!WorkbenchUI.isCorrectMode(recipe, player, mode)) {
+            toast.addNotification({
+                type: 'error',
+                message: `You need a workbench to craft ${recipe.name}.`,
+                showFor: 5000
+            });
+            return;
+        }
         // Check if the recipe is craftable
         if (!WorkbenchUI.isCraftable(recipe, player, mode)) {
             toast.addNotification({
                 type: 'error',
-                message: `You do not have enough materials to craft ${recipe.name}.`,
+                message: `You do not have enough items to craft ${recipe.name}.`,
                 showFor: 5000
             });
             return;
@@ -51,12 +65,14 @@ export class WorkbenchUI {
             message: `Crafted ${recipe.name}!`,
             showFor: 1000
         });
+        WorkbenchUI.openUI(player, mode, true);
     }
 
-    static openUI(player: Player, mode: 'workbench' | 'crafting' = 'workbench') {
+    static openUI(player: Player, mode: 'workbench' | 'crafting' = 'workbench', isRefresh: boolean = false) {
         if (player.uiShown) {
             WorkbenchUI.closeUI(player);
-            return;
+            if (!isRefresh)
+                return;
         }
         WorkbenchUI.workbenchController.abort();
         WorkbenchUI.workbenchController = new AbortController();
@@ -89,8 +105,8 @@ export class WorkbenchUI {
                 }
                 const recipes = getRecipes();
                 Object.values(recipes).forEach(recipe => {
-                    if (!WorkbenchUI.isCraftable(recipe, player, mode))
-                        return;
+                    const missingWorkbench = !WorkbenchUI.isCorrectMode(recipe, player, mode);
+                    const missingItems = !WorkbenchUI.isCraftable(recipe, player, mode);
                     const recipeElement = document.createElement('div');
                     recipeElement.classList.add('crafting-recipe');
                     recipeElement.innerHTML = `
@@ -101,10 +117,11 @@ export class WorkbenchUI {
                                 if (!block) {
                                     return '';
                                 }
+                                const isMissing = !player.inventory.hasItem(item.blockId, item.amount);
                                 return `
-                                    <div class="crafting-item">
+                                    <div class="crafting-item ${missingWorkbench ? 'missing-workbench' : ''} ${!missingWorkbench && missingItems && isMissing ? 'missing' : ''}">
                                         <img src="${block?.icon}" alt="${block?.name}">
-                                        <span class="crafting-item-count">${item.amount}</span>
+                                        <span class="crafting-item-count">${isMissing ? item.amount : item.amount}</span>
                                     </div>
                                 `;
                             }).join('')}
@@ -117,14 +134,14 @@ export class WorkbenchUI {
                                     return '';
                                 }
                                 return `
-                                    <div class="crafting-item">
+                                    <div class="crafting-item ${missingWorkbench ? 'missing-workbench' : ''} ${(!missingWorkbench && missingItems) ? 'missing' : ''}">
                                         <img src="${block?.icon}" alt="${block?.name}">
                                         <span class="crafting-item-count">${result.amount}</span>
                                     </div>
                                 `;
                             }).join('')}
                         </div>
-                        <button class="crafting-button" data-recipe="${recipe.name}">Craft</button>
+                        <button class="crafting-button ${(missingWorkbench || missingItems) ? 'crafting-button-disabled' : ''}" data-recipe="${recipe.name}">Craft</button>
                     `;
                     recipeList.appendChild(recipeElement);
                 })
