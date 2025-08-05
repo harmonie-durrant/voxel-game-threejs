@@ -380,6 +380,42 @@ export const blocks: blocksType = {
         name: "coal",
         placeable: false,
         icon: "/textures/items/coal.png",
+    },
+    woodenShovel: {
+        id: 26,
+        name: "wooden shovel",
+        placeable: false,
+        icon: "/textures/items/wooden_shovel.png",
+        speedMultiplier: 1.15,
+        toolType: 'shovel',
+        toolTier: 1
+    },
+    stoneShovel: {
+        id: 27,
+        name: "stone shovel",
+        placeable: false,
+        icon: "/textures/items/stone_shovel.png",
+        speedMultiplier: 1.4,
+        toolType: 'shovel',
+        toolTier: 2
+    },
+    ironShovel: {
+        id: 28,
+        name: "iron shovel",
+        placeable: false,
+        icon: "/textures/items/iron_shovel.png",
+        speedMultiplier: 1.7,
+        toolType: 'shovel',
+        toolTier: 3
+    },
+    diamondShovel: {
+        id: 29,
+        name: "diamond shovel",
+        placeable: false,
+        icon: "/textures/items/diamond_shovel.png",
+        speedMultiplier: 2,
+        toolType: 'shovel',
+        toolTier: 4
     }
 }
 

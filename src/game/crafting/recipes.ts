@@ -195,6 +195,66 @@ export function getRecipes(): Recipes {
                 }
             ],
             needsWorkbench: true
+        },
+        woodenShovel: {
+            icon: '/textures/wooden_shovel.png',
+            name: 'Wooden Shovel',
+            neededMaterials: [
+                { blockId: blocks.planks.id, amount: 1 },
+                { blockId: blocks.sticks.id, amount: 2 }
+            ],
+            results: [
+                {
+                    blockId: blocks.woodenShovel.id,
+                    amount: 1
+                }
+            ],
+            needsWorkbench: true
+        },
+        stoneShovel: {
+            icon: '/textures/stone_shovel.png',
+            name: 'Stone Shovel',
+            neededMaterials: [
+                { blockId: blocks.cobblestone.id, amount: 1 },
+                { blockId: blocks.sticks.id, amount: 2 }
+            ],
+            results: [
+                {
+                    blockId: blocks.stoneShovel.id,
+                    amount: 1
+                }
+            ],
+            needsWorkbench: true
+        },
+        ironShovel: {
+            icon: '/textures/iron_shovel.png',
+            name: 'Iron Shovel',
+            neededMaterials: [
+                { blockId: blocks.ironIngot.id, amount: 1 },
+                { blockId: blocks.sticks.id, amount: 2 }
+            ],
+            results: [
+                {
+                    blockId: blocks.ironShovel.id,
+                    amount: 1
+                }
+            ],
+            needsWorkbench: true
+        },
+        diamondShovel: {
+            icon: '/textures/diamond_shovel.png',
+            name: 'Diamond Shovel',
+            neededMaterials: [
+                { blockId: blocks.ironOre.id, amount: 1 },
+                { blockId: blocks.sticks.id, amount: 2 }
+            ],
+            results: [
+                {
+                    blockId: blocks.diamondShovel.id,
+                    amount: 1
+                }
+            ],
+            needsWorkbench: true
         }
     };
 };
