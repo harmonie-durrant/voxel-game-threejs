@@ -7,6 +7,7 @@ import { Physics } from './physics';
 import { World } from './world';
 import { ModelLoader } from './modelLoader';
 import { interactableBlocks } from './blocks';
+import { soundController } from '../main';
 
 export class Game {
     stats: Stats | null = null;
@@ -100,6 +101,7 @@ export class Game {
         this.animate();
         this.addEventListeners();
         this.player.controls.lock();
+        soundController.stopAllSounds();
     }
 
     setupLights() {

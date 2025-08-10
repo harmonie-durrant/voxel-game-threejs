@@ -5,6 +5,7 @@ import { WorldSaveData } from './worldSaveData';
 import type { Player } from './player';
 import type { ItemData } from './container';
 import { blocks, type blocksType } from './blocks';
+import { soundController } from '../main';
 
 type terrainParams = {
   scale : number,
@@ -420,6 +421,7 @@ export class World extends THREE.Group {
     const itemPosition = origin.clone().add(new THREE.Vector3(0, 1, 0));
     const itemEntity = this.createItemEntity(item, itemPosition, initialForceAngle);
     this.add(itemEntity);
+    soundController.playSound('sounds/item_drop.mp3');
   }
 
   /**

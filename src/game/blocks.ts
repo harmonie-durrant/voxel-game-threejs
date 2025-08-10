@@ -183,7 +183,9 @@ export const blocks: blocksType = {
         }),
         transparent: true,
         icon: "/textures/blocks/leaves.png",
-        itemsToDrop: []
+        itemsToDrop: [
+            { blockId: 7, count: 1 },
+        ]
     },
     sand: {
         id: 8,
@@ -415,6 +417,42 @@ export const blocks: blocksType = {
         icon: "/textures/items/diamond_shovel.png",
         speedMultiplier: 2,
         toolType: 'shovel',
+        toolTier: 4
+    },
+    woodenHoe: {
+        id: 30,
+        name: "wooden hoe",
+        placeable: false,
+        icon: "/textures/items/wooden_hoe.png",
+        speedMultiplier: 1.15,
+        toolType: 'hoe',
+        toolTier: 1
+    },
+    stoneHoe: {
+        id: 31,
+        name: "stone hoe",
+        placeable: false,
+        icon: "/textures/items/stone_hoe.png",
+        speedMultiplier: 1.4,
+        toolType: 'hoe',
+        toolTier: 2
+    },
+    ironHoe: {
+        id: 32,
+        name: "iron hoe",
+        placeable: false,
+        icon: "/textures/items/iron_hoe.png",
+        speedMultiplier: 1.7,
+        toolType: 'hoe',
+        toolTier: 3
+    },
+    diamondHoe: {
+        id: 33,
+        name: "diamond hoe",
+        placeable: false,
+        icon: "/textures/items/diamond_hoe.png",
+        speedMultiplier: 2,
+        toolType: 'hoe',
         toolTier: 4
     }
 }

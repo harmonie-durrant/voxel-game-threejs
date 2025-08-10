@@ -1,5 +1,5 @@
 import { Game } from "../game/game";
-import { toast } from "../main";
+import { soundController, toast } from "../main";
 
 
 export class WorldCreation {
@@ -25,11 +25,13 @@ export class WorldCreation {
     }
 
     openWorldCreationMenu(mainMenuController: AbortController): void {
+        soundController.playSound('sounds/ui_button_press.mp3');
         const worldCreationPopup = document.getElementById('world-creation-popup');
         if (worldCreationPopup) {
             worldCreationPopup.classList.remove('hidden');
         }
         document.getElementById('create-world')?.addEventListener('click', () => {
+            soundController.playSound('sounds/ui_button_press.mp3');
             const seedInput = document.getElementById('world-seed') as HTMLInputElement;
             if (!seedInput || !seedInput.value || seedInput.value.trim() === '') {
                 this.start_game(Math.random() * 1000000); // Generate a random seed if input is not found
@@ -47,6 +49,7 @@ export class WorldCreation {
     }
 
     closeWorldCreationMenu(): void {
+        soundController.playSound('sounds/ui_button_press.mp3');
         const worldCreationMenu = document.getElementById('world-creation-popup');
         if (worldCreationMenu) {
             worldCreationMenu.classList.add('hidden');

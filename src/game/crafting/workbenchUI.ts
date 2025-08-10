@@ -1,4 +1,4 @@
-import { toast } from "../../main";
+import { soundController, toast } from "../../main";
 import { blocks } from "../blocks";
 import type { Player } from "../player";
 import { getRecipes } from "./recipes";
@@ -65,6 +65,7 @@ export class WorkbenchUI {
             message: `Crafted ${recipe.name}!`,
             showFor: 1000
         });
+        soundController.playSound('sounds/crafting.mp3');
         WorkbenchUI.openUI(player, mode, true);
     }
 

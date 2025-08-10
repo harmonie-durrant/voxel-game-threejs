@@ -255,6 +255,66 @@ export function getRecipes(): Recipes {
                 }
             ],
             needsWorkbench: true
+        },
+        woodenHoe: {
+            icon: '/textures/wooden_hoe.png',
+            name: 'Wooden hoe',
+            neededMaterials: [
+                { blockId: blocks.planks.id, amount: 2 },
+                { blockId: blocks.sticks.id, amount: 2 }
+            ],
+            results: [
+                {
+                    blockId: blocks.woodenHoe.id,
+                    amount: 1
+                }
+            ],
+            needsWorkbench: true
+        },
+        stoneHoe: {
+            icon: '/textures/stone_hoe.png',
+            name: 'Stone hoe',
+            neededMaterials: [
+                { blockId: blocks.cobblestone.id, amount: 2 },
+                { blockId: blocks.sticks.id, amount: 2 }
+            ],
+            results: [
+                {
+                    blockId: blocks.stoneHoe.id,
+                    amount: 1
+                }
+            ],
+            needsWorkbench: true
+        },
+        ironHoe: {
+            icon: '/textures/iron_hoe.png',
+            name: 'Iron hoe',
+            neededMaterials: [
+                { blockId: blocks.ironIngot.id, amount: 2 },
+                { blockId: blocks.sticks.id, amount: 2 }
+            ],
+            results: [
+                {
+                    blockId: blocks.ironHoe.id,
+                    amount: 1
+                }
+            ],
+            needsWorkbench: true
+        },
+        diamondHoe: {
+            icon: '/textures/diamond_hoe.png',
+            name: 'Diamond hoe',
+            neededMaterials: [
+                { blockId: blocks.ironOre.id, amount: 2 },
+                { blockId: blocks.sticks.id, amount: 2 }
+            ],
+            results: [
+                {
+                    blockId: blocks.diamondHoe.id,
+                    amount: 1
+                }
+            ],
+            needsWorkbench: true
         }
     };
 };

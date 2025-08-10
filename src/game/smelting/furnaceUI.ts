@@ -1,4 +1,4 @@
-import { toast } from "../../main";
+import { soundController, toast } from "../../main";
 import { blocks } from "../blocks";
 import type { Player } from "../player";
 import { getSmeltingRecipes } from "./smeltingRecipes";
@@ -17,8 +17,8 @@ export class FurnaceUI {
         return true;
     }
 
-    static craftRecipe(recipe: SmeltingRecipe, player: Player) {
-        // Check if the recipe is craftable
+    static smeltRecipe(recipe: SmeltingRecipe, player: Player) {
+        // Check if the recipe is smeltable
         if (!FurnaceUI.isSmeltable(recipe, player)) {
             toast.addNotification({
                 type: 'error',
@@ -49,9 +49,10 @@ export class FurnaceUI {
 
         toast.addNotification({
             type: 'advancement',
-            message: `Crafted ${recipe.name}!`,
+            message: `Smelted ${recipe.name}!`,
             showFor: 1000
         });
+        soundController.playSound('sounds/smelting.mp3');
         FurnaceUI.openUI(player, true);
     }
 
@@ -154,7 +155,7 @@ export class FurnaceUI {
                             });
                             return;
                         }
-                        FurnaceUI.craftRecipe(recipe, player);
+                        FurnaceUI.smeltRecipe(recipe, player);
                     });
                 });
             })
