@@ -9,14 +9,14 @@ export class SoundController {
 
     private loadSounds() {
         const soundFiles = [
-            'sounds/main_menu_music.mp3',
-            'sounds/ui_button_press.mp3',
-            'sounds/game_music.mp3',
-            'sounds/crafting.mp3',
-            'sounds/smelting.mp3',
-            'sounds/block_breaking.mp3',
-            'sounds/item_drop.mp3',
-            'sounds/player_jump.mp3'
+            "sounds/main_menu_music.mp3",
+            "sounds/ui_button_press.mp3",
+            "sounds/game_music.mp3",
+            "sounds/crafting.mp3",
+            "sounds/smelting.mp3",
+            "sounds/block_breaking.mp3",
+            "sounds/item_drop.mp3",
+            "sounds/player_jump.mp3",
         ];
 
         soundFiles.forEach((file) => {
@@ -32,8 +32,7 @@ export class SoundController {
             audio.currentTime = 0;
             audio.play();
             console.log(`Playing sound: ${sound}`);
-        }
-        else {
+        } else {
             console.warn(`Sound not found: ${sound}`);
         }
     }

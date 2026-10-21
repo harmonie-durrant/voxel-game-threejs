@@ -1,13 +1,13 @@
-import * as THREE from 'three';
-import { PointerLockControls } from 'three/examples/jsm/Addons.js';
-import { blocks } from './blocks';
-import type { worldData } from './worldChunk';
-import { Tool } from './tool';
-import { Container, emptyItem } from './container';
-import { World } from './world';
-import type { Game } from './game';
-import { WorkbenchUI } from './crafting/workbenchUI';
-import { worldcreation } from '../main';
+import * as THREE from "three";
+import { PointerLockControls } from "three/examples/jsm/Addons.js";
+import { blocks } from "./blocks";
+import type { worldData } from "./worldChunk";
+import { Tool } from "./tool";
+import { Container, emptyItem } from "./container";
+import { World } from "./world";
+import type { Game } from "./game";
+import { WorkbenchUI } from "./crafting/workbenchUI";
+import { worldcreation } from "../main";
 
 const CENTER_SCREEN: THREE.Vector2 = new THREE.Vector2();
 
@@ -29,7 +29,12 @@ export class Player {
 
     #worldVelocity: THREE.Vector3 = new THREE.Vector3();
 
-    camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 200);
+    camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(
+        65,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        200,
+    );
     cameraHelper: THREE.CameraHelper = new THREE.CameraHelper(this.camera);
     controls: PointerLockControls = new PointerLockControls(this.camera, document.body);
 
@@ -56,7 +61,7 @@ export class Player {
 
     tool: Tool = new Tool();
 
-    world: World
+    world: World;
 
     inventory: Container = new Container(36);
     uiShown: boolean = false;
@@ -65,8 +70,7 @@ export class Player {
     constructor(scene: THREE.Scene, world: World, game: Game, loadFromSave: boolean = false) {
         this.scene = scene;
         this.game = game;
-        if (loadFromSave)
-            this.loadInventoryFromSave();
+        if (loadFromSave) this.loadInventoryFromSave();
         this.activeBlockId = this.inventory.getItemAt(this.getHotbarActiveSlot()).blockId;
         this.updateToolVisibility();
 
@@ -74,12 +78,11 @@ export class Player {
         this.world.definePlayer(this);
         this.position.set(0, 1, 0);
 
-        if (!loadFromSave)
-            this.world.respawnPlayer();
+        if (!loadFromSave) this.world.respawnPlayer();
         else
             this.world.respawnPlayer(
-                JSON.parse(localStorage.getItem('player_position') || '{}'),
-                JSON.parse(localStorage.getItem('player_rotation') || '{}')
+                JSON.parse(localStorage.getItem("player_position") || "{}"),
+                JSON.parse(localStorage.getItem("player_rotation") || "{}"),
             );
         this.camera.layers.enable(1);
         scene.add(this.camera);
@@ -88,15 +91,21 @@ export class Player {
 
         this.camera.add(this.tool);
 
-        document.addEventListener('keydown', this.onKeyDown.bind(this), { signal: this.firstPersonController.signal });
-        document.addEventListener('mousedown', this.onMouseDown.bind(this), { signal: this.firstPersonController.signal });
-        document.addEventListener('keyup', this.onKeyUp.bind(this), { signal: this.firstPersonController.signal });
+        document.addEventListener("keydown", this.onKeyDown.bind(this), {
+            signal: this.firstPersonController.signal,
+        });
+        document.addEventListener("mousedown", this.onMouseDown.bind(this), {
+            signal: this.firstPersonController.signal,
+        });
+        document.addEventListener("keyup", this.onKeyUp.bind(this), {
+            signal: this.firstPersonController.signal,
+        });
 
         this.boundsHelper = new THREE.Mesh(
             new THREE.CylinderGeometry(this.radius, this.radius, this.height, 16),
-            new THREE.MeshBasicMaterial({ wireframe: true })
+            new THREE.MeshBasicMaterial({ wireframe: true }),
         );
-        
+
         this.boundsHelper.visible = false;
         scene.add(this.boundsHelper);
 
@@ -123,7 +132,7 @@ export class Player {
         return this.camera.position;
     }
 
-    update(world : World, isLeftClick: boolean = false) {
+    update(world: World, isLeftClick: boolean = false) {
         this.updateRaycaster(world);
         this.tool.update();
         this.updateBreakProgress(isLeftClick);
@@ -135,9 +144,17 @@ export class Player {
             this.miningBlock = null;
             if (isLeftClick && !this.uiShown) {
                 this.miningBlock = {
-                    pos: this.selectedCoordsPlace ? this.selectedCoordsPlace.clone() : new THREE.Vector3(),
-                    block: this.selectedCoordsPlace ? this.world.getBlock(this.selectedCoordsPlace.x, this.selectedCoordsPlace.y, this.selectedCoordsPlace.z) : null,
-                    startTime: performance.now()
+                    pos: this.selectedCoordsPlace
+                        ? this.selectedCoordsPlace.clone()
+                        : new THREE.Vector3(),
+                    block: this.selectedCoordsPlace
+                        ? this.world.getBlock(
+                              this.selectedCoordsPlace.x,
+                              this.selectedCoordsPlace.y,
+                              this.selectedCoordsPlace.z,
+                          )
+                        : null,
+                    startTime: performance.now(),
                 };
                 this.miningBlock_tmp = this.miningBlock;
                 this.isMining = true;
@@ -154,47 +171,70 @@ export class Player {
         if (
             this.selectedCoords &&
             (this.selectedCoords.x !== this.miningBlock.pos.x ||
-            this.selectedCoords.y !== this.miningBlock.pos.y ||
-            this.selectedCoords.z !== this.miningBlock.pos.z)
+                this.selectedCoords.y !== this.miningBlock.pos.y ||
+                this.selectedCoords.z !== this.miningBlock.pos.z)
         ) {
-            console.log('Selected coords changed, resetting mining block', this.selectedCoords, this.miningBlock?.pos);
+            console.log(
+                "Selected coords changed, resetting mining block",
+                this.selectedCoords,
+                this.miningBlock?.pos,
+            );
             if (this.miningBlock_tmp) {
                 if (this.miningBlock_tmp.progressHelper)
                     this.scene.remove(this.miningBlock_tmp.progressHelper);
             }
             this.miningBlock = {
                 pos: this.selectedCoords?.clone() || new THREE.Vector3(),
-                block: this.selectedCoords ? this.world.getBlock(this.selectedCoords.x, this.selectedCoords.y, this.selectedCoords.z) : null,
-                startTime: performance.now()
+                block: this.selectedCoords
+                    ? this.world.getBlock(
+                          this.selectedCoords.x,
+                          this.selectedCoords.y,
+                          this.selectedCoords.z,
+                      )
+                    : null,
+                startTime: performance.now(),
             };
         }
         this.miningBlock_tmp = this.miningBlock;
         const block = this.miningBlock.block;
         if (!block) return;
-        const blockData = Object.values(blocks).find(b => b.id === block.id);
+        const blockData = Object.values(blocks).find((b) => b.id === block.id);
         if (!blockData) return;
         const elapsedTime = performance.now() - this.miningBlock.startTime;
         const requiredTime = blockData.hardness ? blockData.hardness * 1000 : 1000;
         const currentHeldItem = this.inventory.getItemAt(this.getHotbarActiveSlot());
-        const currentHeldBlockData = Object.values(blocks).find(b => b.id === currentHeldItem.blockId);
+        const currentHeldBlockData = Object.values(blocks).find(
+            (b) => b.id === currentHeldItem.blockId,
+        );
         var speedMultiplier = 1;
         if (currentHeldBlockData && currentHeldBlockData.speedMultiplier)
             speedMultiplier = currentHeldBlockData.speedMultiplier;
         const currentToolTier = currentHeldBlockData?.toolTier || 0;
-        const currentToolType = currentHeldBlockData?.toolType || 'none';
+        const currentToolType = currentHeldBlockData?.toolType || "none";
         const requiredToolTier = blockData.requiredToolTier || 0;
-        const requiredToolType = blockData.requiredToolType || 'none';
+        const requiredToolType = blockData.requiredToolType || "none";
         const shouldDropItems = currentToolTier >= requiredToolTier;
-        if (currentToolType !== requiredToolType && requiredToolType !== 'none')
+        if (currentToolType !== requiredToolType && requiredToolType !== "none")
             speedMultiplier = 1;
         const progress = Math.min(elapsedTime / (requiredTime / speedMultiplier), 1);
         if (progress >= 1) {
-            this.world.removeBlock(this.miningBlock.pos.x, this.miningBlock.pos.y, this.miningBlock.pos.z, shouldDropItems);
+            this.world.removeBlock(
+                this.miningBlock.pos.x,
+                this.miningBlock.pos.y,
+                this.miningBlock.pos.z,
+                shouldDropItems,
+            );
             this.updateRaycaster(this.world);
             this.miningBlock = {
                 pos: this.selectedCoords?.clone() || new THREE.Vector3(),
-                block: this.selectedCoords ? this.world.getBlock(this.selectedCoords.x, this.selectedCoords.y, this.selectedCoords.z) : null,
-                startTime: performance.now() + 100
+                block: this.selectedCoords
+                    ? this.world.getBlock(
+                          this.selectedCoords.x,
+                          this.selectedCoords.y,
+                          this.selectedCoords.z,
+                      )
+                    : null,
+                startTime: performance.now() + 100,
             };
             if (this.miningBlock_tmp?.progressHelper)
                 this.scene.remove(this.miningBlock_tmp.progressHelper);
@@ -204,30 +244,37 @@ export class Player {
         this.tool.startAnimation();
         if (!this.miningBlock.progressHelper) {
             const blockGeometry = new THREE.BoxGeometry(1, 1, 1);
-            const blockMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.4 });
+            const blockMaterial = new THREE.MeshBasicMaterial({
+                color: 0x00ff00,
+                transparent: true,
+                opacity: 0.4,
+            });
             this.miningBlock.progressHelper = new THREE.Mesh(blockGeometry, blockMaterial);
             this.miningBlock.progressHelper.position.copy(this.miningBlock.pos);
             this.miningBlock.progressHelper.scale.set(1.01, 1.01, 1.01);
             this.scene.add(this.miningBlock.progressHelper);
             this.miningBlock_tmp = this.miningBlock;
         }
-        
+
         // Update the progress helper color from green to red based on progress
-        if (this.miningBlock.progressHelper && this.miningBlock.progressHelper.material instanceof THREE.MeshBasicMaterial) {
+        if (
+            this.miningBlock.progressHelper &&
+            this.miningBlock.progressHelper.material instanceof THREE.MeshBasicMaterial
+        ) {
             // Interpolate from green (0x00ff00) to red (0xff0000)
             // Green: R=0, G=255, B=0
             // Red: R=255, G=0, B=0
             const red = Math.floor(progress * 255);
             const green = Math.floor((1 - progress) * 255);
             const blue = 0;
-            
+
             // Combine RGB values into a single hex color
             const color = (red << 16) | (green << 8) | blue;
             this.miningBlock.progressHelper.material.color.setHex(color);
         }
     }
 
-    updateRaycaster(world : World) {
+    updateRaycaster(world: World) {
         this.raycaser.setFromCamera(CENTER_SCREEN, this.camera);
         const intersections = this.raycaser.intersectObject(world, true);
 
@@ -238,7 +285,7 @@ export class Player {
             if (!(chunk instanceof THREE.Group)) {
                 return;
             }
-            
+
             const blockMatrix = new THREE.Matrix4();
             if (
                 intersection.object instanceof THREE.InstancedMesh &&
@@ -285,22 +332,22 @@ export class Player {
     }
 
     closeInventory() {
-        const inventoryElement = document.getElementById('inventory');
+        const inventoryElement = document.getElementById("inventory");
         if (!inventoryElement) return;
-        inventoryElement.classList.add('hidden');
+        inventoryElement.classList.add("hidden");
         this.controls.lock();
         this.uiShown = false;
         this.inventoryAbortController.abort();
-        const dragged = document.getElementById('dragged-item')!;
-        if (!dragged.classList.contains('hidden')) {
-            dragged.classList.add('hidden');
-            dragged.innerHTML = ''; // Clear the dragged item
+        const dragged = document.getElementById("dragged-item")!;
+        if (!dragged.classList.contains("hidden")) {
+            dragged.classList.add("hidden");
+            dragged.innerHTML = ""; // Clear the dragged item
         }
         if (this.inventory.grabbedItem.blockId !== -1) {
             const addedToInventory = this.inventory.addItem(this.inventory.grabbedItem, -1, this);
             if (!addedToInventory) {
                 //TODO: Drop item on the ground if inventory is empty
-                console.warn('Inventory is full, item not added:', this.inventory.grabbedItem);
+                console.warn("Inventory is full, item not added:", this.inventory.grabbedItem);
             }
             this.inventory.grabbedItem = emptyItem;
             this.updateGrabbedItemDisplay();
@@ -308,10 +355,10 @@ export class Player {
     }
 
     toggleInventory() {
-        const inventoryElement = document.getElementById('inventory');
+        const inventoryElement = document.getElementById("inventory");
         if (inventoryElement) {
-            if (inventoryElement.classList.contains('hidden')) {
-                inventoryElement.classList.remove('hidden');
+            if (inventoryElement.classList.contains("hidden")) {
+                inventoryElement.classList.remove("hidden");
                 this.controls.unlock();
                 this.uiShown = true;
                 this.updateInventoryDisplay();
@@ -322,9 +369,9 @@ export class Player {
     }
 
     getHotbarActiveSlot(): number {
-        const hotbarElements = document.querySelectorAll('#toolbar > div');
+        const hotbarElements = document.querySelectorAll("#toolbar > div");
         for (let i = 0; i < hotbarElements.length; i++) {
-            if (hotbarElements[i].hasAttribute('data-selected')) {
+            if (hotbarElements[i].hasAttribute("data-selected")) {
                 return i;
             }
         }
@@ -349,68 +396,82 @@ export class Player {
         this.inventoryAbortController.abort();
         this.inventoryAbortController = new AbortController();
         if (!this.uiShown) return;
-        const inventoryGrid = document.getElementById('inventory-grid');
+        const inventoryGrid = document.getElementById("inventory-grid");
         if (inventoryGrid) {
-            inventoryGrid.innerHTML = ''; // Clear previous items
+            inventoryGrid.innerHTML = ""; // Clear previous items
             var index = 0;
             for (const item of this.inventory.items) {
                 // create inventory item elements
-                const itemElement = document.createElement('div');
-                itemElement.className = 'relative w-16 h-16 flex items-center justify-center bg-ui-dark border-2 border-ui-light rounded-sm hover:cursor-pointer hover:shadow-slot';
-                itemElement.setAttribute('data-id', index.toString());
+                const itemElement = document.createElement("div");
+                itemElement.className =
+                    "relative w-16 h-16 flex items-center justify-center bg-ui-dark border-2 border-ui-light rounded-sm hover:cursor-pointer hover:shadow-slot";
+                itemElement.setAttribute("data-id", index.toString());
                 if (item.blockId != -1 && item.texture) {
-                    const itemImage = document.createElement('img');
+                    const itemImage = document.createElement("img");
                     itemImage.src = item.texture;
-                    itemImage.alt = Object.values(blocks).find(b => b.id === item.blockId)?.name || '';
-                    itemImage.className = 'w-3/4 h-3/4 object-contain';
+                    itemImage.alt =
+                        Object.values(blocks).find((b) => b.id === item.blockId)?.name || "";
+                    itemImage.className = "w-3/4 h-3/4 object-contain";
                     itemElement.appendChild(itemImage);
-                    const itemCount = document.createElement('span');
+                    const itemCount = document.createElement("span");
                     itemCount.innerText = item.amount.toString();
-                    itemCount.className = 'absolute bottom-1 right-1 text-white text-[1.2em] text-shadow-soft';
+                    itemCount.className =
+                        "absolute bottom-1 right-1 text-white text-[1.2em] text-shadow-soft";
                     itemElement.appendChild(itemCount);
                 }
                 inventoryGrid.appendChild(itemElement);
-                itemElement.addEventListener('click', (e) => {
+                itemElement.addEventListener("click", (e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    const index = Number(itemElement.getAttribute('data-id'));
+                    const index = Number(itemElement.getAttribute("data-id"));
                     const item = this.inventory.items[index];
                     if (item.blockId !== -1 && this.inventory.grabbedItem.blockId === -1) {
                         this.inventory.grabbedItem = item;
                         this.inventory.removeItem(index);
                         this.updateGrabbedItemDisplay();
                     } else if (this.inventory.grabbedItem.blockId !== -1) {
-                        const added = this.inventory.addItem(this.inventory.grabbedItem, index, this);
+                        const added = this.inventory.addItem(
+                            this.inventory.grabbedItem,
+                            index,
+                            this,
+                        );
                         if (added) {
                             this.inventory.grabbedItem = emptyItem;
                             this.updateGrabbedItemDisplay();
                         } else {
-                            console.warn('Inventory is full, item not added:', this.inventory.grabbedItem);
+                            console.warn(
+                                "Inventory is full, item not added:",
+                                this.inventory.grabbedItem,
+                            );
                         }
                     }
                     this.updateInventoryDisplay();
                 });
                 index++;
             }
-            document.addEventListener('mousemove', (e) => {
-                if (!this.uiShown || this.inventory.grabbedItem.blockId === -1) return;
-                const dragged = document.getElementById('dragged-item');
-                if (!dragged) return;
-                if (!dragged.classList.contains('hidden')) {
-                    dragged.style.left = `${e.clientX + 5}px`;
-                    dragged.style.top = `${e.clientY + 5}px`;
-                }
-            }, { signal: this.inventoryAbortController.signal });
+            document.addEventListener(
+                "mousemove",
+                (e) => {
+                    if (!this.uiShown || this.inventory.grabbedItem.blockId === -1) return;
+                    const dragged = document.getElementById("dragged-item");
+                    if (!dragged) return;
+                    if (!dragged.classList.contains("hidden")) {
+                        dragged.style.left = `${e.clientX + 5}px`;
+                        dragged.style.top = `${e.clientY + 5}px`;
+                    }
+                },
+                { signal: this.inventoryAbortController.signal },
+            );
         }
-        document.getElementById('close-inventory')!.addEventListener(
-            'click',
-            this.closeInventory.bind(this),
-            { signal: this.inventoryAbortController.signal }
-        );
+        document
+            .getElementById("close-inventory")!
+            .addEventListener("click", this.closeInventory.bind(this), {
+                signal: this.inventoryAbortController.signal,
+            });
     }
 
     updateToolVisibility() {
-        console.log('Updating tool visibility: ', this.activeBlockId);
+        console.log("Updating tool visibility: ", this.activeBlockId);
         if (this.activeBlockId === -1 || this.activeBlockId === blocks.empty.id) {
             this.activeBlockId = blocks.empty.id;
             this.tool.visible = true;
@@ -420,7 +481,7 @@ export class Player {
     }
 
     loadInventoryFromSave() {
-        const savedInventory = JSON.parse(localStorage.getItem('player_inventory') || '[]');
+        const savedInventory = JSON.parse(localStorage.getItem("player_inventory") || "[]");
         this.inventory.loadItemsFromSave(savedInventory);
         this.updateHotbarDisplay();
         this.activeBlockId = this.inventory.getItemAt(this.getHotbarActiveSlot()).blockId;
@@ -433,26 +494,26 @@ export class Player {
             if (!hotbarElement) continue;
             const item = this.inventory.getItemAt(i);
 
-            const currentImage = hotbarElement.querySelector('img');
-            const currentCount = hotbarElement.querySelector('span');
+            const currentImage = hotbarElement.querySelector("img");
+            const currentCount = hotbarElement.querySelector("span");
             if (currentImage && currentCount) {
                 if (currentImage.src !== item.texture) {
                     currentImage.src = item.texture;
                 }
                 if (item.amount === 1) {
-                    currentCount.innerText = '';
+                    currentCount.innerText = "";
                 } else if (item.amount > 1) {
                     currentCount.innerText = item.amount.toString();
                 } else {
-                    hotbarElement.innerHTML = ''; // Clear the hotbar slot if the item is empty
+                    hotbarElement.innerHTML = ""; // Clear the hotbar slot if the item is empty
                 }
             } else if (item.blockId !== -1 && item.texture) {
                 hotbarElement.innerHTML = `
-                    <img src="${item.texture}" alt="${Object.values(blocks).find(b => b.id === item.blockId)?.name || ''}" class="w-16 h-16 object-cover">
+                    <img src="${item.texture}" alt="${Object.values(blocks).find((b) => b.id === item.blockId)?.name || ""}" class="w-16 h-16 object-cover">
                     <span class="absolute bottom-0 right-0 text-white">${item.amount}</span>
                 `;
             } else {
-                hotbarElement.innerHTML = ''; // Clear the hotbar slot if the item is empty
+                hotbarElement.innerHTML = ""; // Clear the hotbar slot if the item is empty
             }
         }
         const selectedIndex = this.getHotbarActiveSlot();
@@ -462,27 +523,27 @@ export class Player {
 
     updateGrabbedItemDisplay() {
         const isEmpty = this.inventory.grabbedItem.blockId === -1;
-        const dragged = document.getElementById('dragged-item')!;
-        dragged.innerHTML = '';
+        const dragged = document.getElementById("dragged-item")!;
+        dragged.innerHTML = "";
         if (isEmpty) {
-            dragged.classList.add('hidden');
+            dragged.classList.add("hidden");
             return;
         }
-        dragged.classList.remove('hidden');
+        dragged.classList.remove("hidden");
 
-        const img = document.createElement('img');
+        const img = document.createElement("img");
         img.src = this.inventory.grabbedItem.texture;
-        img.className = 'w-8 h-8';
+        img.className = "w-8 h-8";
         dragged.appendChild(img);
 
-        const span = document.createElement('span');
+        const span = document.createElement("span");
         span.innerText = this.inventory.grabbedItem.amount.toString();
-        span.className = 'absolute bottom-0 right-0 text-white';
+        span.className = "absolute bottom-0 right-0 text-white";
         dragged.appendChild(span);
     }
 
     onMouseDown(e: MouseEvent) {
-        if (this.game.cameraMode === 'orbit') {
+        if (this.game.cameraMode === "orbit") {
             return;
         }
         if (!this.controls.isLocked && !this.uiShown) {
@@ -499,9 +560,9 @@ export class Player {
 
         // Remove old selection
         for (let i = 0; i < 10; i++) {
-            document.getElementById(`toolbar-${i}`)?.removeAttribute('data-selected');
+            document.getElementById(`toolbar-${i}`)?.removeAttribute("data-selected");
         }
-        document.getElementById(`toolbar-${slotIndex}`)?.setAttribute('data-selected', '');
+        document.getElementById(`toolbar-${slotIndex}`)?.setAttribute("data-selected", "");
         this.activeBlockId = hotbarItem.blockId === -1 ? blocks.empty.id : hotbarItem.blockId;
         this.updateToolVisibility();
     }
@@ -510,8 +571,7 @@ export class Player {
         const selectedIndex = this.getHotbarActiveSlot();
         const item = this.inventory.getItemAt(selectedIndex);
         if (item.blockId === -1 || item.blockId === blocks.empty.id) return;
-        if (amount <= 0 || amount > item.amount)
-            amount = item.amount;
+        if (amount <= 0 || amount > item.amount) amount = item.amount;
         if (amount <= 0) return;
         const droppedItem = { ...item, amount: amount };
         this.inventory.items[selectedIndex].amount -= amount;
@@ -519,31 +579,39 @@ export class Player {
             this.inventory.removeItem(selectedIndex);
         }
         this.updateHotbarDisplay();
-        this.world.dropItem(droppedItem, this.position.clone().sub(new THREE.Vector3(0, 1, 0)), this.camera.rotation);
+        this.world.dropItem(
+            droppedItem,
+            this.position.clone().sub(new THREE.Vector3(0, 1, 0)),
+            this.camera.rotation,
+        );
     }
 
     takeScreenshot() {
         if (!worldcreation.game?.renderer) {
-            console.warn('Renderer not available for screenshot');
+            console.warn("Renderer not available for screenshot");
             return;
         }
         worldcreation.game.renderer.render(this.scene, this.camera);
-        worldcreation.game.renderer.domElement.toBlob((blob: Blob | null) => {
-            if (!blob) {
-                console.warn('Failed to create screenshot blob');
-                return;
-            }
-            var a = document.createElement('a');
-            var url = URL.createObjectURL(blob);
-            a.href = url;
-            a.download = 'canvas.png';
-            a.click();
-        }, 'image/png', 1.0);
+        worldcreation.game.renderer.domElement.toBlob(
+            (blob: Blob | null) => {
+                if (!blob) {
+                    console.warn("Failed to create screenshot blob");
+                    return;
+                }
+                var a = document.createElement("a");
+                var url = URL.createObjectURL(blob);
+                a.href = url;
+                a.download = "canvas.png";
+                a.click();
+            },
+            "image/png",
+            1.0,
+        );
     }
 
     takePanoramicScreenshot() {
         if (!worldcreation.game?.renderer) {
-            console.warn('Renderer not available for panoramic screenshot');
+            console.warn("Renderer not available for panoramic screenshot");
             return;
         }
         // use this.takeScreenshot method to take all images needed for a panoramic screenshot
@@ -557,21 +625,25 @@ export class Player {
             this.camera.rotation.y = originalRotationY + angle;
             this.position.copy(originalPosition);
             this.takeScreenshot();
-            worldcreation.game.renderer.domElement.toBlob((blob: Blob | null) => {
-                if (blob) {
-                    screenshots.push(blob);
-                }
-                if (screenshots.length === panoramaCount) {
-                    // All screenshots taken, process them as needed
-                    console.log('Panoramic screenshots taken:', screenshots.length);
-                    // You can now save or process the screenshots array
-                }
-            }, 'image/png', 1.0);
+            worldcreation.game.renderer.domElement.toBlob(
+                (blob: Blob | null) => {
+                    if (blob) {
+                        screenshots.push(blob);
+                    }
+                    if (screenshots.length === panoramaCount) {
+                        // All screenshots taken, process them as needed
+                        console.log("Panoramic screenshots taken:", screenshots.length);
+                        // You can now save or process the screenshots array
+                    }
+                },
+                "image/png",
+                1.0,
+            );
         }
     }
 
     onKeyDown(e: KeyboardEvent) {
-        if (this.game.cameraMode === 'orbit') {
+        if (this.game.cameraMode === "orbit") {
             this.controls.unlock();
             return;
         }
@@ -579,57 +651,50 @@ export class Player {
             this.controls.lock();
         }
         switch (e.code) {
-            case 'KeyW':
-                if (!this.uiShown)
-                    this.input.z = this.maxSpeed;
+            case "KeyW":
+                if (!this.uiShown) this.input.z = this.maxSpeed;
                 break;
-            case 'KeyS':
-                if (!this.uiShown)
-                    this.input.z = -this.maxSpeed;
+            case "KeyS":
+                if (!this.uiShown) this.input.z = -this.maxSpeed;
                 break;
-            case 'KeyA':
-                if (!this.uiShown)
-                    this.input.x = -this.maxSpeed;
+            case "KeyA":
+                if (!this.uiShown) this.input.x = -this.maxSpeed;
                 break;
-            case 'KeyD':
-                if (!this.uiShown)
-                    this.input.x = this.maxSpeed;
+            case "KeyD":
+                if (!this.uiShown) this.input.x = this.maxSpeed;
                 break;
-            case 'KeyQ':
-                if (!this.uiShown)
-                    this.dropItem(1);
+            case "KeyQ":
+                if (!this.uiShown) this.dropItem(1);
                 break;
-            case 'KeyR':
-                if (!this.uiShown)
-                    this.world.respawnPlayer();
+            case "KeyR":
+                if (!this.uiShown) this.world.respawnPlayer();
                 break;
-            case 'KeyE':
+            case "KeyE":
                 this.toggleInventory();
                 break;
-            case 'KeyV':
-                WorkbenchUI.openUI(this, 'crafting');
+            case "KeyV":
+                WorkbenchUI.openUI(this, "crafting");
                 break;
-            case 'KeyP':
+            case "KeyP":
                 this.takePanoramicScreenshot();
                 break;
-            case 'Space':
+            case "Space":
                 if (this.onGround && !this.uiShown) {
                     this.velocity.y += this.jumpSpeed;
                 }
                 break;
-            case 'Digit0':
-            case 'Digit1':
-            case 'Digit2':
-            case 'Digit3':
-            case 'Digit4':
-            case 'Digit5':
-            case 'Digit6':
-            case 'Digit7':
-            case 'Digit8':
-            case 'Digit9':
-                if (this.uiShown)
-                    break;
-                const hotbarIndex = Number(e.code.replace('Digit', ''));
+            case "Digit0":
+            case "Digit1":
+            case "Digit2":
+            case "Digit3":
+            case "Digit4":
+            case "Digit5":
+            case "Digit6":
+            case "Digit7":
+            case "Digit8":
+            case "Digit9":
+                if (this.uiShown) break;
+                const hotbarIndex = Number(e.code.replace("Digit", ""));
                 if (hotbarIndex < 0 || hotbarIndex > 9) return;
                 this.selectHotBarSlot(hotbarIndex);
                 break;
@@ -640,12 +705,12 @@ export class Player {
 
     onKeyUp(e: KeyboardEvent) {
         switch (e.code) {
-            case 'KeyW':
-            case 'KeyS':
+            case "KeyW":
+            case "KeyS":
                 this.input.z = 0;
                 break;
-            case 'KeyA':
-            case 'KeyD':
+            case "KeyA":
+            case "KeyD":
                 this.input.x = 0;
                 break;
             default:

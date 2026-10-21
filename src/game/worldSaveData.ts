@@ -1,7 +1,7 @@
-import * as THREE from 'three';
+import * as THREE from "three";
 
 export class WorldSaveData {
-    data : { [key: string]: number } = {};
+    data: { [key: string]: number } = {};
 
     constructor() {
         this.data = {};
@@ -11,23 +11,23 @@ export class WorldSaveData {
         this.data = {};
     }
 
-    contains(chunPos : THREE.Vector2, blockPos : THREE.Vector3) {
+    contains(chunPos: THREE.Vector2, blockPos: THREE.Vector3) {
         const key = this.getKey(chunPos, blockPos);
         return this.data.hasOwnProperty(key) && this.data[key] !== undefined;
     }
 
-    get(chunPos : THREE.Vector2, blockPos : THREE.Vector3) {
+    get(chunPos: THREE.Vector2, blockPos: THREE.Vector3) {
         const key = this.getKey(chunPos, blockPos);
         const blockId = this.data[key];
         return blockId;
     }
 
-    set(chunPos : THREE.Vector2, blockPos : THREE.Vector3, blockId : number) {
+    set(chunPos: THREE.Vector2, blockPos: THREE.Vector3, blockId: number) {
         const key = this.getKey(chunPos, blockPos);
         this.data[key] = blockId;
     }
 
-    getKey(chunPos : THREE.Vector2, blockPos : THREE.Vector3) : string {
+    getKey(chunPos: THREE.Vector2, blockPos: THREE.Vector3): string {
         return `(${chunPos.x},${chunPos.y})-(${blockPos.x},${blockPos.y},${blockPos.z})`;
     }
 }

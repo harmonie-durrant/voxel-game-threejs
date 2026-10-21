@@ -1,12 +1,12 @@
-import * as THREE from 'three';
-import type { Player } from './player';
-import type { World } from './world';
-import { WorkbenchUI } from './crafting/workbenchUI';
-import { FurnaceUI } from './smelting/furnaceUI';
+import * as THREE from "three";
+import type { Player } from "./player";
+import type { World } from "./world";
+import { WorkbenchUI } from "./crafting/workbenchUI";
+import { FurnaceUI } from "./smelting/furnaceUI";
 
 const textureLoader = new THREE.TextureLoader();
 
-function loadTexture(path : string) {
+function loadTexture(path: string) {
     const texture = textureLoader.load(path);
     texture.colorSpace = THREE.SRGBColorSpace;
     texture.minFilter = THREE.NearestFilter;
@@ -15,26 +15,26 @@ function loadTexture(path : string) {
 }
 
 const textures = {
-    grass: loadTexture('textures/blocks/grass_top.png'),
-    grassSide: loadTexture('textures/blocks/grass_side.png'),
-    dirt: loadTexture('textures/blocks/dirt.png'),
-    stone: loadTexture('textures/blocks/stone.png'),
-    coalOre: loadTexture('textures/blocks/coal_ore.png'),
-    ironOre: loadTexture('textures/blocks/iron_ore.png'),
-    leaves: loadTexture('textures/blocks/leaves.png'),
-    treeSide: loadTexture('textures/blocks/oak_log_side.png'),
-    treeTop: loadTexture('textures/blocks/oak_log_top.png'),
-    sand: loadTexture('textures/blocks/sand.png'),
-    oakPlanks: loadTexture('textures/blocks/oak_planks.png'),
-    cobblestone: loadTexture('textures/blocks/cobblestone.png'),
-    workbenchSide: loadTexture('textures/blocks/workbench_side.png'),
-    workbenchTop: loadTexture('textures/blocks/workbench_top.png'),
-    furnaceSide: loadTexture('textures/blocks/furnace_side.png'),
-    furnaceTop: loadTexture('textures/blocks/furnace_top.png'),
-    furnaceFront: loadTexture('textures/blocks/furnace_front.png'),
+    grass: loadTexture("textures/blocks/grass_top.png"),
+    grassSide: loadTexture("textures/blocks/grass_side.png"),
+    dirt: loadTexture("textures/blocks/dirt.png"),
+    stone: loadTexture("textures/blocks/stone.png"),
+    coalOre: loadTexture("textures/blocks/coal_ore.png"),
+    ironOre: loadTexture("textures/blocks/iron_ore.png"),
+    leaves: loadTexture("textures/blocks/leaves.png"),
+    treeSide: loadTexture("textures/blocks/oak_log_side.png"),
+    treeTop: loadTexture("textures/blocks/oak_log_top.png"),
+    sand: loadTexture("textures/blocks/sand.png"),
+    oakPlanks: loadTexture("textures/blocks/oak_planks.png"),
+    cobblestone: loadTexture("textures/blocks/cobblestone.png"),
+    workbenchSide: loadTexture("textures/blocks/workbench_side.png"),
+    workbenchTop: loadTexture("textures/blocks/workbench_top.png"),
+    furnaceSide: loadTexture("textures/blocks/furnace_side.png"),
+    furnaceTop: loadTexture("textures/blocks/furnace_top.png"),
+    furnaceFront: loadTexture("textures/blocks/furnace_front.png"),
 };
 
-type ToolType = 'pickaxe' | 'axe' | 'shovel' | 'hoe' | 'none';
+type ToolType = "pickaxe" | "axe" | "shovel" | "hoe" | "none";
 
 export type blocksType = {
     [key: string]: {
@@ -47,16 +47,16 @@ export type blocksType = {
         color?: number;
         material?: THREE.Material | THREE.Material[];
         icon?: string;
-        scale?: { x: number, y: number, z: number };
+        scale?: { x: number; y: number; z: number };
         scarcity?: number;
         transparent?: boolean;
-        itemsToDrop?: { blockId: number, count: number }[];
+        itemsToDrop?: { blockId: number; count: number }[];
         onInteract?: (player: Player, world: World) => void;
         speedMultiplier?: number;
         toolType?: ToolType;
         toolTier?: number;
-    }
-}
+    };
+};
 
 export const blocks: blocksType = {
     empty: {
@@ -71,7 +71,7 @@ export const blocks: blocksType = {
         color: 0x559020, // Green
         hardness: 0.5,
         requiredToolTier: 0,
-        requiredToolType: 'shovel',
+        requiredToolType: "shovel",
         material: [
             new THREE.MeshLambertMaterial({ map: textures.grassSide }),
             new THREE.MeshLambertMaterial({ map: textures.grassSide }),
@@ -81,9 +81,7 @@ export const blocks: blocksType = {
             new THREE.MeshLambertMaterial({ map: textures.grassSide }),
         ],
         icon: "/textures/blocks/grass_side.png",
-        itemsToDrop: [
-            { blockId: 1, count: 1 },
-        ]
+        itemsToDrop: [{ blockId: 1, count: 1 }],
     },
     dirt: {
         id: 2,
@@ -92,12 +90,10 @@ export const blocks: blocksType = {
         color: 0x807020, // Brown
         hardness: 0.5,
         requiredToolTier: 0,
-        requiredToolType: 'shovel',
+        requiredToolType: "shovel",
         material: new THREE.MeshLambertMaterial({ map: textures.dirt }),
         icon: "/textures/blocks/dirt.png",
-        itemsToDrop: [
-            { blockId: 2, count: 1 },
-        ]
+        itemsToDrop: [{ blockId: 2, count: 1 }],
     },
     stone: {
         id: 3,
@@ -106,14 +102,12 @@ export const blocks: blocksType = {
         color: 0x808080, // Gray
         hardness: 1.5,
         requiredToolTier: 1,
-        requiredToolType: 'pickaxe',
+        requiredToolType: "pickaxe",
         material: new THREE.MeshLambertMaterial({ map: textures.stone }),
         scale: { x: 30, y: 30, z: 30 },
         scarcity: 0.05,
         icon: "/textures/blocks/stone.png",
-        itemsToDrop: [
-            { blockId: 14, count: 1 },
-        ]
+        itemsToDrop: [{ blockId: 14, count: 1 }],
     },
     coalOre: {
         id: 4,
@@ -122,14 +116,12 @@ export const blocks: blocksType = {
         color: 0x353535, // Dark Gray
         hardness: 1.5,
         requiredToolTier: 1,
-        requiredToolType: 'pickaxe',
+        requiredToolType: "pickaxe",
         material: new THREE.MeshLambertMaterial({ map: textures.coalOre }),
         scale: { x: 20, y: 20, z: 20 },
         scarcity: 0.8,
         icon: "/textures/blocks/coal_ore.png",
-        itemsToDrop: [
-            { blockId: 25, count: 1 },
-        ]
+        itemsToDrop: [{ blockId: 25, count: 1 }],
     },
     ironOre: {
         id: 5,
@@ -138,35 +130,31 @@ export const blocks: blocksType = {
         color: 0xaaaaaa, // Dark Gray
         hardness: 1.5,
         requiredToolTier: 2,
-        requiredToolType: 'pickaxe',
+        requiredToolType: "pickaxe",
         material: new THREE.MeshLambertMaterial({ map: textures.ironOre }),
         scale: { x: 60, y: 60, z: 60 },
         scarcity: 0.9,
         icon: "/textures/blocks/iron_ore.png",
-        itemsToDrop: [
-            { blockId: 5, count: 1 },
-        ]
+        itemsToDrop: [{ blockId: 5, count: 1 }],
     },
     tree: {
         id: 6,
         name: "tree",
         placeable: true,
-        color: 0x8B4513, // Saddle Brown
+        color: 0x8b4513, // Saddle Brown
         hardness: 2,
         requiredToolTier: 0,
-        requiredToolType: 'axe',
+        requiredToolType: "axe",
         material: [
             new THREE.MeshLambertMaterial({ map: textures.treeSide }),
             new THREE.MeshLambertMaterial({ map: textures.treeSide }),
             new THREE.MeshLambertMaterial({ map: textures.treeTop }),
             new THREE.MeshLambertMaterial({ map: textures.treeTop }),
             new THREE.MeshLambertMaterial({ map: textures.treeSide }),
-            new THREE.MeshLambertMaterial({ map: textures.treeSide })
+            new THREE.MeshLambertMaterial({ map: textures.treeSide }),
         ],
         icon: "/textures/blocks/oak_log_top.png",
-        itemsToDrop: [
-            { blockId: 6, count: 1 },
-        ]
+        itemsToDrop: [{ blockId: 6, count: 1 }],
     },
     leaves: {
         id: 7,
@@ -175,31 +163,27 @@ export const blocks: blocksType = {
         color: 0x00ff00, // Green
         hardness: 0.2,
         requiredToolTier: 0,
-        requiredToolType: 'hoe',
+        requiredToolType: "hoe",
         material: new THREE.MeshLambertMaterial({
             map: textures.leaves,
             transparent: true,
-            side: THREE.DoubleSide
+            side: THREE.DoubleSide,
         }),
         transparent: true,
         icon: "/textures/blocks/leaves.png",
-        itemsToDrop: [
-            { blockId: 7, count: 1 },
-        ]
+        itemsToDrop: [{ blockId: 7, count: 1 }],
     },
     sand: {
         id: 8,
         name: "sand",
         placeable: true,
-        color: 0xEDC9AF, // Sandy Brown
+        color: 0xedc9af, // Sandy Brown
         hardness: 0.5,
         requiredToolTier: 0,
-        requiredToolType: 'shovel',
+        requiredToolType: "shovel",
         material: new THREE.MeshLambertMaterial({ map: textures.sand }),
         icon: "/textures/blocks/sand.png",
-        itemsToDrop: [
-            { blockId: 8, count: 1 },
-        ]
+        itemsToDrop: [{ blockId: 8, count: 1 }],
     },
     cloud: {
         id: 9,
@@ -211,15 +195,13 @@ export const blocks: blocksType = {
         id: 10,
         name: "planks",
         placeable: true,
-        color: 0xD2B48C, // Tan
+        color: 0xd2b48c, // Tan
         hardness: 2,
         requiredToolTier: 0,
-        requiredToolType: 'axe',
+        requiredToolType: "axe",
         material: new THREE.MeshLambertMaterial({ map: textures.oakPlanks }),
         icon: "/textures/blocks/oak_planks.png",
-        itemsToDrop: [
-            { blockId: 10, count: 1 },
-        ]
+        itemsToDrop: [{ blockId: 10, count: 1 }],
     },
     sticks: {
         id: 11,
@@ -233,34 +215,32 @@ export const blocks: blocksType = {
         placeable: false,
         icon: "/textures/items/wooden_pickaxe.png",
         speedMultiplier: 1.15,
-        toolType: 'pickaxe',
-        toolTier: 1
+        toolType: "pickaxe",
+        toolTier: 1,
     },
     workbench: {
         id: 13,
         name: "workbench",
         placeable: true,
-        color: 0x8B4513, // Saddle Brown
+        color: 0x8b4513, // Saddle Brown
         hardness: 2,
         requiredToolTier: 0,
-        requiredToolType: 'axe',
+        requiredToolType: "axe",
         material: [
             new THREE.MeshLambertMaterial({ map: textures.workbenchSide }),
             new THREE.MeshLambertMaterial({ map: textures.workbenchSide }),
             new THREE.MeshLambertMaterial({ map: textures.workbenchTop }),
             new THREE.MeshLambertMaterial({ map: textures.workbenchTop }),
             new THREE.MeshLambertMaterial({ map: textures.workbenchSide }),
-            new THREE.MeshLambertMaterial({ map: textures.workbenchSide })
+            new THREE.MeshLambertMaterial({ map: textures.workbenchSide }),
         ],
         icon: "/textures/blocks/workbench_side.png",
-        itemsToDrop: [
-            { blockId: 13, count: 1 },
-        ],
+        itemsToDrop: [{ blockId: 13, count: 1 }],
         onInteract: (player: Player, world: World) => {
             world;
             player.controls.unlock();
             WorkbenchUI.openUI(player);
-        }
+        },
     },
     cobblestone: {
         id: 14,
@@ -269,12 +249,10 @@ export const blocks: blocksType = {
         color: 0x808080, // Gray
         hardness: 1.5,
         requiredToolTier: 1,
-        requiredToolType: 'pickaxe',
+        requiredToolType: "pickaxe",
         material: new THREE.MeshLambertMaterial({ map: textures.cobblestone }),
         icon: "/textures/blocks/cobblestone.png",
-        itemsToDrop: [
-            { blockId: 14, count: 1 },
-        ]
+        itemsToDrop: [{ blockId: 14, count: 1 }],
     },
     stonePickaxe: {
         id: 15,
@@ -282,8 +260,8 @@ export const blocks: blocksType = {
         placeable: false,
         icon: "/textures/items/stone_pickaxe.png",
         speedMultiplier: 1.4,
-        toolType: 'pickaxe',
-        toolTier: 2
+        toolType: "pickaxe",
+        toolTier: 2,
     },
     ironPickaxe: {
         id: 16,
@@ -291,8 +269,8 @@ export const blocks: blocksType = {
         placeable: false,
         icon: "/textures/items/iron_pickaxe.png",
         speedMultiplier: 1.7,
-        toolType: 'pickaxe',
-        toolTier: 3
+        toolType: "pickaxe",
+        toolTier: 3,
     },
     diamondPickaxe: {
         id: 17,
@@ -300,8 +278,8 @@ export const blocks: blocksType = {
         placeable: false,
         icon: "/textures/items/diamond_pickaxe.png",
         speedMultiplier: 2,
-        toolType: 'pickaxe',
-        toolTier: 4
+        toolType: "pickaxe",
+        toolTier: 4,
     },
     woodenAxe: {
         id: 18,
@@ -309,8 +287,8 @@ export const blocks: blocksType = {
         placeable: false,
         icon: "/textures/items/wooden_axe.png",
         speedMultiplier: 1.15,
-        toolType: 'axe',
-        toolTier: 1
+        toolType: "axe",
+        toolTier: 1,
     },
     stoneAxe: {
         id: 19,
@@ -318,8 +296,8 @@ export const blocks: blocksType = {
         placeable: false,
         icon: "/textures/items/stone_axe.png",
         speedMultiplier: 1.4,
-        toolType: 'axe',
-        toolTier: 2
+        toolType: "axe",
+        toolTier: 2,
     },
     ironAxe: {
         id: 20,
@@ -327,8 +305,8 @@ export const blocks: blocksType = {
         placeable: false,
         icon: "/textures/items/iron_axe.png",
         speedMultiplier: 1.7,
-        toolType: 'axe',
-        toolTier: 3
+        toolType: "axe",
+        toolTier: 3,
     },
     diamondAxe: {
         id: 21,
@@ -336,8 +314,8 @@ export const blocks: blocksType = {
         placeable: false,
         icon: "/textures/items/diamond_axe.png",
         speedMultiplier: 2,
-        toolType: 'axe',
-        toolTier: 4
+        toolType: "axe",
+        toolTier: 4,
     },
     furnace: {
         id: 22,
@@ -346,7 +324,7 @@ export const blocks: blocksType = {
         color: 0x808080, // Gray
         hardness: 3,
         requiredToolTier: 0,
-        requiredToolType: 'pickaxe',
+        requiredToolType: "pickaxe",
         material: [
             new THREE.MeshLambertMaterial({ map: textures.furnaceSide }),
             new THREE.MeshLambertMaterial({ map: textures.furnaceSide }),
@@ -356,14 +334,12 @@ export const blocks: blocksType = {
             new THREE.MeshLambertMaterial({ map: textures.furnaceSide }),
         ],
         icon: "/textures/blocks/furnace_side.png",
-        itemsToDrop: [
-            { blockId: 22, count: 1 },
-        ],
+        itemsToDrop: [{ blockId: 22, count: 1 }],
         onInteract: (player: Player, world: World) => {
             world;
             player.controls.unlock();
             FurnaceUI.openUI(player);
-        }
+        },
     },
     charcoal: {
         id: 23,
@@ -389,8 +365,8 @@ export const blocks: blocksType = {
         placeable: false,
         icon: "/textures/items/wooden_shovel.png",
         speedMultiplier: 1.15,
-        toolType: 'shovel',
-        toolTier: 1
+        toolType: "shovel",
+        toolTier: 1,
     },
     stoneShovel: {
         id: 27,
@@ -398,8 +374,8 @@ export const blocks: blocksType = {
         placeable: false,
         icon: "/textures/items/stone_shovel.png",
         speedMultiplier: 1.4,
-        toolType: 'shovel',
-        toolTier: 2
+        toolType: "shovel",
+        toolTier: 2,
     },
     ironShovel: {
         id: 28,
@@ -407,8 +383,8 @@ export const blocks: blocksType = {
         placeable: false,
         icon: "/textures/items/iron_shovel.png",
         speedMultiplier: 1.7,
-        toolType: 'shovel',
-        toolTier: 3
+        toolType: "shovel",
+        toolTier: 3,
     },
     diamondShovel: {
         id: 29,
@@ -416,8 +392,8 @@ export const blocks: blocksType = {
         placeable: false,
         icon: "/textures/items/diamond_shovel.png",
         speedMultiplier: 2,
-        toolType: 'shovel',
-        toolTier: 4
+        toolType: "shovel",
+        toolTier: 4,
     },
     woodenHoe: {
         id: 30,
@@ -425,8 +401,8 @@ export const blocks: blocksType = {
         placeable: false,
         icon: "/textures/items/wooden_hoe.png",
         speedMultiplier: 1.15,
-        toolType: 'hoe',
-        toolTier: 1
+        toolType: "hoe",
+        toolTier: 1,
     },
     stoneHoe: {
         id: 31,
@@ -434,8 +410,8 @@ export const blocks: blocksType = {
         placeable: false,
         icon: "/textures/items/stone_hoe.png",
         speedMultiplier: 1.4,
-        toolType: 'hoe',
-        toolTier: 2
+        toolType: "hoe",
+        toolTier: 2,
     },
     ironHoe: {
         id: 32,
@@ -443,8 +419,8 @@ export const blocks: blocksType = {
         placeable: false,
         icon: "/textures/items/iron_hoe.png",
         speedMultiplier: 1.7,
-        toolType: 'hoe',
-        toolTier: 3
+        toolType: "hoe",
+        toolTier: 3,
     },
     diamondHoe: {
         id: 33,
@@ -452,23 +428,13 @@ export const blocks: blocksType = {
         placeable: false,
         icon: "/textures/items/diamond_hoe.png",
         speedMultiplier: 2,
-        toolType: 'hoe',
-        toolTier: 4
-    }
-}
+        toolType: "hoe",
+        toolTier: 4,
+    },
+};
 
-export const resources = [
-    blocks.stone,
-    blocks.coalOre,
-    blocks.ironOre
-]
+export const resources = [blocks.stone, blocks.coalOre, blocks.ironOre];
 
-export const interactableBlocks = [
-    blocks.workbench,
-    blocks.furnace
-];
+export const interactableBlocks = [blocks.workbench, blocks.furnace];
 
-export const fuel = [
-    blocks.coal,
-    blocks.charcoal
-]
+export const fuel = [blocks.coal, blocks.charcoal];

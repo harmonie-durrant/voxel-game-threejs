@@ -12,23 +12,43 @@ worldcreation;
 export const toast = new Toast();
 toast;
 
-document.addEventListener('click', () => {
-    soundController.playSound('sounds/main_menu_music.mp3');
-}, { once: true });
+document.addEventListener(
+    "click",
+    () => {
+        soundController.playSound("sounds/main_menu_music.mp3");
+    },
+    { once: true },
+);
 
-document.getElementById('start_game')?.addEventListener('click', () => {
-  worldcreation.openWorldCreationMenu(mainMenuController);
-}, { signal: mainMenuController.signal });
-document.getElementById('load_game')?.addEventListener('click', () => {
-  worldcreation.startGameFromSave(mainMenuController);
-}, { signal: mainMenuController.signal });
+document.getElementById("start_game")?.addEventListener(
+    "click",
+    () => {
+        worldcreation.openWorldCreationMenu(mainMenuController);
+    },
+    { signal: mainMenuController.signal },
+);
+document.getElementById("load_game")?.addEventListener(
+    "click",
+    () => {
+        worldcreation.startGameFromSave(mainMenuController);
+    },
+    { signal: mainMenuController.signal },
+);
 // Controls popup logic
-const controlsPopup = document.getElementById('controls_popup');
-document.getElementById('show_controls')?.addEventListener('click', () => {
-  soundController.playSound('sounds/ui_button_press.mp3');
-  controlsPopup?.classList.replace('hidden', 'flex');
-}, { signal: mainMenuController.signal });
-document.getElementById('close_controls')?.addEventListener('click', () => {
-  soundController.playSound('sounds/ui_button_press.mp3');
-  controlsPopup?.classList.replace('flex', 'hidden');
-}, { signal: mainMenuController.signal });
+const controlsPopup = document.getElementById("controls_popup");
+document.getElementById("show_controls")?.addEventListener(
+    "click",
+    () => {
+        soundController.playSound("sounds/ui_button_press.mp3");
+        controlsPopup?.classList.replace("hidden", "flex");
+    },
+    { signal: mainMenuController.signal },
+);
+document.getElementById("close_controls")?.addEventListener(
+    "click",
+    () => {
+        soundController.playSound("sounds/ui_button_press.mp3");
+        controlsPopup?.classList.replace("flex", "hidden");
+    },
+    { signal: mainMenuController.signal },
+);

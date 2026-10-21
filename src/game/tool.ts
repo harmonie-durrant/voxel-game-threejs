@@ -1,7 +1,6 @@
 import * as THREE from "three";
 
 export class Tool extends THREE.Group {
-
     isAnimating: boolean = false;
 
     animationAmplitude: number = 0.5;
@@ -37,7 +36,8 @@ export class Tool extends THREE.Group {
 
     update() {
         if (this.isAnimating && this.toolMesh) {
-            this.toolMesh.rotation.y = this.animationAmplitude * Math.sin(this.animationTime * this.animationSpeed);
+            this.toolMesh.rotation.y =
+                this.animationAmplitude * Math.sin(this.animationTime * this.animationSpeed);
         }
     }
 

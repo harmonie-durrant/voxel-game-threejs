@@ -1,13 +1,13 @@
-import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import Stats from 'stats.js';
-import { createUI } from './ui';
-import { Player } from './player';
-import { Physics } from './physics';
-import { World } from './world';
-import { ModelLoader } from './modelLoader';
-import { interactableBlocks } from './blocks';
-import { soundController } from '../main';
+import * as THREE from "three";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import Stats from "stats.js";
+import { createUI } from "./ui";
+import { Player } from "./player";
+import { Physics } from "./physics";
+import { World } from "./world";
+import { ModelLoader } from "./modelLoader";
+import { interactableBlocks } from "./blocks";
+import { soundController } from "../main";
 
 export class Game {
     stats: Stats | null = null;
@@ -27,14 +27,14 @@ export class Game {
     sunHelper: THREE.CameraHelper | null = null;
     previousTime: number = performance.now();
 
-    cameraMode: String = 'first-person';
+    cameraMode: String = "first-person";
 
     isLeftClick: boolean = false;
 
     constructor(loadFromSave: boolean = false, seed: number = 0) {
-        const gameContainer = document.getElementById('game_ui_container');
+        const gameContainer = document.getElementById("game_ui_container");
         if (!gameContainer) {
-            console.error('Game container not found');
+            console.error("Game container not found");
             return;
         }
         this.world = new World(seed);
@@ -51,7 +51,7 @@ export class Game {
         gameContainer.append(this.stats.dom);
 
         this.renderer = new THREE.WebGLRenderer({
-          powerPreference: 'high-performance'
+            powerPreference: "high-performance",
         });
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -60,10 +60,10 @@ export class Game {
         this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
         gameContainer.appendChild(this.renderer.domElement);
-        gameContainer.classList.remove('hidden');
-        const mainMenuContainer = document.getElementById('main_menu_container');
+        gameContainer.classList.remove("hidden");
+        const mainMenuContainer = document.getElementById("main_menu_container");
         if (mainMenuContainer) {
-            mainMenuContainer.classList.add('hidden');
+            mainMenuContainer.classList.add("hidden");
         }
 
         this.orbitCamera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight);
@@ -78,21 +78,21 @@ export class Game {
         this.scene = new THREE.Scene();
         this.scene.fog = new THREE.Fog(0x80a0e0, 25, 70);
         this.scene.add(this.world);
-        
+
         this.player = new Player(this.scene, this.world, this, loadFromSave);
         this.physics = new Physics(this.scene);
-        
+
         this.modelLoader = new ModelLoader();
         this.modelLoader.loadModels((models) => {
-          if (models.pickaxe) {
-            // Find the first Mesh in the Group and pass it to setMesh
-            const mesh = models.pickaxe.getObjectByProperty('type', 'Mesh') as THREE.Mesh;
-            if (mesh) {
-              this.player?.tool.setMesh(mesh);
+            if (models.pickaxe) {
+                // Find the first Mesh in the Group and pass it to setMesh
+                const mesh = models.pickaxe.getObjectByProperty("type", "Mesh") as THREE.Mesh;
+                if (mesh) {
+                    this.player?.tool.setMesh(mesh);
+                }
             }
-          }
         });
-        
+
         this.sun = new THREE.DirectionalLight();
         this.sunHelper = new THREE.CameraHelper(this.sun.shadow.camera);
 
@@ -154,7 +154,7 @@ export class Game {
         }
 
         if (this.scene && this.renderer && this.orbitCamera) {
-            const camera = (this.cameraMode === 'orbit') ? this.orbitCamera : this.player?.camera;
+            const camera = this.cameraMode === "orbit" ? this.orbitCamera : this.player?.camera;
             if (camera) {
                 this.renderer.render(this.scene, camera);
             }
@@ -164,7 +164,7 @@ export class Game {
     }
 
     onMouseDown(event: MouseEvent) {
-        if (this.cameraMode === 'orbit') return;
+        if (this.cameraMode === "orbit") return;
         if (!this.player || !this.world) return;
         if (!this.player.controls.isLocked || !this.player.selectedCoords) return;
 
@@ -176,20 +176,32 @@ export class Game {
             this.isLeftClick = true;
             this.player.tool.startAnimation();
             this.player.isMining = true;
-            const selectedBlock = this.world.getBlock(this.player.selectedCoords.x, this.player.selectedCoords.y, this.player.selectedCoords.z);
+            const selectedBlock = this.world.getBlock(
+                this.player.selectedCoords.x,
+                this.player.selectedCoords.y,
+                this.player.selectedCoords.z,
+            );
             if (!selectedBlock) {
                 this.player.miningBlock = null;
                 return;
             }
             this.player.miningBlock = {
                 pos: this.player.selectedCoords.clone(),
-                block: this.world.getBlock(this.player.selectedCoords.x, this.player.selectedCoords.y, this.player.selectedCoords.z),
-                startTime: performance.now()
+                block: this.world.getBlock(
+                    this.player.selectedCoords.x,
+                    this.player.selectedCoords.y,
+                    this.player.selectedCoords.z,
+                ),
+                startTime: performance.now(),
             };
             return;
         }
 
-        const block = this.world.getBlock(this.player.selectedCoords.x, this.player.selectedCoords.y, this.player.selectedCoords.z);
+        const block = this.world.getBlock(
+            this.player.selectedCoords.x,
+            this.player.selectedCoords.y,
+            this.player.selectedCoords.z,
+        );
         if (block) {
             for (const interactable of interactableBlocks) {
                 if (interactable.id === block.id && interactable.onInteract) {
@@ -198,7 +210,12 @@ export class Game {
                 }
             }
             if (!this.player.selectedCoordsPlace) return;
-            const added = this.world.addBlock(this.player.selectedCoordsPlace.x, this.player.selectedCoordsPlace.y, this.player.selectedCoordsPlace.z, this.player.activeBlockId);
+            const added = this.world.addBlock(
+                this.player.selectedCoordsPlace.x,
+                this.player.selectedCoordsPlace.y,
+                this.player.selectedCoordsPlace.z,
+                this.player.activeBlockId,
+            );
             if (added) {
                 this.player.useItem();
             }
@@ -206,7 +223,7 @@ export class Game {
     }
 
     onMouseUp(event: MouseEvent) {
-        if (this.cameraMode === 'orbit') return;
+        if (this.cameraMode === "orbit") return;
         if (!this.player || !this.world) return;
         if (!this.player.controls.isLocked) return;
 
@@ -238,13 +255,13 @@ export class Game {
 
     onKeyDown(event: KeyboardEvent) {
         if (!this.player) return;
-        if (event.key === 'c') {
-            this.cameraMode = (this.cameraMode === 'first-person') ? 'orbit' : 'first-person';
-            const uiContainer = document.getElementById('ui-container');
-            if (this.cameraMode === 'orbit') {
+        if (event.key === "c") {
+            this.cameraMode = this.cameraMode === "first-person" ? "orbit" : "first-person";
+            const uiContainer = document.getElementById("ui-container");
+            if (this.cameraMode === "orbit") {
                 if (uiContainer) {
-                    uiContainer.innerHTML = '';
-                    uiContainer.classList.add('hidden');
+                    uiContainer.innerHTML = "";
+                    uiContainer.classList.add("hidden");
                     this.player.uiShown = false;
                 }
                 if (this.controls) {
@@ -252,12 +269,22 @@ export class Game {
                 }
                 // make orbit camera start at the player's position
                 if (this.orbitCamera && this.player) {
-                    console.log("Orbit camera enabled, setting position and lookAt", this.orbitCamera.position, this.player.position);
-                    this.orbitCamera.position.copy(this.player.position).add(new THREE.Vector3(10, 0, 10));
+                    console.log(
+                        "Orbit camera enabled, setting position and lookAt",
+                        this.orbitCamera.position,
+                        this.player.position,
+                    );
+                    this.orbitCamera.position
+                        .copy(this.player.position)
+                        .add(new THREE.Vector3(10, 0, 10));
                     this.controls?.target.copy(this.player.position);
                     this.orbitCamera.lookAt(this.player.position);
                     this.orbitCamera.updateProjectionMatrix();
-                    console.log("Orbit camera enabled, setting position and lookAt", this.orbitCamera.position, this.player.position);
+                    console.log(
+                        "Orbit camera enabled, setting position and lookAt",
+                        this.orbitCamera.position,
+                        this.player.position,
+                    );
                 }
                 if (document.pointerLockElement) {
                     document.exitPointerLock();
@@ -269,16 +296,22 @@ export class Game {
                 this.controls?.update();
             } else {
                 if (uiContainer) {
-                    uiContainer.innerHTML = '';
-                    uiContainer.classList.remove('hidden');
+                    uiContainer.innerHTML = "";
+                    uiContainer.classList.remove("hidden");
                     this.player.uiShown = false;
                 }
                 if (this.controls) {
                     this.controls.enabled = false;
                 }
-                document.addEventListener('keydown', this.player.onKeyDown.bind(this.player), { signal: this.player.firstPersonController.signal });
-                document.addEventListener('mousedown', this.player.onMouseDown.bind(this.player), { signal: this.player.firstPersonController.signal });
-                document.addEventListener('keyup', this.player.onKeyUp.bind(this.player), { signal: this.player.firstPersonController.signal });
+                document.addEventListener("keydown", this.player.onKeyDown.bind(this.player), {
+                    signal: this.player.firstPersonController.signal,
+                });
+                document.addEventListener("mousedown", this.player.onMouseDown.bind(this.player), {
+                    signal: this.player.firstPersonController.signal,
+                });
+                document.addEventListener("keyup", this.player.onKeyUp.bind(this.player), {
+                    signal: this.player.firstPersonController.signal,
+                });
                 if (!this.player.uiShown) {
                     this.player.controls.lock();
                 }
@@ -288,9 +321,9 @@ export class Game {
     }
 
     addEventListeners() {
-        document.addEventListener('mousedown', this.onMouseDown.bind(this));
-        document.addEventListener('mouseup', this.onMouseUp.bind(this));
-        window.addEventListener('resize', this.onWindowResize.bind(this));
-        window.addEventListener('keydown', this.onKeyDown.bind(this));
+        document.addEventListener("mousedown", this.onMouseDown.bind(this));
+        document.addEventListener("mouseup", this.onMouseUp.bind(this));
+        window.addEventListener("resize", this.onWindowResize.bind(this));
+        window.addEventListener("keydown", this.onKeyDown.bind(this));
     }
 }

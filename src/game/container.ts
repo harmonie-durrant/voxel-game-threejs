@@ -10,9 +10,9 @@ export type ItemData = {
 
 export const emptyItem: ItemData = {
     blockId: -1,
-    texture: '',
-    type: '',
-    amount: 0
+    texture: "",
+    type: "",
+    amount: 0,
 };
 
 export class Container {
@@ -25,9 +25,7 @@ export class Container {
 
     constructor(maxItems: number) {
         this.maxItems = maxItems;
-        this.items = [
-            ...Array(maxItems).fill(emptyItem)
-        ];
+        this.items = [...Array(maxItems).fill(emptyItem)];
     }
 
     getItemCount(blockId: number): number {
@@ -47,7 +45,11 @@ export class Container {
             }
         }
         for (let i = 0; i < this.maxItems; i++) {
-            if (this.items[i].blockId === -1 || this.items[i].amount === 0 || this.items[i].blockId === blocks.empty.id) {
+            if (
+                this.items[i].blockId === -1 ||
+                this.items[i].amount === 0 ||
+                this.items[i].blockId === blocks.empty.id
+            ) {
                 return i;
             }
         }
@@ -92,8 +94,7 @@ export class Container {
                 return false; // No empty slot available
             }
         }
-        if (index < 0 || index >= this.maxItems)
-            return false;
+        if (index < 0 || index >= this.maxItems) return false;
         if (this.items[index].blockId !== -1) {
             if (
                 this.items[index].blockId !== item.blockId ||
