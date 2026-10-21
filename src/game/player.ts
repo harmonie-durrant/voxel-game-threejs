@@ -292,8 +292,8 @@ export class Player {
         this.uiShown = false;
         this.inventoryAbortController.abort();
         const dragged = document.getElementById('dragged-item')!;
-        if (dragged.style.display === 'block') {
-            dragged.style.display = 'none';
+        if (!dragged.classList.contains('hidden')) {
+            dragged.classList.add('hidden');
             dragged.innerHTML = ''; // Clear the dragged item
         }
         if (this.inventory.grabbedItem.blockId !== -1) {
@@ -322,9 +322,9 @@ export class Player {
     }
 
     getHotbarActiveSlot(): number {
-        const hotbarElements = document.querySelectorAll('.toolbar-icon');
+        const hotbarElements = document.querySelectorAll('#toolbar > div');
         for (let i = 0; i < hotbarElements.length; i++) {
-            if (hotbarElements[i].classList.contains('selected')) {
+            if (hotbarElements[i].hasAttribute('data-selected')) {
                 return i;
             }
         }
@@ -356,15 +356,17 @@ export class Player {
             for (const item of this.inventory.items) {
                 // create inventory item elements
                 const itemElement = document.createElement('div');
-                itemElement.classList.add('inventory-item');
+                itemElement.className = 'relative w-16 h-16 flex items-center justify-center bg-ui-dark border-2 border-ui-light rounded-sm hover:cursor-pointer hover:shadow-slot';
                 itemElement.setAttribute('data-id', index.toString());
                 if (item.blockId != -1 && item.texture) {
                     const itemImage = document.createElement('img');
                     itemImage.src = item.texture;
                     itemImage.alt = Object.values(blocks).find(b => b.id === item.blockId)?.name || '';
+                    itemImage.className = 'w-3/4 h-3/4 object-contain';
                     itemElement.appendChild(itemImage);
                     const itemCount = document.createElement('span');
                     itemCount.innerText = item.amount.toString();
+                    itemCount.className = 'absolute bottom-1 right-1 text-white text-[1.2em] text-shadow-soft';
                     itemElement.appendChild(itemCount);
                 }
                 inventoryGrid.appendChild(itemElement);
@@ -394,7 +396,7 @@ export class Player {
                 if (!this.uiShown || this.inventory.grabbedItem.blockId === -1) return;
                 const dragged = document.getElementById('dragged-item');
                 if (!dragged) return;
-                if (dragged.style.display === 'block') {
+                if (!dragged.classList.contains('hidden')) {
                     dragged.style.left = `${e.clientX + 5}px`;
                     dragged.style.top = `${e.clientY + 5}px`;
                 }
@@ -446,8 +448,8 @@ export class Player {
                 }
             } else if (item.blockId !== -1 && item.texture) {
                 hotbarElement.innerHTML = `
-                    <img src="${item.texture}" alt="${Object.values(blocks).find(b => b.id === item.blockId)?.name || ''}" style="width: 64px; height: 64px; object-fit: cover;">
-                    <span style="position: absolute; bottom: 0; right: 0; color: #fff;">${item.amount}</span>
+                    <img src="${item.texture}" alt="${Object.values(blocks).find(b => b.id === item.blockId)?.name || ''}" class="w-16 h-16 object-cover">
+                    <span class="absolute bottom-0 right-0 text-white">${item.amount}</span>
                 `;
             } else {
                 hotbarElement.innerHTML = ''; // Clear the hotbar slot if the item is empty
@@ -462,27 +464,20 @@ export class Player {
         const isEmpty = this.inventory.grabbedItem.blockId === -1;
         const dragged = document.getElementById('dragged-item')!;
         dragged.innerHTML = '';
-        dragged.style.display = 'block';
-
-        dragged.innerHTML = '';
         if (isEmpty) {
-            dragged.style.display = 'none';
+            dragged.classList.add('hidden');
             return;
         }
-        dragged.style.display = 'block';
+        dragged.classList.remove('hidden');
 
         const img = document.createElement('img');
         img.src = this.inventory.grabbedItem.texture;
-        img.style.width = '32px';
-        img.style.height = '32px';
+        img.className = 'w-8 h-8';
         dragged.appendChild(img);
 
         const span = document.createElement('span');
         span.innerText = this.inventory.grabbedItem.amount.toString();
-        span.style.position = 'absolute';
-        span.style.bottom = '0';
-        span.style.right = '0';
-        span.style.color = '#fff';
+        span.className = 'absolute bottom-0 right-0 text-white';
         dragged.appendChild(span);
     }
 
@@ -504,9 +499,9 @@ export class Player {
 
         // Remove old selection
         for (let i = 0; i < 10; i++) {
-            document.getElementById(`toolbar-${i}`)?.classList.remove('selected');
+            document.getElementById(`toolbar-${i}`)?.removeAttribute('data-selected');
         }
-        document.getElementById(`toolbar-${slotIndex}`)?.classList.add('selected');
+        document.getElementById(`toolbar-${slotIndex}`)?.setAttribute('data-selected', '');
         this.activeBlockId = hotbarItem.blockId === -1 ? blocks.empty.id : hotbarItem.blockId;
         this.updateToolVisibility();
     }

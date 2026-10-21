@@ -7,21 +7,25 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <title>Voxel game - Harmonie Durrant</title>
   </head>
-  <body>
+  <body class="m-0 p-0 overflow-hidden font-minecraft">
     <script type="module" src="/src/main.ts"></script>
-    <div id="notifications-container" style="position: absolute; padding: 3px; z-index: 1100; top: 64px; right: 20px;"></div>
-    <div id="main_menu_container">
-      <div id="main_menu_bg"></div>
-      <div id="main_menu">
-        <h1>Voxels</h1>
-        <p>Made with ❤️, Harmonie</p>
-        <button class="menu-button" id="start_game">Start Game</button>
-        <button class="menu-button" id="load_game">Load Game</button>
-        <button class="menu-button" id="show_controls">Controls</button>
-        <div id="controls_popup" class="hidden">
-          <div class="controls-content">
-            <h2>Controls</h2>
-            <ul>
+    <div id="notifications-container" class="absolute p-1 z-1100 top-16 right-5"></div>
+    <div id="main_menu_container" class="absolute inset-0 w-screen h-screen overflow-hidden">
+      <div id="main_menu_bg" class="absolute inset-0 z-0 bg-[url(/images/panorama.jpeg)] bg-size-[auto_100%] bg-repeat-x bg-position-[0_center] animate-panorama"></div>
+      <div id="main_menu" class="relative z-1 w-full h-full flex flex-col gap-6 items-center justify-between text-white text-center backdrop-blur-[1px]">
+        <div class="flex flex-1 flex-col gap-6 justify-center items-center">
+          <h1 class="m-0 text-7xl text-shadow-title">Voxels</h1>
+          <div class="flex flex-col gap-4 items-center justify-center">
+            <button class="pt-3 px-16 pb-1 text-3xl bg-ui-dark border-2 border-ui-light text-white font-minecraft cursor-pointer hover:bg-ui-light active:bg-ui-dark" id="start_game">Start Game</button>
+            <button class="pt-3 px-16 pb-1 text-3xl bg-ui-dark border-2 border-ui-light text-white font-minecraft cursor-pointer hover:bg-ui-light active:bg-ui-dark" id="load_game">Load Game</button>
+            <button class="pt-3 px-16 pb-1 text-3xl bg-ui-dark border-2 border-ui-light text-white font-minecraft cursor-pointer hover:bg-ui-light active:bg-ui-dark" id="show_controls">Controls</button>
+          </div>
+        </div>
+        <p class="m-0 mb-2 text-xl text-shadow-soft">Made with ❤️, Harmonie</p>
+        <div id="controls_popup" class="hidden absolute top-0 left-0 w-full h-full z-10 items-center justify-center bg-black/70">
+          <div class="relative flex flex-col gap-6 p-8 max-h-[80%] bg-ui-panel rounded-xl overflow-hidden shadow-panel text-left text-white">
+            <h2 class="text-4xl my-0">Controls</h2>
+            <ul class="list-none p-0 m-0 flex flex-col gap-2 *:text-xl overflow-y-auto">
               <li><b>WASD</b> &rarr; Move</li>
               <li><b>Space</b> &rarr; Jump</li>
               <li><b>E</b> &rarr; Inventory</li>
@@ -31,54 +35,55 @@
               <li><b>F2</b> &rarr; Load from save</li>
               <li><b>C</b> &rarr; Orbit free cam</li>
             </ul>
-          <button id="close_controls" class="close-x" title="Close">&times;</button>
+          <button id="close_controls" class="absolute top-5 right-5 z-20 p-0 bg-transparent border-none text-white text-4xl leading-none cursor-pointer transition-colors duration-200 hover:text-[#ff8888]" title="Close">&times;</button>
           </div>
         </div>
       </div>
-      <div id="world-creation-popup" class="hidden">
-        <div class="world-creation-content">
-          <h2>Create New World</h2>
-          <div class="world-creation-form">
+      <div id="world-creation-popup" class="hidden absolute top-0 left-0 w-full h-full z-10 items-center justify-center bg-black/70">
+        <div class="relative flex flex-col gap-6 p-5 max-h-[80%] overflow-hidden bg-ui-panel rounded-xl shadow-panel text-left text-white">
+          <h2 class="m-0 text-3xl">Create New World</h2>
+          <div class="flex flex-col gap-1">
             <label for="world-seed">Seed (optional):</label>
             <input type="text" id="world-seed" placeholder="Enter seed number" />
-            <div class="buttons-horizontal">
-              <button class="menu-button menu-button-thin" id="create-world">Create World</button>
-              <button class="menu-button menu-button-thin" id="close-world-creation">Cancel</button>
-            </div>
+          </div>
+          <div class="flex justify-between gap-2 flex-wrap sm:min-w-96">
+            <button class="flex-1 whitespace-nowrap text-center pt-3 px-8 pb-1 bg-ui-dark border-2 border-ui-light text-white text-base font-minecraft cursor-pointer hover:bg-ui-light active:bg-ui-dark" id="create-world">Create World</button>
+            <button class="flex-1 whitespace-nowrap text-center pt-3 px-8 pb-1 bg-ui-dark border-2 border-ui-light text-white text-base font-minecraft cursor-pointer hover:bg-ui-light active:bg-ui-dark" id="close-world-creation">Cancel</button>
           </div>
         </div>
       </div>
     </div>
-    <div id="game_ui_container" class="hidden">
-      <div id="info">
+    <div id="game_ui_container" class="hidden absolute inset-0 w-screen h-screen overflow-hidden">
+      <div id="info" class="absolute right-0 bottom-0 m-2 font-[sans-serif] text-[24px] text-white">
         <div id="player-position"></div>
       </div>
-      <div id="toolbar-container">
-        <div id="toolbar">
-          <div class="toolbar-icon selected" id="toolbar-1"><img src=""></img></div>
-          <div class="toolbar-icon" id="toolbar-2"><img src=""></img></div>
-          <div class="toolbar-icon" id="toolbar-3"><img src=""></img></div>
-          <div class="toolbar-icon" id="toolbar-4"><img src=""></img></div>
-          <div class="toolbar-icon" id="toolbar-5"><img src=""></img></div>
-          <div class="toolbar-icon" id="toolbar-6"><img src=""></img></div>
-          <div class="toolbar-icon" id="toolbar-7"><img src=""></img></div>
-          <div class="toolbar-icon" id="toolbar-8"><img src=""></img></div>
-          <div class="toolbar-icon" id="toolbar-9"><img src=""></img></div>
+      <div id="toolbar-container" class="fixed bottom-2 w-full flex justify-center">
+        <div id="toolbar" class="flex justify-between gap-x-3 p-2 bg-ui-mid border-4 border-ui-light">
+          <div class="relative w-16 h-16 outline-4 outline-ui-dark shadow-slot data-selected:outline-white" id="toolbar-1" data-selected><img src=""></img></div>
+          <div class="relative w-16 h-16 outline-4 outline-ui-dark shadow-slot data-selected:outline-white" id="toolbar-2"><img src=""></img></div>
+          <div class="relative w-16 h-16 outline-4 outline-ui-dark shadow-slot data-selected:outline-white" id="toolbar-3"><img src=""></img></div>
+          <div class="relative w-16 h-16 outline-4 outline-ui-dark shadow-slot data-selected:outline-white" id="toolbar-4"><img src=""></img></div>
+          <div class="relative w-16 h-16 outline-4 outline-ui-dark shadow-slot data-selected:outline-white" id="toolbar-5"><img src=""></img></div>
+          <div class="relative w-16 h-16 outline-4 outline-ui-dark shadow-slot data-selected:outline-white" id="toolbar-6"><img src=""></img></div>
+          <div class="relative w-16 h-16 outline-4 outline-ui-dark shadow-slot data-selected:outline-white" id="toolbar-7"><img src=""></img></div>
+          <div class="relative w-16 h-16 outline-4 outline-ui-dark shadow-slot data-selected:outline-white" id="toolbar-8"><img src=""></img></div>
+          <div class="relative w-16 h-16 outline-4 outline-ui-dark shadow-slot data-selected:outline-white" id="toolbar-9"><img src=""></img></div>
         </div>
       </div>
-      <div id="inventory" class="hidden">
-        <div id="inventory-header">
-          <h2>Inventory</h2>
-          <button id="close-inventory" class="close-x" title="Close">&times;</button>
+      <div id="inventory" class="hidden fixed top-1/2 left-1/2 -translate-1/2 w-4/5 max-w-200 max-h-[80%] overflow-y-auto bg-ui-panel rounded-xl shadow-panel">
+        <div class="flex justify-between items-center p-4 border-b-2 border-ui-light">
+          <h2 class="m-0 text-3xl text-white">Inventory</h2>
+          <button id="close-inventory" class="absolute top-3 right-4 z-20 p-0 bg-transparent border-none text-white text-[1.5em] leading-none cursor-pointer transition-colors duration-200 hover:text-[#ff8888]" title="Close">&times;</button>
         </div>
-        <div id="inventory-grid-container">
-          <div id="inventory-grid">
+        <div class="flex justify-center items-center w-full h-full">
+          <!-- 9 items per row -->
+          <div id="inventory-grid" class="grid grid-cols-[repeat(auto-fill,minmax(64px,1fr))] gap-2 p-4 w-[calc(64px*9+64px)]">
           </div>
         </div>
       </div>
-      <div id="status"></div>
-      <div id="dragged-item" style="position: fixed; pointer-events: none; display: none; z-index: 1000;"></div>
-      <div id="ui-container" class="hidden" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 900;"></div>
+      <div id="status" class="fixed bottom-2 left-2 text-[2em] text-white"></div>
+      <div id="dragged-item" class="hidden fixed pointer-events-none z-1000"></div>
+      <div id="ui-container" class="hidden absolute top-0 left-0 w-full h-full z-900"></div>
     </div>
   </body>
 </html>

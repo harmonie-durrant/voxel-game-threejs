@@ -18,9 +18,9 @@ export class Toast {
         this.notificationsContainer = document.getElementById('notifications-container');
 
         this.styles = {
-            notification: "padding: 1rem; margin-bottom: 1rem; border-radius: 0.375rem; box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075); display: flex; align-items: center; justify-content: space-between;",
-            error: "background-color: #f8d7da; color: #721c24;",
-            advancement: "background-color: #d4edda; color: #155724;",
+            notification: "flex items-center justify-between p-4 mb-4 rounded-md shadow-[0_0.125rem_0.25rem_rgba(0,0,0,0.075)]",
+            error: "bg-[#f8d7da] text-[#721c24]",
+            advancement: "bg-[#d4edda] text-[#155724]",
         };
     }
 
@@ -34,14 +34,13 @@ export class Toast {
             notification._fadeTimeout = setTimeout(() => {
                 if (notification.element) {
                     // make notification move up and down smoothly
-                    notification.element.style.transition = 'opacity 2s';
-                    notification.element.style.opacity = '0';
+                    notification.element.classList.add('transition-opacity', 'duration-2000', 'ease-[ease]', 'opacity-0');
                 }
                 setTimeout(() => {
                     const idx = this.notifications.indexOf(notification);
                     if (idx !== -1) {
                         if (notification.element) {
-                            notification.element.style.display = 'none';
+                            notification.element.classList.add('hidden');
                         }
                         this.notifications.splice(idx, 1);
                     }
@@ -59,7 +58,7 @@ export class Toast {
         this.notifications.forEach((notification) => {
             if (this.notificationsContainer === null) return;
             const notificationElement = document.createElement('div');
-            notificationElement.style.cssText = this.styles.notification + this.styles[notification.type || 'warning'];
+            notificationElement.className = `${this.styles.notification} ${this.styles[notification.type || 'warning'] ?? ''}`;
             notificationElement.innerText = notification.message;
             this.notificationsContainer.appendChild(notificationElement);
             notification.element = notificationElement;

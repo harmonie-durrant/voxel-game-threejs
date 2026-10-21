@@ -110,9 +110,9 @@ export class WorkbenchUI {
                     const missingWorkbench = !WorkbenchUI.isCorrectMode(recipe, mode);
                     const missingItems = !WorkbenchUI.isCraftable(recipe, player, mode);
                     const recipeElement = document.createElement('div');
-                    recipeElement.classList.add('crafting-recipe');
+                    recipeElement.className = 'flex items-center gap-4 py-3 px-5 bg-ui-recipe rounded-lg';
                     recipeElement.innerHTML = `
-                        <div class="crafting-items">
+                        <div class="flex gap-2">
                             ${recipe.neededMaterials.map(item => {
                                 // Get block from blockId
                                 const block = Object.values(blocks).find(b => b.id === item.blockId);
@@ -121,34 +121,34 @@ export class WorkbenchUI {
                                 }
                                 const isMissing = !player.inventory.hasItem(item.blockId, item.amount);
                                 return `
-                                    <div class="crafting-item ${missingWorkbench ? 'missing-workbench' : ''} ${!missingWorkbench && missingItems && isMissing ? 'missing' : ''}">
-                                        <img src="${block?.icon}" alt="${block?.name}">
-                                        <span class="crafting-item-count">${isMissing ? item.amount : item.amount}</span>
+                                    <div class="relative w-16 h-16 flex items-center justify-center border-2 border-ui-light rounded-sm ${missingWorkbench ? 'bg-ui-missing opacity-80' : missingItems && isMissing ? 'bg-ui-missing opacity-80 font-bold' : 'bg-ui-dark'}">
+                                        <img class="w-3/4 h-3/4 object-contain" src="${block?.icon}" alt="${block?.name}">
+                                        <span class="absolute bottom-1 right-1 px-1 bg-black/50 rounded-sm text-[1.2em] text-shadow-soft ${missingWorkbench ? 'text-[gray]' : missingItems && isMissing ? 'text-[red]' : 'text-white'}">${isMissing ? item.amount : item.amount}</span>
                                     </div>
                                 `;
                             }).join('')}
                         </div>
-                        <span class="crafting-arrow">→</span>
-                        <div class="crafting-items">
+                        <span class="mx-3 text-[2em] text-white select-none">→</span>
+                        <div class="flex gap-2">
                             ${recipe.results.map(result => {
                                 const block = Object.values(blocks).find(b => b.id === result.blockId);
                                 if (!block) {
                                     return '';
                                 }
                                 return `
-                                    <div class="crafting-item ${missingWorkbench ? 'missing-workbench' : ''} ${(!missingWorkbench && missingItems) ? 'missing' : ''}">
-                                        <img src="${block?.icon}" alt="${block?.name}">
-                                        <span class="crafting-item-count">${result.amount}</span>
+                                    <div class="relative w-16 h-16 flex items-center justify-center border-2 border-ui-light rounded-sm ${missingWorkbench ? 'bg-ui-missing opacity-80' : missingItems ? 'bg-ui-missing opacity-80 font-bold' : 'bg-ui-dark'}">
+                                        <img class="w-3/4 h-3/4 object-contain" src="${block?.icon}" alt="${block?.name}">
+                                        <span class="absolute bottom-1 right-1 px-1 bg-black/50 rounded-sm text-[1.2em] text-shadow-soft ${missingWorkbench ? 'text-[gray]' : missingItems ? 'text-[red]' : 'text-white'}">${result.amount}</span>
                                     </div>
                                 `;
                             }).join('')}
                         </div>
-                        <button class="crafting-button ${(missingWorkbench || missingItems) ? 'crafting-button-disabled' : ''}" data-recipe="${recipe.name}">Craft</button>
+                        <button class="ml-auto py-2.5 px-5 border-none rounded-sm text-white text-[1.2em] transition-colors duration-300 ease-[ease] ${(missingWorkbench || missingItems) ? 'bg-[#ccc] cursor-not-allowed' : 'bg-[#4CAF50] hover:bg-[#45a049] cursor-pointer'}" data-recipe="${recipe.name}">Craft</button>
                     `;
                     recipeList.appendChild(recipeElement);
                 })
                 player.controls.unlock();
-                const craftingButtons = document.querySelectorAll('.crafting-button');
+                const craftingButtons = recipeList.querySelectorAll('button[data-recipe]');
                 craftingButtons.forEach(button => {
                     button.addEventListener('click', (event) => {
                         const recipeName = (event.currentTarget as HTMLButtonElement).dataset.recipe;
@@ -175,7 +175,7 @@ export class WorkbenchUI {
             })
             .catch(error => {
                 console.error('There was a problem with the fetch operation:', error);
-                uiContainer.innerHTML = '<p>Error loading content.</p>';
+                uiContainer.innerHTML = '<p class="m-0 mb-[25px] text-[0.8em] text-shadow-soft">Error loading content.</p>';
             });
         const closeButton = document.getElementById('close-crafting-ui');
         if (closeButton) {

@@ -13,6 +13,7 @@ export class WorldCreation {
         try {
             this.game = new Game(true);
             this.closeWorldCreationMenu();
+            mainMenuController.abort();
         } catch (error) {
             console.error('Failed to load game from save:', error);
             toast.addNotification({
@@ -21,24 +22,19 @@ export class WorldCreation {
                 showFor: 5000
             });
         }
-        mainMenuController.abort();
     }
 
     openWorldCreationMenu(mainMenuController: AbortController): void {
         soundController.playSound('sounds/ui_button_press.mp3');
         const worldCreationPopup = document.getElementById('world-creation-popup');
         if (worldCreationPopup) {
-            worldCreationPopup.classList.remove('hidden');
+            worldCreationPopup.classList.replace('hidden', 'flex');
         }
         document.getElementById('create-world')?.addEventListener('click', () => {
             soundController.playSound('sounds/ui_button_press.mp3');
             const seedInput = document.getElementById('world-seed') as HTMLInputElement;
-            if (!seedInput || !seedInput.value || seedInput.value.trim() === '') {
-                this.start_game(Math.random() * 1000000); // Generate a random seed if input is not found
-                this.abortController.abort();
-                return;
-            }
-            const seed = parseInt(seedInput.value, 10);
+            const isSeedEmpty = !seedInput || !seedInput.value?.trim();
+            let seed = isSeedEmpty ? Math.random() * 1000000 : parseInt(seedInput.value, 10);
             this.start_game(seed);
             this.abortController.abort();
             mainMenuController.abort();
@@ -52,7 +48,7 @@ export class WorldCreation {
         soundController.playSound('sounds/ui_button_press.mp3');
         const worldCreationMenu = document.getElementById('world-creation-popup');
         if (worldCreationMenu) {
-            worldCreationMenu.classList.add('hidden');
+            worldCreationMenu.classList.replace('flex', 'hidden');
             this.abortController.abort();
             this.abortController = new AbortController();
         }

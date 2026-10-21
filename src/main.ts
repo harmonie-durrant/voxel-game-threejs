@@ -12,7 +12,7 @@ worldcreation;
 export const toast = new Toast();
 toast;
 
-document.addEventListener('click', (event) => {
+document.addEventListener('click', () => {
     soundController.playSound('sounds/main_menu_music.mp3');
 }, { once: true });
 
@@ -26,9 +26,9 @@ document.getElementById('load_game')?.addEventListener('click', () => {
 const controlsPopup = document.getElementById('controls_popup');
 document.getElementById('show_controls')?.addEventListener('click', () => {
   soundController.playSound('sounds/ui_button_press.mp3');
-  controlsPopup?.classList.remove('hidden');
+  controlsPopup?.classList.replace('hidden', 'flex');
 }, { signal: mainMenuController.signal });
 document.getElementById('close_controls')?.addEventListener('click', () => {
   soundController.playSound('sounds/ui_button_press.mp3');
-  controlsPopup?.classList.add('hidden');
+  controlsPopup?.classList.replace('flex', 'hidden');
 }, { signal: mainMenuController.signal });

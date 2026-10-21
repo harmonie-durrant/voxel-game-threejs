@@ -96,9 +96,9 @@ export class FurnaceUI {
                 Object.values(recipes).forEach(recipe => {
                     const missingItems = !FurnaceUI.isSmeltable(recipe, player);
                     const recipeElement = document.createElement('div');
-                    recipeElement.classList.add('smelting-recipe');
+                    recipeElement.className = 'flex items-center gap-4 py-3 px-5 bg-ui-recipe rounded-lg';
                     recipeElement.innerHTML = `
-                        <div class="smelting-items">
+                        <div class="flex gap-2">
                             ${recipe.neededMaterials.map(item => {
                                 // Get block from blockId
                                 const block = Object.values(blocks).find(b => b.id === item.blockId);
@@ -107,34 +107,34 @@ export class FurnaceUI {
                                 }
                                 const isMissing = !player.inventory.hasItem(item.blockId, item.amount);
                                 return `
-                                    <div class="smelting-item ${missingItems && isMissing ? 'missing' : ''}">
-                                        <img src="${block?.icon}" alt="${block?.name}">
-                                        <span class="smelting-item-count">${isMissing ? player.inventory.getItemCount(item.blockId) + " / " + item.amount : item.amount}</span>
+                                    <div class="relative w-16 h-16 flex items-center justify-center border-2 border-ui-light rounded-sm ${missingItems && isMissing ? 'bg-ui-missing opacity-80 font-bold' : 'bg-ui-dark'}">
+                                        <img class="w-3/4 h-3/4 object-contain" src="${block?.icon}" alt="${block?.name}">
+                                        <span class="absolute bottom-1 right-1 px-1 bg-black/50 rounded-sm text-[1.2em] text-shadow-soft text-white">${isMissing ? player.inventory.getItemCount(item.blockId) + " / " + item.amount : item.amount}</span>
                                     </div>
                                 `;
                             }).join('')}
                         </div>
-                        <span class="smelting-arrow">→</span>
-                        <div class="smelting-items">
+                        <span class="mx-3 text-[2em] text-white select-none">→</span>
+                        <div class="flex gap-2">
                             ${recipe.results.map(result => {
                                 const block = Object.values(blocks).find(b => b.id === result.blockId);
                                 if (!block) {
                                     return '';
                                 }
                                 return `
-                                    <div class="smelting-item ${missingItems ? 'missing' : ''}">
-                                        <img src="${block?.icon}" alt="${block?.name}">
-                                        <span class="smelting-item-count">${result.amount}</span>
+                                    <div class="relative w-16 h-16 flex items-center justify-center border-2 border-ui-light rounded-sm ${missingItems ? 'bg-ui-missing opacity-80 font-bold' : 'bg-ui-dark'}">
+                                        <img class="w-3/4 h-3/4 object-contain" src="${block?.icon}" alt="${block?.name}">
+                                        <span class="absolute bottom-1 right-1 px-1 bg-black/50 rounded-sm text-[1.2em] text-shadow-soft text-white">${result.amount}</span>
                                     </div>
                                 `;
                             }).join('')}
                         </div>
-                        <button class="smelting-button ${missingItems ? 'smelting-button-disabled' : ''}" data-recipe="${recipe.name}">Smelt</button>
+                        <button class="ml-auto py-2.5 px-5 border-none rounded-sm text-white text-[1.2em] transition-colors duration-300 ease-[ease] ${missingItems ? 'bg-[#ccc] cursor-not-allowed' : 'bg-[#4CAF50] hover:bg-[#45a049] cursor-pointer'}" data-recipe="${recipe.name}">Smelt</button>
                     `;
                     recipeList.appendChild(recipeElement);
                 })
                 player.controls.unlock();
-                const smeltingButtons = document.querySelectorAll('.smelting-button');
+                const smeltingButtons = recipeList.querySelectorAll('button[data-recipe]');
                 smeltingButtons.forEach(button => {
                     button.addEventListener('click', (event) => {
                         const recipeName = (event.currentTarget as HTMLButtonElement).dataset.recipe;
@@ -161,7 +161,7 @@ export class FurnaceUI {
             })
             .catch(error => {
                 console.error('There was a problem with the fetch operation:', error);
-                uiContainer.innerHTML = '<p>Error loading content.</p>';
+                uiContainer.innerHTML = '<p class="m-0 mb-[25px] text-[0.8em] text-shadow-soft">Error loading content.</p>';
             });
         const closeButton = document.getElementById('close-smelting-ui');
         if (closeButton) {
