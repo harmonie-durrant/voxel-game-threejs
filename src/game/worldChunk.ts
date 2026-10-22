@@ -45,6 +45,44 @@ export class WorldChunk extends THREE.Group {
         this.loadPlayerChanges();
         this.generateMeshes();
         this.loaded = true;
+        this.refreshNeighbourEdges();
+    }
+
+    // Neighbours treat this chunk as empty while it's unloaded, so their facing border needs updating
+    refreshNeighbourEdges() {
+        const directions = [
+            [1, 0],
+            [-1, 0],
+            [0, 1],
+            [0, -1],
+        ];
+        for (const [dx, dz] of directions) {
+            const neighbour = this.world.getChunk(this.userData.x + dx, this.userData.z + dz);
+            if (!neighbour || !neighbour.loaded) continue;
+            neighbour.refreshEdge(-dx, -dz);
+        }
+    }
+
+    // Re-checks visibility of the border blocks facing direction (dx, dz)
+    refreshEdge(dx: number, dz: number) {
+        const width = this.size.width;
+        for (let i = 0; i < width; i++) {
+            const x = dx === 0 ? i : dx > 0 ? width - 1 : 0;
+            const z = dz === 0 ? i : dz > 0 ? width - 1 : 0;
+            for (let y = 0; y < this.size.height; y++) {
+                const block = this.data[x][y][z];
+                if (block.id === blocks.empty.id) continue;
+                const hidden = this.isBlockHidden(x, y, z);
+                if (hidden && block.instanceId !== null) {
+                    this.deleteBlockInstance(x, y, z, false);
+                } else if (!hidden && block.instanceId === null) {
+                    this.addBlockInstance(x, y, z, false);
+                }
+            }
+        }
+        this.children.forEach((mesh) => {
+            if (mesh instanceof THREE.InstancedMesh) mesh.computeBoundingSphere();
+        });
     }
 
     initializeTerrain() {
@@ -298,11 +336,24 @@ export class WorldChunk extends THREE.Group {
         this.add(...Object.values(meshes));
     }
 
-    getBlock(x: number, y: number, z: number) {
+    getBlock(x: number, y: number, z: number): worldData | null {
         if (this.inBounds(x, y, z)) {
             return this.data[x][y][z];
         }
-        return null;
+        if (y < 0 || y >= this.size.height) {
+            return null;
+        }
+        const xOffset = x < 0 ? -1 : x >= this.size.width ? 1 : 0;
+        const zOffset = z < 0 ? -1 : z >= this.size.width ? 1 : 0;
+        const neighbourChunkX = this.userData.x + xOffset;
+        const neighbourChunkZ = this.userData.z + zOffset;
+        const neighbourChunk = this.world.getChunk(neighbourChunkX, neighbourChunkZ);
+        // Unloaded neighbours count as empty, refreshNeighbourEdges() fixes the border once they load
+        if (!neighbourChunk || !neighbourChunk.loaded) return null;
+        // Read the neighbour's data directly so the lookup never goes more than one chunk deep
+        const wrappedX = x - xOffset * this.size.width;
+        const wrappedZ = z - zOffset * this.size.width;
+        return neighbourChunk.data[wrappedX]?.[y]?.[wrappedZ] ?? null;
     }
 
     getTopMostBlock(x: number, z: number) {
@@ -354,7 +405,7 @@ export class WorldChunk extends THREE.Group {
         }
     }
 
-    deleteBlockInstance(x: number, y: number, z: number) {
+    deleteBlockInstance(x: number, y: number, z: number, updateBounds: boolean = true) {
         const block = this.getBlock(x, y, z);
         if (!block || block.instanceId === null) return;
         const mesh = this.children.find((instanceMesh) => instanceMesh.name == String(block.id));
@@ -374,12 +425,12 @@ export class WorldChunk extends THREE.Group {
         mesh.count--;
 
         mesh.instanceMatrix.needsUpdate = true;
-        mesh.computeBoundingSphere();
+        if (updateBounds) mesh.computeBoundingSphere();
 
         this.setBlockInstanceId(x, y, z, null);
     }
 
-    addBlockInstance(x: number, y: number, z: number) {
+    addBlockInstance(x: number, y: number, z: number, updateBounds: boolean = true) {
         const block = this.getBlock(x, y, z);
         if (!block || block.id === blocks.empty.id || block.instanceId !== null) return;
         const mesh = this.children.find((instanceMesh) => instanceMesh.name == String(block.id));
@@ -391,7 +442,7 @@ export class WorldChunk extends THREE.Group {
         matrix.setPosition(x, y, z);
         mesh.setMatrixAt(instanceId, matrix);
         mesh.instanceMatrix.needsUpdate = true;
-        mesh.computeBoundingSphere();
+        if (updateBounds) mesh.computeBoundingSphere();
     }
 
     addBlock(x: number, y: number, z: number, id: number): boolean {

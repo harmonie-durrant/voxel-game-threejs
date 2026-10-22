@@ -243,6 +243,7 @@ export class World extends THREE.Group {
         for (const chunk of chunksToRemove) {
             chunk.disposeInstances();
             this.remove(chunk);
+            chunk.refreshNeighbourEdges();
         }
     }
 
@@ -260,12 +261,13 @@ export class World extends THREE.Group {
         const chunk = new WorldChunk(this.chunkSize, this.params, this.saveData, this);
         chunk.position.set(x * this.chunkSize.width, 0, z * this.chunkSize.width);
         chunk.userData = { x, z };
+        // Add before generating so neighbours can find this chunk when refreshing their edges
+        this.add(chunk);
         if (this.asyncLoading && !generateNow) {
             requestIdleCallback(chunk.generate.bind(chunk), { timeout: 1000 });
         } else {
             chunk.generate();
         }
-        this.add(chunk);
     }
 
     generate(clearCache: boolean = false, generateNow: boolean = false, dispose: boolean = true) {
