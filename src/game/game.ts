@@ -100,6 +100,7 @@ export class Game {
         createUI(this.scene, this.world, this.player, this.sunHelper, this.physics);
         this.animate();
         this.addEventListeners();
+        this.setupPauseMenu();
         this.player.controls.lock();
         soundController.stopAllSounds();
     }
@@ -306,9 +307,6 @@ export class Game {
                 document.addEventListener("keydown", this.player.onKeyDown.bind(this.player), {
                     signal: this.player.firstPersonController.signal,
                 });
-                document.addEventListener("mousedown", this.player.onMouseDown.bind(this.player), {
-                    signal: this.player.firstPersonController.signal,
-                });
                 document.addEventListener("keyup", this.player.onKeyUp.bind(this.player), {
                     signal: this.player.firstPersonController.signal,
                 });
@@ -318,6 +316,28 @@ export class Game {
             }
         }
         //TODO: Add more key bindings for debugging and other features
+    }
+
+    setupPauseMenu() {
+        const pauseMenu = document.getElementById("pause_menu");
+        if (!pauseMenu || !this.player) return;
+
+        const showPauseMenu = () => {
+            // Inventory, crafting and orbit cam unlock the pointer on purpose
+            if (this.player?.uiShown || this.cameraMode === "orbit") return;
+            pauseMenu.classList.replace("hidden", "flex");
+        };
+
+        this.player.controls.addEventListener("lock", () => {
+            pauseMenu.classList.replace("flex", "hidden");
+        });
+        this.player.controls.addEventListener("unlock", showPauseMenu);
+        // Fires when the browser refuses to lock, e.g. clicking resume right after pressing escape
+        document.addEventListener("pointerlockerror", showPauseMenu);
+
+        document.getElementById("resume_game")?.addEventListener("click", () => {
+            this.player?.controls.lock();
+        });
     }
 
     addEventListeners() {

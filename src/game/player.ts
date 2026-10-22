@@ -43,7 +43,7 @@ export class Player {
     raycaser: THREE.Raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(), 0, 5);
     selectedCoords: THREE.Vector3 | null = null;
     selectedCoordsPlace: THREE.Vector3 | null = null;
-    selectionHelper: THREE.Mesh;
+    selectionHelper: THREE.LineSegments;
     activeBlockId: number = blocks.empty.id;
     miningBlock: {
         pos: THREE.Vector3;
@@ -94,9 +94,6 @@ export class Player {
         document.addEventListener("keydown", this.onKeyDown.bind(this), {
             signal: this.firstPersonController.signal,
         });
-        document.addEventListener("mousedown", this.onMouseDown.bind(this), {
-            signal: this.firstPersonController.signal,
-        });
         document.addEventListener("keyup", this.onKeyUp.bind(this), {
             signal: this.firstPersonController.signal,
         });
@@ -109,13 +106,9 @@ export class Player {
         this.boundsHelper.visible = false;
         scene.add(this.boundsHelper);
 
-        const selectionMaterial = new THREE.MeshBasicMaterial({
-            transparent: true,
-            opacity: 0.3,
-            color: 0xffffaa,
-        });
-        const selectionGeometry = new THREE.BoxGeometry(1.01, 1.01, 1.01);
-        this.selectionHelper = new THREE.Mesh(selectionGeometry, selectionMaterial);
+        const selectionMaterial = new THREE.LineBasicMaterial({ color: 0xffffff });
+        const selectionGeometry = new THREE.EdgesGeometry(new THREE.BoxGeometry(1.01, 1.01, 1.01));
+        this.selectionHelper = new THREE.LineSegments(selectionGeometry, selectionMaterial);
         scene.add(this.selectionHelper);
 
         this.raycaser.layers.set(0);
@@ -542,17 +535,6 @@ export class Player {
         dragged.appendChild(span);
     }
 
-    onMouseDown(e: MouseEvent) {
-        if (this.game.cameraMode === "orbit") {
-            return;
-        }
-        if (!this.controls.isLocked && !this.uiShown) {
-            e.preventDefault();
-            e.stopPropagation();
-            this.controls.lock();
-        }
-    }
-
     selectHotBarSlot(slotIndex: number) {
         if (slotIndex < 0 || slotIndex > 9) return;
         const hotbarItem = this.inventory.getItemAt(slotIndex - 1);
@@ -647,9 +629,8 @@ export class Player {
             this.controls.unlock();
             return;
         }
-        if (!this.controls.isLocked && !this.uiShown) {
-            this.controls.lock();
-        }
+        // Keys shouldn't move the player while paused, e.g. when typing in the dev menu
+        if (!this.controls.isLocked && !this.uiShown) return;
         switch (e.code) {
             case "KeyW":
                 if (!this.uiShown) this.input.z = this.maxSpeed;
