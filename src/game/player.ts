@@ -303,9 +303,11 @@ export class Player {
         }
     }
 
-    applyWorldDeltaVelocity(delta: THREE.Vector3) {
-        delta.applyEuler(new THREE.Euler(0, -this.camera.rotation.y, 0));
-        this.velocity.add(delta);
+    dispose() {
+        this.firstPersonController.abort();
+        this.inventoryAbortController.abort();
+        this.controls.unlock();
+        this.controls.dispose();
     }
 
     applyInputs(dt: number) {
@@ -315,8 +317,12 @@ export class Player {
         this.velocity.z = this.input.z;
         this.controls.moveRight(this.velocity.x * dt);
         this.controls.moveForward(this.velocity.z * dt);
-        this.position.y += this.velocity.y * dt;
         document.getElementById("player-position")!.innerText = this.toString();
+    }
+
+    applyVerticalVelocity(dt: number) {
+        if (!this.controls.isLocked) return;
+        this.position.y += this.velocity.y * dt;
     }
 
     updateBoundsHelper() {

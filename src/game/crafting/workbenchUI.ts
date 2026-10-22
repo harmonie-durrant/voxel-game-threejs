@@ -86,18 +86,22 @@ export class WorkbenchUI {
         mode: "workbench" | "crafting" = "workbench",
         isRefresh: boolean = false,
     ) {
-        if (player.uiShown) {
+        if (player.uiShown && !isRefresh) {
             WorkbenchUI.closeUI(player);
-            if (!isRefresh) return;
+            return;
         }
         WorkbenchUI.workbenchController.abort();
         WorkbenchUI.workbenchController = new AbortController();
+        const signal = WorkbenchUI.workbenchController.signal;
         const uiContainer = document.getElementById("ui-container");
         if (!uiContainer) {
             console.error("UI container not found");
             return;
         }
         uiContainer.classList.remove("hidden");
+        // Mark the UI as open before unlocking so the pause menu knows the unlock is intentional
+        player.uiShown = true;
+        player.controls.unlock();
         fetch("ui/workbench.html")
             .then((response) => {
                 if (!response.ok) {
@@ -106,11 +110,18 @@ export class WorkbenchUI {
                 return response.text();
             })
             .then((htmlContent) => {
-                if (!htmlContent) {
+                // The UI may have been closed or reopened while loading
+                if (!htmlContent || signal.aborted) {
                     return;
                 }
                 uiContainer.innerHTML = htmlContent;
-                player.uiShown = true;
+                document.getElementById("close-crafting-ui")?.addEventListener(
+                    "click",
+                    () => {
+                        WorkbenchUI.closeUI(player);
+                    },
+                    { signal },
+                );
                 const recipeList = document.getElementById("crafting-list");
                 if (!recipeList) {
                     toast.addNotification({
@@ -174,7 +185,6 @@ export class WorkbenchUI {
                     `;
                     recipeList.appendChild(recipeElement);
                 });
-                player.controls.unlock();
                 const craftingButtons = recipeList.querySelectorAll("button[data-recipe]");
                 craftingButtons.forEach((button) => {
                     button.addEventListener("click", (event) => {
@@ -206,16 +216,6 @@ export class WorkbenchUI {
                 uiContainer.innerHTML =
                     '<p class="m-0 mb-[25px] text-[0.8em] text-shadow-soft">Error loading content.</p>';
             });
-        const closeButton = document.getElementById("close-crafting-ui");
-        if (closeButton) {
-            closeButton.addEventListener(
-                "click",
-                () => {
-                    WorkbenchUI.closeUI(player);
-                },
-                { signal: WorkbenchUI.workbenchController.signal },
-            );
-        }
     }
 
     static closeUI(player: Player) {

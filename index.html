@@ -121,13 +121,54 @@
                 id="pause_menu"
                 class="hidden absolute inset-0 z-950 flex-col gap-6 items-center justify-center bg-black/40 text-white"
             >
-                <h2 class="m-0 text-5xl font-minecraft text-shadow-title">Game Paused</h2>
-                <button
-                    id="resume_game"
-                    class="pt-3 px-16 pb-1 text-3xl bg-ui-dark border-2 border-ui-light text-white font-minecraft cursor-pointer hover:bg-ui-light active:bg-ui-dark"
-                >
-                    Resume
-                </button>
+                <div id="pause_main" class="flex flex-col gap-6 items-center">
+                    <h2 class="m-0 text-5xl font-minecraft text-shadow-title">Game Paused</h2>
+                    <div class="flex flex-col gap-4 items-stretch">
+                        <button
+                            id="resume_game"
+                            class="pt-3 px-16 pb-1 text-3xl bg-ui-dark border-2 border-ui-light text-white font-minecraft cursor-pointer hover:bg-ui-light active:bg-ui-dark"
+                        >
+                            Resume
+                        </button>
+                        <button
+                            id="save_game"
+                            class="pt-3 px-16 pb-1 text-3xl bg-ui-dark border-2 border-ui-light text-white font-minecraft cursor-pointer hover:bg-ui-light active:bg-ui-dark"
+                        >
+                            Save
+                        </button>
+                        <button
+                            id="exit_to_menu"
+                            class="pt-3 px-16 pb-1 text-3xl bg-ui-dark border-2 border-ui-light text-white font-minecraft cursor-pointer hover:bg-ui-light active:bg-ui-dark"
+                        >
+                            Back to Main Menu
+                        </button>
+                    </div>
+                </div>
+                <div id="exit_confirm" class="hidden flex-col gap-6 items-center">
+                    <h2 class="m-0 text-5xl font-minecraft text-shadow-title">
+                        Save before exiting?
+                    </h2>
+                    <div class="flex flex-col gap-4 items-stretch">
+                        <button
+                            id="exit_save"
+                            class="pt-3 px-16 pb-1 text-3xl bg-ui-dark border-2 border-ui-light text-white font-minecraft cursor-pointer hover:bg-ui-light active:bg-ui-dark"
+                        >
+                            Save and Exit
+                        </button>
+                        <button
+                            id="exit_no_save"
+                            class="pt-3 px-16 pb-1 text-3xl bg-ui-dark border-2 border-ui-light text-white font-minecraft cursor-pointer hover:bg-ui-light active:bg-ui-dark"
+                        >
+                            Exit Without Saving
+                        </button>
+                        <button
+                            id="exit_cancel"
+                            class="pt-3 px-16 pb-1 text-3xl bg-ui-dark border-2 border-ui-light text-white font-minecraft cursor-pointer hover:bg-ui-light active:bg-ui-dark"
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                </div>
             </div>
             <div id="toolbar-container" class="fixed bottom-2 w-full flex justify-center">
                 <div

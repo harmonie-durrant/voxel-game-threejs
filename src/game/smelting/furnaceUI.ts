@@ -57,18 +57,22 @@ export class FurnaceUI {
     }
 
     static openUI(player: Player, isRefresh: boolean = false) {
-        if (player.uiShown) {
+        if (player.uiShown && !isRefresh) {
             FurnaceUI.closeUI(player);
-            if (!isRefresh) return;
+            return;
         }
         FurnaceUI.furnaceController.abort();
         FurnaceUI.furnaceController = new AbortController();
+        const signal = FurnaceUI.furnaceController.signal;
         const uiContainer = document.getElementById("ui-container");
         if (!uiContainer) {
             console.error("UI container not found");
             return;
         }
         uiContainer.classList.remove("hidden");
+        // Mark the UI as open before unlocking so the pause menu knows the unlock is intentional
+        player.uiShown = true;
+        player.controls.unlock();
         fetch("ui/furnace.html")
             .then((response) => {
                 if (!response.ok) {
@@ -77,11 +81,18 @@ export class FurnaceUI {
                 return response.text();
             })
             .then((htmlContent) => {
-                if (!htmlContent) {
+                // The UI may have been closed or reopened while loading
+                if (!htmlContent || signal.aborted) {
                     return;
                 }
                 uiContainer.innerHTML = htmlContent;
-                player.uiShown = true;
+                document.getElementById("close-furnace-ui")?.addEventListener(
+                    "click",
+                    () => {
+                        FurnaceUI.closeUI(player);
+                    },
+                    { signal },
+                );
                 const recipeList = document.getElementById("smelting-list");
                 if (!recipeList) {
                     toast.addNotification({
@@ -144,7 +155,6 @@ export class FurnaceUI {
                     `;
                     recipeList.appendChild(recipeElement);
                 });
-                player.controls.unlock();
                 const smeltingButtons = recipeList.querySelectorAll("button[data-recipe]");
                 smeltingButtons.forEach((button) => {
                     button.addEventListener("click", (event) => {
@@ -176,16 +186,6 @@ export class FurnaceUI {
                 uiContainer.innerHTML =
                     '<p class="m-0 mb-[25px] text-[0.8em] text-shadow-soft">Error loading content.</p>';
             });
-        const closeButton = document.getElementById("close-smelting-ui");
-        if (closeButton) {
-            closeButton.addEventListener(
-                "click",
-                () => {
-                    FurnaceUI.closeUI(player);
-                },
-                { signal: FurnaceUI.furnaceController.signal },
-            );
-        }
     }
 
     static closeUI(player: Player) {

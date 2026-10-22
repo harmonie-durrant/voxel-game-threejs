@@ -1,5 +1,5 @@
 import { Game } from "../game/game";
-import { soundController, toast } from "../main";
+import { openMainMenu, soundController, toast } from "../main";
 
 export class WorldCreation {
     game: Game | null = null;
@@ -65,5 +65,12 @@ export class WorldCreation {
     start_game(seed: number): void {
         this.game = new Game(false, seed);
         this.closeWorldCreationMenu();
+    }
+
+    exitToMainMenu(): void {
+        this.game?.dispose();
+        this.game = null;
+        openMainMenu();
+        soundController.playSound("sounds/main_menu_music.mp3");
     }
 }

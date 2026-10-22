@@ -123,4 +123,5 @@ export function createUI(
     createPlayerFolder(gui, player);
     createWorldFolder(gui, world, player);
     createResourcesFolder(gui, world);
+    return gui;
 }

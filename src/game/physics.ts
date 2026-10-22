@@ -16,11 +16,15 @@ const contactMaterial = new THREE.MeshBasicMaterial({
 });
 const contactGeometry = new THREE.SphereGeometry(0.05, 6, 6);
 
+type CollisionAxis = "horizontal" | "vertical";
+
 export class Physics {
     simulationRate: number = 250;
     timeStep: number = 1 / this.simulationRate;
     accumulator: number = 0;
     gravity: number = 32;
+    // Overlaps smaller than this count as touching, not colliding
+    contactTolerance: number = 0.001;
 
     // Item entity physics defaults
     itemGravity: number = 9.8;
@@ -41,8 +45,10 @@ export class Physics {
             this.helpers.clear();
             player.velocity.y -= this.gravity * this.timeStep;
             player.applyInputs(this.timeStep);
+            this.detectCollisions(player, world, "horizontal");
+            player.applyVerticalVelocity(this.timeStep);
+            this.detectCollisions(player, world, "vertical");
             player.updateBoundsHelper();
-            this.detectCollisions(player, world);
 
             // --- Item entity physics and merging ---
             // Gather all item entities
@@ -90,7 +96,7 @@ export class Physics {
             }
 
             // --- Player pickup logic ---
-            const pickupDistance = 2; // slightly larger than merge distance
+            const pickupDistance = 2.5;
             for (const item of itemEntities) {
                 if (
                     item.position.distanceTo(player.position) < pickupDistance &&
@@ -171,7 +177,7 @@ export class Physics {
         return candidates;
     }
 
-    narrowPhase(candidates: any[], player: Player) {
+    narrowPhase(candidates: any[], player: Player, axis: CollisionAxis) {
         const collisions: any[] = [];
 
         for (const block of candidates) {
@@ -191,13 +197,17 @@ export class Physics {
                 const overlapXZ = player.radius - Math.sqrt(dx ** 2 + dz ** 2);
 
                 let normal, overlap;
-                if (overlapY < overlapXZ) {
-                    normal = new THREE.Vector3(0, -Math.sign(dy), 0);
-                    overlap = overlapY;
-                    player.onGround = true;
-                } else {
+                if (axis === "horizontal") {
+                    // Ignore blocks only grazed vertically, like the floor being stood on
+                    if (overlapY < this.contactTolerance) continue;
                     normal = new THREE.Vector3(-dx, 0, -dz).normalize();
                     overlap = overlapXZ;
+                } else {
+                    // Ignore blocks only grazed horizontally, like a wall being walked into
+                    if (overlapXZ < this.contactTolerance) continue;
+                    normal = new THREE.Vector3(0, -Math.sign(dy), 0);
+                    overlap = overlapY;
+                    if (normal.y > 0) player.onGround = true;
                 }
 
                 collisions.push({
@@ -215,28 +225,24 @@ export class Physics {
 
     resolveCollisions(collisions: any[], player: Player) {
         collisions.sort((a, b) => {
-            return a.overlap < b.overlap ? -1 : 1;
+            return a.overlap > b.overlap ? -1 : 1;
         });
 
         for (const collision of collisions) {
             if (!this.pointInBoundingCylinder(collision.contactPoint, player)) continue;
 
-            let deltaPosition = collision.normal.clone();
-            deltaPosition.multiplyScalar(collision.overlap);
-            player.position.add(deltaPosition);
+            player.position.addScaledVector(collision.normal, collision.overlap);
 
-            let magnitude = player.velocity.dot(collision.normal);
-            let velocityAdjustment = collision.normal.clone();
-            velocityAdjustment.multiplyScalar(magnitude);
-
-            player.applyWorldDeltaVelocity(velocityAdjustment.negate());
+            if (collision.normal.y * player.velocity.y < 0) {
+                player.velocity.y = 0;
+            }
         }
     }
 
-    detectCollisions(player: Player, world: World) {
-        player.onGround = false;
+    detectCollisions(player: Player, world: World, axis: CollisionAxis) {
+        if (axis === "vertical") player.onGround = false;
         const candidates = this.broadPhase(player, world);
-        const collisions = this.narrowPhase(candidates, player);
+        const collisions = this.narrowPhase(candidates, player, axis);
 
         if (collisions.length > 0) {
             this.resolveCollisions(collisions, player);

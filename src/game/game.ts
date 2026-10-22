@@ -7,7 +7,8 @@ import { Physics } from "./physics";
 import { World } from "./world";
 import { ModelLoader } from "./modelLoader";
 import { interactableBlocks } from "./blocks";
-import { soundController } from "../main";
+import { soundController, worldcreation } from "../main";
+import type GUI from "lil-gui";
 
 export class Game {
     stats: Stats | null = null;
@@ -30,6 +31,11 @@ export class Game {
     cameraMode: String = "first-person";
 
     isLeftClick: boolean = false;
+
+    // Everything below is torn down in dispose() when returning to the main menu
+    abortController: AbortController = new AbortController();
+    animationFrameId: number | null = null;
+    gui: GUI | null = null;
 
     constructor(loadFromSave: boolean = false, seed: number = 0) {
         const gameContainer = document.getElementById("game_ui_container");
@@ -97,7 +103,7 @@ export class Game {
         this.sunHelper = new THREE.CameraHelper(this.sun.shadow.camera);
 
         this.setupLights();
-        createUI(this.scene, this.world, this.player, this.sunHelper, this.physics);
+        this.gui = createUI(this.scene, this.world, this.player, this.sunHelper, this.physics);
         this.animate();
         this.addEventListeners();
         this.setupPauseMenu();
@@ -133,7 +139,7 @@ export class Game {
         this.previousTime = currentTime;
         this.stats?.begin();
 
-        requestAnimationFrame(this.animate.bind(this));
+        this.animationFrameId = requestAnimationFrame(this.animate.bind(this));
 
         if (this.player?.controls.isLocked) {
             if (this.world) {
@@ -328,22 +334,93 @@ export class Game {
             pauseMenu.classList.replace("hidden", "flex");
         };
 
+        const signal = this.abortController.signal;
+        const exitToMainMenu = () => worldcreation.exitToMainMenu();
+
         this.player.controls.addEventListener("lock", () => {
             pauseMenu.classList.replace("flex", "hidden");
+            this.showExitConfirm(false);
         });
         this.player.controls.addEventListener("unlock", showPauseMenu);
         // Fires when the browser refuses to lock, e.g. clicking resume right after pressing escape
-        document.addEventListener("pointerlockerror", showPauseMenu);
+        document.addEventListener("pointerlockerror", showPauseMenu, { signal });
 
-        document.getElementById("resume_game")?.addEventListener("click", () => {
-            this.player?.controls.lock();
-        });
+        document.getElementById("resume_game")?.addEventListener(
+            "click",
+            () => {
+                this.player?.controls.lock();
+            },
+            { signal },
+        );
+        document.getElementById("save_game")?.addEventListener(
+            "click",
+            () => {
+                this.world?.save();
+            },
+            { signal },
+        );
+        document.getElementById("exit_to_menu")?.addEventListener(
+            "click",
+            () => {
+                this.showExitConfirm(true);
+            },
+            { signal },
+        );
+        document.getElementById("exit_save")?.addEventListener(
+            "click",
+            () => {
+                this.world?.save();
+                exitToMainMenu();
+            },
+            { signal },
+        );
+        document
+            .getElementById("exit_no_save")
+            ?.addEventListener("click", exitToMainMenu, { signal });
+        document.getElementById("exit_cancel")?.addEventListener(
+            "click",
+            () => {
+                this.showExitConfirm(false);
+            },
+            { signal },
+        );
+    }
+
+    showExitConfirm(show: boolean) {
+        const pauseMain = document.getElementById("pause_main");
+        const exitConfirm = document.getElementById("exit_confirm");
+        pauseMain?.classList.replace(show ? "flex" : "hidden", show ? "hidden" : "flex");
+        exitConfirm?.classList.replace(show ? "hidden" : "flex", show ? "flex" : "hidden");
     }
 
     addEventListeners() {
-        document.addEventListener("mousedown", this.onMouseDown.bind(this));
-        document.addEventListener("mouseup", this.onMouseUp.bind(this));
-        window.addEventListener("resize", this.onWindowResize.bind(this));
-        window.addEventListener("keydown", this.onKeyDown.bind(this));
+        const signal = this.abortController.signal;
+        document.addEventListener("mousedown", this.onMouseDown.bind(this), { signal });
+        document.addEventListener("mouseup", this.onMouseUp.bind(this), { signal });
+        window.addEventListener("resize", this.onWindowResize.bind(this), { signal });
+        window.addEventListener("keydown", this.onKeyDown.bind(this), { signal });
+    }
+
+    dispose() {
+        this.abortController.abort();
+        if (this.animationFrameId !== null) cancelAnimationFrame(this.animationFrameId);
+
+        this.player?.dispose();
+        this.world?.dispose();
+        this.controls?.dispose();
+        this.gui?.destroy();
+        this.stats?.dom.remove();
+
+        if (this.renderer) {
+            this.renderer.dispose();
+            // dispose() keeps the WebGL context alive, and browsers cap how many can exist
+            this.renderer.forceContextLoss();
+            this.renderer.domElement.remove();
+        }
+
+        soundController.stopAllSounds();
+        document.getElementById("pause_menu")?.classList.replace("flex", "hidden");
+        this.showExitConfirm(false);
+        document.getElementById("game_ui_container")?.classList.add("hidden");
     }
 }

@@ -83,26 +83,32 @@ export class World extends THREE.Group {
 
     player: Player | null = null;
 
+    abortController: AbortController = new AbortController();
+
     constructor(seed: number = 0) {
         super();
         this.loading = true;
         this.params.seed = seed;
         this.chunk = null;
 
-        document.addEventListener("keydown", (e) => {
-            switch (e.code) {
-                case "F1":
-                    e.preventDefault();
-                    e.stopPropagation();
-                    this.save();
-                    break;
-                case "F2":
-                    e.preventDefault();
-                    e.stopPropagation();
-                    this.load();
-                    break;
-            }
-        });
+        document.addEventListener(
+            "keydown",
+            (e) => {
+                switch (e.code) {
+                    case "F1":
+                        e.preventDefault();
+                        e.stopPropagation();
+                        this.save();
+                        break;
+                    case "F2":
+                        e.preventDefault();
+                        e.stopPropagation();
+                        this.load();
+                        break;
+                }
+            },
+            { signal: this.abortController.signal },
+        );
     }
 
     definePlayer(player: Player) {
@@ -264,7 +270,13 @@ export class World extends THREE.Group {
         // Add before generating so neighbours can find this chunk when refreshing their edges
         this.add(chunk);
         if (this.asyncLoading && !generateNow) {
-            requestIdleCallback(chunk.generate.bind(chunk), { timeout: 1000 });
+            requestIdleCallback(
+                () => {
+                    // Skip chunks removed before they got to generate, e.g. after leaving the game
+                    if (chunk.parent === this) chunk.generate();
+                },
+                { timeout: 1000 },
+            );
         } else {
             chunk.generate();
         }
@@ -350,6 +362,11 @@ export class World extends THREE.Group {
                 chunk.userData.z === chunkZ
             );
         }) as WorldChunk | undefined;
+    }
+
+    dispose() {
+        this.abortController.abort();
+        this.disposeChunks();
     }
 
     disposeChunks() {
